@@ -5,7 +5,7 @@
 
 {% block content %}
     <form role="form" action="{% url 'submit' %}" class="form" method="post">
-    {% csrf_token %}
+        {% csrf_token %}
         <table class="table table-striped">
             <thead>
             <tr>
@@ -13,17 +13,29 @@
                 {% for port in ports %}
                     <th>
                         {{ port.name }}
+                        <input type="checkbox" hidden name="names" checked value="{{ port.name }}">
                     </th>
                 {% endfor %}
             </tr>
             </thead>
             <tbody>
             <tr>
-                <th scope="row">Tagowany</th>
+                <th scope="row">Enabled</th>
                 {% for port in ports %}
                     <td class="{{ port.className }}">
-                        <input type="checkbox" hidden name="names" checked value="{{ port.name }}">
-                        <input type="checkbox" name="enabled-ports" value="{{ port.name }}">
+                        <input
+                                type="checkbox"
+                                name="enabled-ports"
+                                value="{{ port.name }}"
+                                {% if port.enabledBooleanField %}checked{% endif %}>
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th scope="row">Tagged</th>
+                {% for port in ports %}
+                    <td>
+                        <input type="checkbox" name="tagged-ports" value="{{ port.name }}">
                     </td>
                 {% endfor %}
             </tr>
