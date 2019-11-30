@@ -1,38 +1,17 @@
-import os
 import re
-
-import json
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
-
-# Create your views here.
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 
+from Services.InterfaceServices import IInterfaceServices
 from switch.models import Port, Interfaces, InterfacesConfig, get_ports_from_config, save_ports
+from Services.ServiceFactory import factory
 
 
 def index(request):
-    ports = []
-    is_initial_config = True
-
-    initial_config_content = ''
-
-    with open(InterfacesConfig.initial_config_path) as initial_config:
-        for line in initial_config:
-            initial_config_content += line
-
-    with open(InterfacesConfig.interface_config_path) as config:
-        for idx, line in enumerate(config):
-            if idx == 0 and re.search('#custom-ethernet-config', line):
-                is_initial_config = False
-                break
-
-    ports = get_ports_from_config(initial_config_content)
-    save_ports(ports)
-
-    if is_initial_config:
-        with open(InterfacesConfig.initial_config_path, 'w+') as defaultConfig:
-            defaultConfig.write(content)
+    interface_service: IInterfaceServices = factory.create('IInterfaceServices')
+    interfaces = interface_service.get_all_interfaces()
+    ports = [Port(interface) for interface in interfaces]
 
     context = {
         'content': 'Hello',

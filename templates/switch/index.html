@@ -1,55 +1,59 @@
 {% extends 'switch/base.html' %}
-{% load bootstrap4 %}
 
 {% block title %}{{ title }}{% endblock %}
-
 {% block content %}
     <form role="form" action="{% url 'submit' %}" class="form" method="post">
         {% csrf_token %}
         <table class="table table-striped">
             <thead>
             <tr>
-                <th scope="col">Porty</th>
-                {% for port in ports %}
-                    <th>
-                        {{ port.name }}
-                        <input type="checkbox" hidden name="names" checked value="{{ port.name }}">
-                    </th>
-                {% endfor %}
+                <th>Ports</th>
+                <th>Enabled</th>
+                <th>Tagged</th>
+                <th>VLAN</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-                <th scope="row">Enabled</th>
                 {% for port in ports %}
-                    <td class="{{ port.className }}">
-                        <input
-                                type="checkbox"
-                                name="enabled-ports"
-                                value="{{ port.name }}"
-                                {% if port.enabledBooleanField %}checked{% endif %}>
-                    </td>
+                    <tr>
+                        <td>
+                            {{ port.name }}
+                            <input type="checkbox" hidden name="names" checked value="{{ port.name }}">
+                        </td>
+                        <td class="{{ port.className }}">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox"
+                                       id="custom-switch-enabled-{{ forloop.counter }}"
+                                       class="form-check-input"
+                                       name="enabled-ports-{{ port.name }}"
+                                       value="{{ port.name }}"/>
+{#                                       {% if port.enabledBooleanField %}checked{% endif %}>#}
+                                <label class="custom-control-label" for="custom-switch-enabled-{{ forloop.counter }}"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox"
+                                       id="customSwitch1-{{ forloop.counter }}"
+                                       class="custom-control-input"
+                                       name="tagged-ports-{{ port.name }}"
+                                       value="{{ port.name }}">
+                                <label class="custom-control-label" for="customSwitch1-{{ forloop.counter }}"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input type="number" class="form-control"
+                                       name="port-{{ port.name }}-value"
+                                       value="{{ port.value }}">
+                            </div>
+                        </td>
+                    </tr>
                 {% endfor %}
-            </tr>
-            <tr>
-                <th scope="row">Tagged</th>
-                {% for port in ports %}
-                    <td>
-                        <input type="checkbox" name="tagged-ports" value="{{ port.name }}">
-                    </td>
-                {% endfor %}
-            </tr>
-            <tr>
-                <th scope="row">VLAN</th>
-                {% for port in ports %}
-                    <td>
-                        <input type="number" name="port-{{ port.name }}-value" value="{{ port.value }}">
-                    </td>
-                {% endfor %}
-            </tr>
             </tbody>
         </table>
-        {% bootstrap_button "Apply" button_type="submit" button_class="btn-primary" %}
+        <button type="submit" class="btn btn-primary">Apply</button>
     </form>
 
 {% endblock %}

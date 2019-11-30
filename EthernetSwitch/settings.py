@@ -12,6 +12,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+# Dependency injection
+from Services.InterfaceServices import IBashPipeCommandBuilder, BashPipeCommandBuilder, InterfaceServices, \
+    IInterfaceServices
+from Services.ServiceFactory import factory
+
+factory.register('IBashPipeCommandBuilder', BashPipeCommandBuilder)
+factory.register('IInterfaceServices', InterfaceServices)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,7 +37,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'bootstrap4',
+    'bootstrap',
+    'fontawesome',
+    'django_static_jquery',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

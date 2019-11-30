@@ -1,8 +1,9 @@
-{% extends 'switch/bootstrap.html' %}
-
-{% load bootstrap4 %}
-
-{% block bootstrap4_content %}
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <script defer src="{% static 'fontawesome/js/all.min.js' %}"></script>
+</head>
+<body>
     <div class="container">
         <h1>{% block title %}(no title){% endblock %}</h1>
 
@@ -10,9 +11,6 @@
             <a href="{% url 'index' %}">home</a>
         </p>
 
-        {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
-
         {% block content %}(no content){% endblock %}
     </div>
-
-{% endblock %}
+</body>

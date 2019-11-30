@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from json import JSONEncoder
 from typing import List
 
 from django.db import models
@@ -24,22 +25,27 @@ class Port:
     def className(self):
         return 'table-success' if self.enabled else 'table-danger'
 
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=1)
+
 
 def get_ports_from_config(config: str) -> List[Port]:
+    ports = []
     matches = re.findall(r'(auto eth([0-9]+)\n)?iface (eth([0-9]+)) .*(\n\W+[a-z 0-9.]+)*', config)
 
     if matches:
         for match in matches:
-            name = re.search(r'iface (\w+)', match).group(1)
-            yield Port(name)
+            name = match[2]
+            ports.append(Port(name));
 
-    return []
+    return ports
 
 
 def save_ports(ports: List[Port]):
-    dumps = json.dumps(ports)
+    content = json.dumps([port.toJSON() for port in ports])
     stream = open(InterfacesConfig.ports_array_path, 'w+')
-    stream.write(dumps)
+    stream.write(content)
     stream.close()
 
 
