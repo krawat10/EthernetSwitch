@@ -1,3 +1,4 @@
+netifaces
 pyroute2
 psutil
 ipdb

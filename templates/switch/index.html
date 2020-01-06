@@ -1,4 +1,4 @@
-{% extends 'switch/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
@@ -24,28 +24,30 @@
                         <td class="{{ port.className }}">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox"
-                                       id="custom-switch-enabled-{{ forloop.counter }}"
-                                       class="form-check-input"
-                                       name="enabled-ports-{{ port.name }}"
-                                       value="{{ port.name }}"/>
-{#                                       {% if port.enabledBooleanField %}checked{% endif %}>#}
+                                       id="enabled-checkbox-{{ forloop.counter }}"
+                                       class="custom-control-input"
+                                       name="enabled-ports"
+                                       value="{{ port.name }}"
+                                       {% if port.enabled %}checked{% endif %} />
                                 <label class="custom-control-label" for="custom-switch-enabled-{{ forloop.counter }}"></label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox"
-                                       id="customSwitch1-{{ forloop.counter }}"
-                                       class="custom-control-input"
-                                       name="tagged-ports-{{ port.name }}"
-                                       value="{{ port.name }}">
-                                <label class="custom-control-label" for="customSwitch1-{{ forloop.counter }}"></label>
+                              <input
+                                      type="checkbox"
+                                      id="tagged-checkbox-{{ forloop.counter }}"
+                                      class="custom-control-input"
+                                      name="tagged-ports"
+                                      value="{{ port.name }}"
+                                      {% if port.tagged %}checked{% endif %}>
+                              <label class="custom-control-label" for="tagged-checkbox-{{ forloop.counter }}"></label>
                             </div>
                         </td>
                         <td>
                             <div class="form-group">
                                 <input type="number" class="form-control"
-                                       name="port-{{ port.name }}-value"
+                                       name="{{ port.name }}-value"
                                        value="{{ port.value }}">
                             </div>
                         </td>

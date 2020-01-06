@@ -12,14 +12,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-# Dependency injection
-from Services.InterfaceServices import IBashPipeCommandBuilder, BashPipeCommandBuilder, InterfaceServices, \
-    IInterfaceServices
-from Services.ServiceFactory import factory
-
-factory.register('IBashPipeCommandBuilder', BashPipeCommandBuilder)
-factory.register('IInterfaceServices', InterfaceServices)
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,6 +29,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'authorization.apps.AuthorizationConfig',
+    'switch.apps.SwitchConfig',
     'bootstrap',
     'fontawesome',
     'django_static_jquery',
@@ -124,3 +118,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Dependency injection
+# from switch.services.InterfaceServices import InterfaceServices
+# from switch.services.BashPipeCommandBuilder import BashPipeCommandBuilder
+# from EthernetSwitch.ServiceFactory import factory
+#
+# factory.register('IBashPipeCommandBuilder', BashPipeCommandBuilder)
+# factory.register('IInterfaceServices', InterfaceServices)
