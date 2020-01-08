@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'switch.apps.SwitchConfig',
     'bootstrap',
     'fontawesome',
+    'django_injector',
     'django_static_jquery',
     'django.contrib.admin',
     'django.contrib.auth',
