@@ -1,4 +1,4 @@
-#!C:\Users\krawa\source\repos\EthernetSwitch\venv\Scripts\python.exe
+#!D:\repos\EthernetSwitch\venv\Scripts\python.exe
 from django.core import management
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!C:\Users\krawa\source\repos\EthernetSwitch\venv\Scripts\python.exe
+#!D:\repos\EthernetSwitch\venv\Scripts\python.exe
 import json
 import argparse
 from pyroute2 import Console
