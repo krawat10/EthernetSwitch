@@ -26,14 +26,16 @@ class InterfaceServices(IInterfaceServices):
         return ports
 
     def get_default_iface_name(self) -> str:
-        return netifaces.gateways()['default'][netifaces.AF_INET][1]
+        return 'sadasdasd'
+        #return netifaces.gateways()['default'][netifaces.AF_INET][1]
 
     def apply_ports_settings(self, ports: List[Port]):
         for old_bridge in self.network_services.get_bridges():
             self.network_services.delete_bridge(old_bridge)
 
         for new_bridge in list(set([port.value for port in ports])):
-            self.network_services.create_bridge(new_bridge)
+            if(new_bridge > 0):
+                self.network_services.create_bridge(new_bridge)
 
         for port in ports:
             if port.enabled:
@@ -49,10 +51,11 @@ class InterfaceServices(IInterfaceServices):
         interfaces = self.get_all_interfaces()
         default = self.get_default_iface_name()
 
-        if 'lo' in interfaces:
-            interfaces.remove('lo')
+        other_interfaces: List[Port] = []
 
-        if default in interfaces:
-            interfaces.remove(default)
+        for interface in interfaces:
+            if interface.name == 'lo': continue
+            if interface.name == default: continue
+            other_interfaces.append(interface)
 
-        return interfaces
+        return other_interfaces

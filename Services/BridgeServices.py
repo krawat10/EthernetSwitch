@@ -13,21 +13,19 @@ class BridgeServices(IBridgeServices):
         self.cmd = command_builder
 
     def create_bridge(self, name: str) -> bool:
-        self.cmd.begin().command(f'ip link add name {name} type bridge').execute()
+        self.cmd.execute(f'ip link add name {name} type bridge')
 
-        self.cmd \
-            .begin() \
-            .command(f'ip link set {name} up') \
-            .execute()
+        self.cmd.execute(f'ip link set {name} up')
+            
 
         return True
 
     def up_port(self, port: Port):
-        self.cmd.begin().command(f'ip link set {port.name} up').execute()
+        (out, err, exit_code) = self.cmd.execute(f'ip link set {port.name} up')
         port.enabled = True
 
     def down_port(self, port: Port):
-        self.cmd.begin().command(f'ip link set {port.name} down').execute()
+        self.cmd.execute(f'ip link set {port.name} down')
         port.enabled = False
 
     def set_tagged_port(self, port: Port):
@@ -37,26 +35,24 @@ class BridgeServices(IBridgeServices):
         if not port.enabled:
             raise AttributeError(f'Port {port.name} is down')
 
-        self.cmd.begin().command(f'ip link set {port.name} master {port.value}').execute()
+        self.cmd.execute(f'ip link set {port.name} master {port.value}')
 
     def set_port_not_tagged(self, port: Port):
-        if not port.tagged:
+        if port.tagged:
             raise AttributeError(f'Port {port.name} is still tagged')
 
         if not port.enabled:
             raise AttributeError(f'Port {port.name} is down')
 
-        self.cmd.begin().command(f'ip link set {port.name} nomaster').execute()
+        self.cmd.execute(f'ip link set {port.name} nomaster')
 
     def delete_bridge(self, name):
-        self.cmd.begin().command(f'ip link delete {name} type bridge').execute()
+        self.cmd.execute(f'ip link delete {name} type bridge')
 
     def get_bridges(self) -> List[str]:
-        out = self.cmd \
-            .begin() \
-            .command('brctl show') \
-            .command("awk 'NF>1 && NR>1 {print $1}' ") \
-            .execute()
+        (out, err, exit_code) = self.cmd.execute("bridge link | sed -n '2,$ {s/ .*//; /./p}'")
 
-        for name in out:
-            yield name
+        for line in out:
+            bridge = line.strip()
+            if(bridge.isdecimal()):
+                yield int(bridge)

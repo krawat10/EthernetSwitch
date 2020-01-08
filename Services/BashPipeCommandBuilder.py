@@ -1,30 +1,31 @@
 from __future__ import annotations
 
-import subprocess
-from shlex import split
+from subprocess import PIPE, Popen
 from typing import List, Tuple
 
-from psutil import Popen
+import shlex
 
 from Services.IBashPipeCommandBuilder import IBashPipeCommandBuilder
 
 
 class BashPipeCommandBuilder(IBashPipeCommandBuilder):
-    in_command: subprocess = None
-
-    def begin(self) -> IBashPipeCommandBuilder:
-        self.in_command = None
-        return self
-
-    def command(self, *command: List[str]) -> IBashPipeCommandBuilder:
-        if self.in_command is None:
-            p1 = Popen(split(command), stdout=subprocess.PIPE)
+    def execute(self, cmd: str) -> Tuple[str, str, int]:
+        if "|" in cmd:    
+          cmd_parts = cmd.split('|')
         else:
-            p1 = Popen(command, stdin=self.in_command, stdout=subprocess.PIPE)
+          cmd_parts = []
+          cmd_parts.append(cmd)
+        i = 0
+        p = {}
+        for cmd_part in cmd_parts:
+          cmd_part = cmd_part.strip()
+          if i == 0:
+            p[i]=Popen(shlex.split(cmd_part),stdin=None, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+          else:
+            p[i]=Popen(shlex.split(cmd_part),stdin=p[i-1].stdout, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+          i = i +1
 
-        self.in_command = p1
-        return self
+        (output, err) = p[i-1].communicate()
+        exit_code = p[0].wait()     
+        return str(output), str(err), exit_code
 
-    def execute(self) -> Tuple[str, str]:
-        stdout, _ = self.in_command.communicate()
-        return stdout, _

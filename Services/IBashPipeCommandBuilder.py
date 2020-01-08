@@ -6,10 +6,4 @@ from typing import Tuple
 
 class IBashPipeCommandBuilder(ABC):
     @abstractmethod
-    def begin(self) -> IBashPipeCommandBuilder: raise NotImplementedError
-
-    @abstractmethod
-    def command(self, command: str) -> IBashPipeCommandBuilder: raise NotImplementedError
-
-    @abstractmethod
-    def execute(self) -> Tuple[str, str]: raise NotImplementedError
+    def execute(self, cmd: str) -> Tuple[str, str, int]: raise NotImplementedError
