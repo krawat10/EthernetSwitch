@@ -4,7 +4,7 @@ psutil
 django_injector
 ipdb
 beautifulsoup4==4.8.1
-Django==2.2.7
+Django==2.2.8
 django-bootstrap-static==4.2.1
 pytz==2019.3
 soupsieve==1.9.5
