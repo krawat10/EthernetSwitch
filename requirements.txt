@@ -1,5 +1,7 @@
+netifaces
 pyroute2
 psutil
+django_injector
 ipdb
 beautifulsoup4==4.8.1
 Django==2.2.7

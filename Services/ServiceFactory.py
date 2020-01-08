@@ -8,4 +8,5 @@ class ServiceFactory:
     def create(self, name, *args, **kwargs):
         return self.__services[name](*args, **kwargs)
 
+
 factory = ServiceFactory()

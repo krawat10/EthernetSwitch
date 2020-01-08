@@ -2,14 +2,14 @@ import re
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django_injector import request_scope
+from django_injector import inject
+from Services import InterfaceServices
+from switch.models import Port, Interfaces, InterfacesConfig
 
-from Services.InterfaceServices import IInterfaceServices
-from switch.models import Port, Interfaces, InterfacesConfig, get_ports_from_config, save_ports
-from Services.ServiceFactory import factory
 
-
-def index(request):
-    interface_service: IInterfaceServices = factory.create('IInterfaceServices')
+@inject
+def index(request, interface_service: InterfaceServices):
     interfaces = interface_service.get_all_interfaces()
     ports = [Port(interface) for interface in interfaces]
 

@@ -13,8 +13,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Dependency injection
-from Services.InterfaceServices import IBashPipeCommandBuilder, BashPipeCommandBuilder, InterfaceServices, \
+from Services.InterfaceServices import IBashPipeCommandBuilder, InterfaceServices, \
     IInterfaceServices
+from Services.BashPipeCommandBuilder import BashPipeCommandBuilder
 from Services.ServiceFactory import factory
 
 factory.register('IBashPipeCommandBuilder', BashPipeCommandBuilder)
