@@ -21,7 +21,7 @@
                             {{ port.name }}
                             <input type="checkbox" hidden name="names" checked value="{{ port.name }}">
                         </td>
-                        <td class="{{ port.className }}">
+                        <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox"
                                        id="enabled-checkbox-{{ forloop.counter }}"
@@ -29,7 +29,7 @@
                                        name="enabled-ports"
                                        value="{{ port.name }}"
                                        {% if port.enabled %}checked{% endif %} />
-                                <label class="custom-control-label" for="custom-switch-enabled-{{ forloop.counter }}"></label>
+                                <label class="custom-control-label" for="enabled-checkbox-{{ forloop.counter }}"></label>
                             </div>
                         </td>
                         <td>
