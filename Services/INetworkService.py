@@ -1,27 +1,27 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from switch.models import Port
+from switch.models import Interface
 
 
 class IBridgeServices(ABC):
     @abstractmethod
-    def up_port(self, port: Port): raise NotImplementedError
+    def up_interface(self, interface: Interface): raise NotImplementedError
 
     @abstractmethod
-    def down_port(self, port: Port): raise NotImplementedError
-
-    @abstractmethod
-    def create_bridge(self, name: str) -> bool: raise NotImplementedError
+    def down_interface(self, interface: Interface): raise NotImplementedError
 
     @abstractmethod
     def create_bridge(self, name: str) -> bool: raise NotImplementedError
 
     @abstractmethod
-    def set_tagged_port(self, port: Port) -> bool: raise NotImplementedError
+    def create_bridge(self, name: str) -> bool: raise NotImplementedError
 
     @abstractmethod
-    def set_port_not_tagged(self, port: Port) -> bool: raise NotImplementedError
+    def set_tagged_interface(self, interface: Interface) -> bool: raise NotImplementedError
+
+    @abstractmethod
+    def set_interface_not_tagged(self, interface: Interface) -> bool: raise NotImplementedError
 
     @abstractmethod
     def delete_bridge(self, name) -> bool: raise NotImplementedError

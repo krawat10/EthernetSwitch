@@ -6,11 +6,11 @@ import netifaces
 import psutil
 from django_injector import inject
 from Services.BridgeServices import BridgeServices
-from Services.IInterfaceServices import IInterfaceServices
+from Services.IInterfaceService import IInterfaceService
 from switch.models import Port
 
 
-class InterfaceServices(IInterfaceServices):
+class InterfaceService(IInterfaceService):
 
     @inject
     def __init__(self, network_services: BridgeServices):
