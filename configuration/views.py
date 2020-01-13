@@ -18,7 +18,7 @@ def index(request, interface_service: InterfaceService):
     else:
         hidden_interface_names: List[str] = [interface.name for interface in HiddenInterfaces.objects.all()]
         users = User.objects.all()
-        settings: Settings = Settings.objects.get_or_create()
+        settings, creates = Settings.objects.get_or_create()
         interfaces = interface_service.get_all_interfaces()
 
         for interface in interfaces:
