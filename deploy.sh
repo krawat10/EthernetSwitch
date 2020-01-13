@@ -7,4 +7,4 @@ sudo pip3 install virtualenv
 sudo pip3 install -r requirements.txt
 sudo virtualenv env
 . env/bin/activate
-sudo python3 manage.py runserver 0:80
+sudo python3 manage.py runserver 0:997

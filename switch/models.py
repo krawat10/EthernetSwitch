@@ -5,26 +5,33 @@ from typing import List
 from django.db import models
 
 
-class Port(models.Model):
+class Interface(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30)
     value = models.IntegerField(default=0)
     tagged = models.BooleanField(default=False)
     enabled = models.BooleanField(default=True)
+    __hidden__: bool = False
+
+    def hide(self) -> bool:
+        self.__hidden__ = False
+
+    def is_hidden(self) -> bool:
+        return self.__hidden__
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=1)
 
 
-def get_ports_from_config(config: str) -> List[Port]:
+def get_ports_from_config(config: str) -> List[Interface]:
     ports = []
     matches = re.findall(r'(auto eth([0-9]+)\n)?iface (eth([0-9]+)) .*(\n\W+[a-z 0-9.]+)*', config)
 
     if matches:
         for match in matches:
             name = match[2]
-            ports.append(Port(name));
+            ports.append(Interface(name));
 
     return ports
 

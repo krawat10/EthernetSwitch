@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'authorization.apps.AuthorizationConfig',
     'switch.apps.SwitchConfig',
+    'configuration.apps.ConfigurationConfig',
     'bootstrap',
     'fontawesome',
     'django_injector',

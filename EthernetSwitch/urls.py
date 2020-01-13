@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 import authorization
+from configuration import views
 from authorization.views import login_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', authorization.views.login_view, name='login'),
+    path('configuration/', views.index, name='configuration'),
     path('', include('switch.urls'))
 ]
