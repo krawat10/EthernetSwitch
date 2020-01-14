@@ -1,5 +1,6 @@
 netifaces
 pyroute2
+django-crispy-forms
 psutil
 django_injector
 ipdb

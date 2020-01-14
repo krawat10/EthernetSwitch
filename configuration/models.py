@@ -1,11 +1,10 @@
 from django.db import models
 
 
-# Create your models here.
 class Settings(models.Model):
-    allow_anonymous: bool = False
-    allow_bridges: bool = True
+    allow_anonymous = models.BooleanField(default=False)
+    allow_bridges = models.BooleanField(default=True)
 
 
-class HiddenInterfaces(models.Model):
-    name: str = ''
+class HiddenInterface(models.Model):
+    name = models.CharField(max_length=30, default='')
