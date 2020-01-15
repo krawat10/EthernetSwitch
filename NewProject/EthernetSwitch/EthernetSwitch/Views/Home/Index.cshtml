@@ -11,7 +11,7 @@
         <thead>
         <tr>
             <th> @Html.DisplayNameFor(model => model.Interfaces[0].Name)</th>
-            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Enabled)</th>
+            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Status)</th>
             <th> @Html.DisplayNameFor(model => model.Interfaces[0].Hidden)</th>
             <th> @Html.DisplayNameFor(model => model.Interfaces[0].Tagged)</th>
             <th> Virtual Lans</th>
@@ -27,7 +27,7 @@
                         @Html.DisplayFor(model => @interface.Name)
                     </td>
                     <td>
-                        @Html.DisplayFor(model => @interface.Enabled)
+                        @Html.DisplayFor(model => @interface.Status)
                     </td>
                     <td>
                         @Html.DisplayFor(model => @interface.Hidden)

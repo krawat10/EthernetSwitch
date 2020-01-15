@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -33,22 +34,35 @@ namespace EthernetSwitch.Controllers
                 .CreateMany(10)
                 .ToList();
 
-            var exampleCommand = _bashCommand.Execute("ls");
+            var viewModel = new IndexViewModel();
 
-            return View(_fixture.Build<IndexViewModel>()
-                .With(model => model.Interfaces, interfaceViewModels)
-                .With(model => model.CommadOutput, exampleCommand).Create());
+            foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                viewModel.Interfaces
+                    .Add(new InterfaceViewModel
+                    {
+                        Name = networkInterface.Name,
+                        Status = networkInterface.OperationalStatus.ToString()
+                    });
+            }
+
+            viewModel.CommadOutput = _bashCommand.Execute("ls");
+
+            return View(viewModel);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
-        }
+    public IActionResult Privacy()
+    {
+    return View();
     }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+    return View(new ErrorViewModel {
+        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+    });
+    }
+}
+
 }
