@@ -5,7 +5,7 @@ namespace EthernetSwitch.ViewModels
     public class InterfaceViewModel
     {
         public string Name { get; set; }
-        public IList<VirtualLanViewModel> VirtualLans { get; set; } = new List<VirtualLanViewModel>();
+        public IList<VirtualLANViewModel> VirtualLANs { get; set; } = new List<VirtualLANViewModel>();
         public bool Tagged { get; set; } = false;
         public string Status { get; set; }
         public bool Hidden { get; set; } = false;
@@ -17,11 +17,5 @@ namespace EthernetSwitch.ViewModels
                 "down" => "danger",
                 _ => "warning"
             };
-    }
-
-    public class VirtualLanViewModel
-    {
-        public int Name { get; set; }
-        public string Status { get; set; }
     }
 }

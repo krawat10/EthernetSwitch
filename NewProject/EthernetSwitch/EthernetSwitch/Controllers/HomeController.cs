@@ -55,6 +55,15 @@ namespace EthernetSwitch.Controllers
         {
             var model = viewModel;
 
+            if (viewModel.Status == "UP")
+            {
+                _bashCommand.Execute($"interface up {viewModel.Name}");
+            }
+            else
+            {
+                _bashCommand.Execute($"interface up {viewModel.Name}");
+            }
+
             return RedirectToAction("Index");
         }
 

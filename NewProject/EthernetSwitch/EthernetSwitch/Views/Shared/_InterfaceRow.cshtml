@@ -19,9 +19,9 @@
         </td>
         <td>
             <table>
-                <input asp-for="VirtualLans" type="hidden"/>
+                <input asp-for="VirtualLANs" type="hidden"/>
 
-                @foreach (var virtualLan in Model.VirtualLans)
+                @foreach (var virtualLan in Model.VirtualLANs)
                 {
                     <tr>
                         <td>@Html.DisplayFor(model => virtualLan.Name)</td>
