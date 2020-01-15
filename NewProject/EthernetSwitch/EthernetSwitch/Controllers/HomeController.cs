@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using EthernetSwitch.Extensions;
 using EthernetSwitch.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -28,22 +29,19 @@ namespace EthernetSwitch.Controllers
 
         public IActionResult Index()
         {
-            var interfaceViewModels = _fixture
-                .Build<InterfaceViewModel>()
-                .With(model => model.VirtualLans, _fixture.CreateMany<VirtualLanViewModel>(3).ToList())
-                .CreateMany(10)
-                .ToList();
-
             var viewModel = new IndexViewModel();
 
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
-                viewModel.Interfaces
-                    .Add(new InterfaceViewModel
-                    {
-                        Name = networkInterface.Name,
-                        Status = networkInterface.OperationalStatus.ToString()
-                    });
+                if (networkInterface.IsEthernet())
+                {
+                    viewModel.Interfaces
+                        .Add(new InterfaceViewModel
+                        {
+                            Name = networkInterface.Name,
+                            Status = networkInterface.OperationalStatus.ToString()
+                        });
+                }
             }
 
             viewModel.CommadOutput = _bashCommand.Execute("ls");
