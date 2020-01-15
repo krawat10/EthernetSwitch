@@ -1,9 +1,51 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
+@model EthernetSwitch.ViewModels.IndexViewModel
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    some
+    <h1 class="display-4">Ethernet Switch</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Name)</th>
+            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Enabled)</th>
+            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Hidden)</th>
+            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Tagged)</th>
+            <th> Virtual Lans</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var @interface in Model.Interfaces)
+        {
+            if (!@interface.Hidden)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => @interface.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => @interface.Enabled)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => @interface.Hidden)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => @interface.Tagged)
+                    </td>
+                    <td>
+                        <table >
+                            @foreach (var virtualLan in @interface.VirtualLans)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(model => virtualLan.Name)</td>
+                                </tr>
+                            }
+                        </table>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
 </div>
