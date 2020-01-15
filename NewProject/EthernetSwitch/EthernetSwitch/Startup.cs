@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EthernetSwitch.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,6 +30,7 @@ namespace EthernetSwitch
         {
             services.AddControllersWithViews();
             services.AddSingleton<IFixture, Fixture>();
+            services.AddSingleton<IBashCommand, BashCommand>();
 
             if (Env.IsDevelopment())
             {
