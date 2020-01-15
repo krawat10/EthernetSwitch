@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Ploeh.AutoFixture;
 
@@ -15,13 +18,12 @@ namespace EthernetSwitch
 {
     public class Startup
     {
-        
-
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Env = env;
             Configuration = configuration;
         }
+
         public IWebHostEnvironment Env;
         public IConfiguration Configuration { get; }
 
@@ -38,7 +40,6 @@ namespace EthernetSwitch
                     .AddRazorPages()
                     .AddRazorRuntimeCompilation();
             }
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,7 +57,15 @@ namespace EthernetSwitch
                 // app.UseHsts(); // HTTPS setting
             }
             // app.UseHttpsRedirection(); // HTTPS setting
-            app.UseStaticFiles();
+
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".css"] = "text/css";
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+                ContentTypeProvider = provider
+            });
+
 
             app.UseRouting();
 
