@@ -4,9 +4,7 @@
 @model EthernetSwitch.ViewModels.IndexViewModel
 <div class="text-center">
     <h1 class="display-4">Ethernet Switch</h1>
-    
-    <p>Example command output: @Model.CommadOutput</p>
-
+    <br/>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -15,6 +13,7 @@
             <th> @Html.DisplayNameFor(model => model.Interfaces[0].Hidden)</th>
             <th> @Html.DisplayNameFor(model => model.Interfaces[0].Tagged)</th>
             <th> Virtual Lans</th>
+            <th> Operations</th>
         </tr>
         </thead>
         <tbody>
@@ -22,30 +21,7 @@
         {
             if (!@interface.Hidden)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(model => @interface.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(model => @interface.Status)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(model => @interface.Hidden)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(model => @interface.Tagged)
-                    </td>
-                    <td>
-                        <table >
-                            @foreach (var virtualLan in @interface.VirtualLans)
-                            {
-                                <tr>
-                                    <td>@Html.DisplayFor(model => virtualLan.Name)</td>
-                                </tr>
-                            }
-                        </table>
-                    </td>
-                </tr>
+                <partial name="_InterfaceRow" model="@(@interface)"/>
             }
         }
         </tbody>

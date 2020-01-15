@@ -39,28 +39,37 @@ namespace EthernetSwitch.Controllers
                         .Add(new InterfaceViewModel
                         {
                             Name = networkInterface.Name,
-                            Status = networkInterface.OperationalStatus.ToString()
+                            Status = networkInterface.OperationalStatus.ToString(),
                         });
+                    var physicalAddress = networkInterface.GetPhysicalAddress();
+                    var ipInterfaceStatistics = networkInterface.GetIPStatistics();
                 }
             }
 
-            viewModel.CommadOutput = _bashCommand.Execute("ls");
+            _bashCommand.Execute("ls");
 
             return View(viewModel);
         }
 
-    public IActionResult Privacy()
-    {
-    return View();
-    }
+        public IActionResult Edit(InterfaceViewModel viewModel)
+        {
+            var model = viewModel;
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-    return View(new ErrorViewModel {
-        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-    });
-    }
-}
+            return RedirectToAction("Index");
+        }
 
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
+        }
+    }
 }

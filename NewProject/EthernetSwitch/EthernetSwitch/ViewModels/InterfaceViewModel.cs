@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net.NetworkInformation;
 
 namespace EthernetSwitch.ViewModels
 {
@@ -8,8 +7,16 @@ namespace EthernetSwitch.ViewModels
         public string Name { get; set; }
         public IList<VirtualLanViewModel> VirtualLans { get; set; } = new List<VirtualLanViewModel>();
         public bool Tagged { get; set; } = false;
-        public string Status { get; set; } 
+        public string Status { get; set; }
         public bool Hidden { get; set; } = false;
+
+        public string StatusClass =>
+            Status.ToLower() switch
+            {
+                "up" => "success",
+                "down" => "danger",
+                _ => "warning"
+            };
     }
 
     public class VirtualLanViewModel

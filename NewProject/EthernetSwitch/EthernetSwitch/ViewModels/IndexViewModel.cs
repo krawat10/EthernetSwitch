@@ -5,6 +5,5 @@ namespace EthernetSwitch.ViewModels
     public class IndexViewModel
     {
         public IList<InterfaceViewModel> Interfaces { get; set; } = new List<InterfaceViewModel>();
-        public string CommadOutput { get; set; }
     }
 }

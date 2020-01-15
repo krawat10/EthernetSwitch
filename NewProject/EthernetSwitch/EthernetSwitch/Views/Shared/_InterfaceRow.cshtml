@@ -1,0 +1,36 @@
+﻿@model EthernetSwitch.ViewModels.InterfaceViewModel
+
+<form asp-action="Edit" asp-antiforgery="true" >
+    <tr>
+        <td>
+            @Html.DisplayFor(model => Model.Name)
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        </td>
+        <td>
+            <input type="hidden" asp-for="Name" />
+            <h5><span class="badge badge-@(Model.StatusClass)">@Html.DisplayFor(model => Model.Status)</span> </h5>
+            <input type="hidden" asp-for="Status"/>
+        </td>
+        <td>
+            @Html.CheckBoxFor(model => Model.Hidden)
+        </td>
+        <td>
+            @Html.CheckBoxFor(model => Model.Tagged)
+        </td>
+        <td>
+            <table>
+                <input asp-for="VirtualLans" type="hidden"/>
+
+                @foreach (var virtualLan in Model.VirtualLans)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(model => virtualLan.Name)</td>
+                    </tr>
+                }
+            </table>
+        </td>
+        <td>
+            <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-edit"></i> Update</button>
+        </td>
+    </tr>
+</form>
