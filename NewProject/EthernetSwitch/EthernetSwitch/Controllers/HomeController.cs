@@ -31,38 +31,94 @@ namespace EthernetSwitch.Controllers
         {
             var viewModel = new IndexViewModel();
 
+            var allVLANs = new List<string>(); // All vlan's
+
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (networkInterface.IsEthernet())
                 {
+                    var isTagged = false;// _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var appliedVLANs = new List<string>(); // _bashCommand.Execute($"interface {networkInterface.Name} vlans?");
+                    
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
                         {
                             Name = networkInterface.Name,
-                            Status = networkInterface.OperationalStatus.ToString(),
+                            Status = networkInterface.OperationalStatus,
+                            IsActive = networkInterface.OperationalStatus == OperationalStatus.Up,
+                            VirtualLANs = appliedVLANs, // All applied vlan's to this interface
+                            AllVirtualLANs = allVLANs,  
+                            Tagged = isTagged // Check if tagged
                         });
-                    var physicalAddress = networkInterface.GetPhysicalAddress();
-                    var ipInterfaceStatistics = networkInterface.GetIPStatistics();
                 }
             }
 
-            _bashCommand.Execute("ls");
+            // To train
+            // viewModel = new IndexViewModel
+            // {
+            //     Interfaces = new List<InterfaceViewModel>
+            //     {
+            //         new InterfaceViewModel
+            //         {
+            //             Hidden = false,
+            //             Name = "Abc",
+            //             Status = OperationalStatus.Up,
+            //             IsActive = true,
+            //             Tagged = true,
+            //             VirtualLANs = new[] {"123", "144"}, //Vland assigned to this interface
+            //             AllVirtualLANs = new[] {"123", "144", "1231"} // A
+            //         },
+            //         new InterfaceViewModel
+            //         {
+            //             Hidden = false,
+            //             Name = "Aerer",
+            //             Status = OperationalStatus.Up,
+            //             IsActive = true,
+            //             Tagged = true,
+            //             VirtualLANs = new[] {"123"}, //Vland assigned to this interface
+            //             AllVirtualLANs = new[] {"123", "144", "1231"} // A
+            //         }
+            //     }
+            // };
 
             return View(viewModel);
         }
 
+        /// <summary>
+        /// Action after "Update" button click
+        /// </summary>
+        /// <param name="viewModel">Interface options from form.</param>
+        /// <returns>Redirect to home page</returns>
         public IActionResult Edit(InterfaceViewModel viewModel)
         {
             var model = viewModel;
 
-            if (viewModel.Status == "UP")
+            if (viewModel.IsActive) // ON-OFF checkbox
             {
-                _bashCommand.Execute($"interface up {viewModel.Name}");
+                // _bashCommand.Execute($"interface up {viewModel.Name}");
             }
             else
             {
-                _bashCommand.Execute($"interface up {viewModel.Name}");
+                // _bashCommand.Execute($"interface up {viewModel.Name}");
             }
+
+            if (viewModel.Tagged) // Tag checkbox
+            {
+                // _bashCommand.Execute($"tag interface {viewModel.Name}");
+            }
+            else
+            {
+                // _bashCommand.Execute($"untag interface {viewModel.Name}");
+            }
+
+            foreach (var vlanName in viewModel.VirtualLANs) // All selected vlans
+            {
+                // 1. Check if interface exists
+                // 2. Add this 
+                // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
+            }
+
+
 
             return RedirectToAction("Index");
         }

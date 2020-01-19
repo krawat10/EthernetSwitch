@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@using EthernetSwitch.ViewModels
 @model EthernetSwitch.ViewModels.IndexViewModel
 <div class="text-center">
     <h1 class="display-4">Ethernet Switch</h1>
@@ -27,3 +28,108 @@
         </tbody>
     </table>
 </div>
+
+
+<div id="create-vlan-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create a new VLAN</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="vlan-input">Example label</label>
+                    <input type="number" class="form-control" id="vlan-input" placeholder="Set VLAN name (number)">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="create-vlan-submit" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        let current_interface_guid = '';
+
+        function addVLAN(interface, vlan) {
+            const interfaceVLANs = $(`.vlan-inputs-${interface}`);
+
+            let el = '';
+            el += `<input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>`;
+            el += `<span class="vlan-span badge badge-primary">`;
+            el += `     ${vlan}<i data-interface="${interface}" data-vlan="${vlan
+                }" class="remove-vlan-icon fas fa-minus"></i>`;
+            el += `</span>`;
+
+            interfaceVLANs.prepend(el);
+        };
+
+        $('body').on('click',
+            '.remove-vlan-icon',
+            function(e) {
+                const vlan = e.target.dataset.vlan;
+                const interface = e.target.dataset.interface;
+
+                let input = $(`.vlan-inputs-${interface}`).find(`input[value=${vlan}]`);
+                const span = $(e.target).parent();
+
+                $(input).remove();
+                $(span).remove();
+
+                $('.vlans-dropdown-options')
+                    .each((idx, dropdown) => {
+                        if ($(dropdown).data('interface') === interface) {
+                            const option =
+                                `<a class="dropdown-item vlan-dropdown" data-interface="${interface}">${vlan}</a>\n`;
+                            $(dropdown).prepend(option);
+                        }
+                    });
+            });
+
+        $('body').on('click',
+            '.vlan-dropdown',
+            function(e) {
+                addVLAN(e.target.dataset.interface, e.target.text);
+                $(e.target).remove();
+            });
+
+        $('body').on('click', '#create-vlan-submit', function(e) {
+                $('#create-vlan-modal').modal('hide');
+                const vlan = $('#vlan-input').val();
+
+                addVLAN(current_interface_guid, vlan);
+                $('.vlans-dropdown-options')
+                    .filter((el) => $(el).data('interface') !== current_interface_guid)
+                    .each((idx, dropdown) => {
+                        const current_iterface = $(dropdown).data('interface');
+                        const option =
+                            `<a class="dropdown-item vlan-dropdown" data-interface="${current_iterface}">${vlan}</a>`;
+                        $(dropdown).prepend(option);
+                    });
+            });
+        @**@
+        @* *@
+        @*         $('.vlans-dropdown-options').each(function(idx, el) { *@
+        @*             if (el.dataset.interface !== current_interface_guid) { *@
+        @*                 $(element).prepend( *@
+        @*                     ); *@
+        @*             } *@
+        @*         }); *@
+        @*         }); *@
+
+        $('body').on('click',
+            '.create-new-vlan-btn',
+            function(e) {
+                current_interface_guid = e.target.dataset.interface;
+                $('#create-vlan-modal').modal('show');
+
+            });
+    </script>
+}
