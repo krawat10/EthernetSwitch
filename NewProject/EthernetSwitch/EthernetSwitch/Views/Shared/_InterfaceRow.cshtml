@@ -4,46 +4,49 @@
 <tr>
     <td>
         <form asp-action="Edit" asp-antiforgery="true" id="@Model.Guid"></form>
+        @if(Model.IsHostInterface)
+        {
+        <i class="fas fa-file-code"
+           data-toggle="tooltip"
+           data-placement="bottom"
+           title="This interface host this page!"></i>
+        }
         @Html.DisplayFor(model => Model.Name)
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     </td>
     <td>
-        <input form="@Model.Guid" type="hidden" asp-for="Name"/>
+        <input form="@Model.Guid" type="hidden" asp-for="Name" />
         <div class="custom-control custom-switch">
-            <input 
-                   form="@Model.Guid" 
-                   type="checkbox" 
-                   class="custom-control-input" 
-                   name="IsActive" 
-                   value="true" 
-                   id="IsActive-@Model.Guid" 
+            <input form="@Model.Guid"
+                   type="checkbox"
+                   class="custom-control-input"
+                   name="IsActive"
+                   value="true"
+                   id="IsActive-@Model.Guid"
                    @(Model.IsActive ? "checked" : string.Empty)>
-            <label 
-                   class="custom-control-label" 
+            <label class="custom-control-label"
                    for="IsActive-@Model.Guid">
                 <span class="badge badge-@(Model.StatusClass)">@Html.DisplayFor(model => Model.Status)</span>
             </label>
         </div>
-        <input form="@Model.Guid" type="hidden" asp-for="Status"/>
+        <input form="@Model.Guid" type="hidden" asp-for="Status" />
     </td>
     <td>
         @Html.CheckBoxFor(model => Model.Hidden, new {from = Model.Guid})
     </td>
     <td>
         <div class="custom-control custom-switch">
-            <input 
-                   form="@Model.Guid" 
-                   type="checkbox" 
-                   class="custom-control-input" 
-                   name="Tagged" 
-                   value="true" 
-                   id="Tagged-@Model.Guid" 
+            <input form="@Model.Guid"
+                   type="checkbox"
+                   class="custom-control-input"
+                   name="Tagged"
+                   value="true"
+                   id="Tagged-@Model.Guid"
                    @(Model.Tagged ? "checked" : string.Empty)>
-            <label 
-                   class="custom-control-label" 
-                   for="Tagged-@Model.Guid" 
-                   data-toggle="tooltip" 
-                   data-placement="bottom" 
+            <label class="custom-control-label"
+                   for="Tagged-@Model.Guid"
+                   data-toggle="tooltip"
+                   data-placement="bottom"
                    title="This change removes all VLANs from this interface!">
             </label>
         </div>
@@ -52,26 +55,26 @@
         <div class="vlan-inputs-@Model.Guid">
             @foreach (var virtualLan in Model.VirtualLANs)
             {
-                <input form="@Model.Guid" name="@nameof(InterfaceViewModel.VirtualLANs)" value="@virtualLan" hidden/>
-                <span class="vlan-span badge badge-primary">
-                    @Html.DisplayFor(model => virtualLan) <i data-interface="@Model.Guid" data-vlan="@virtualLan" class="remove-vlan-icon fas fa-minus"></i>
-                </span>
+            <input form="@Model.Guid" name="@nameof(InterfaceViewModel.VirtualLANs)" value="@virtualLan" hidden />
+            <span class="vlan-span badge badge-primary">
+                @Html.DisplayFor(model => virtualLan) <i data-interface="@Model.Guid" data-vlan="@virtualLan" class="remove-vlan-icon fas fa-minus"></i>
+            </span>
             }
 
             @if (Model.CanAddVlan)
             {
-                <div class="dropdown">
-                    <span class="badge badge-primary btn dropdown-toggle" type="button" id="vlans-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-plus"></i> Add VLAN
-                    </span>
-                    <div class="dropdown-menu vlans-dropdown-options" data-interface="@Model.Guid" aria-labelledby="vlans-dropdown">
-                        @foreach (var vlan in Model.OtherVirtualLANs)
+            <div class="dropdown">
+                <span class="badge badge-primary btn dropdown-toggle" type="button" id="vlans-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-plus"></i> Add VLAN
+                </span>
+                <div class="dropdown-menu vlans-dropdown-options" data-interface="@Model.Guid" aria-labelledby="vlans-dropdown">
+                    @foreach (var vlan in Model.OtherVirtualLANs)
                         {
-                            <a class="dropdown-item vlan-dropdown" data-interface="@Model.Guid">@vlan</a>
+                    <a class="dropdown-item vlan-dropdown" data-interface="@Model.Guid">@vlan</a>
                         }
-                        <button type="button" data-interface="@Model.Guid" class="dropdown-item create-new-vlan-btn">Create New</button>
-                    </div>
+                    <button type="button" data-interface="@Model.Guid" class="dropdown-item create-new-vlan-btn">Create New</button>
                 </div>
+            </div>
             }
         </div>
 

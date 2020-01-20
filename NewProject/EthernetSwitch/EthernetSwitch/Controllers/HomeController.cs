@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
+using Microsoft.AspNetCore.Http.Features;
+using System.Net;
 
 namespace EthernetSwitch.Controllers
 {
@@ -24,19 +26,26 @@ namespace EthernetSwitch.Controllers
             _bashCommand = bashCommand;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
             var viewModel = new IndexViewModel();
 
             var allVLANs = new List<string>(); // All vlan's
 
+            var connectionLocalAddress = HttpContext.Connection.LocalIpAddress;
+            
+
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (networkInterface.IsEthernet())
                 {
+                    var isHostInterface = networkInterface
+                        .GetIPProperties()
+                        .UnicastAddresses
+                        .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
+
                     var isTagged = false;// _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
                     var appliedVLANs = new List<string>(); // _bashCommand.Execute($"interface {networkInterface.Name} vlans?");
-                    
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
                         {
@@ -45,6 +54,7 @@ namespace EthernetSwitch.Controllers
                             IsActive = networkInterface.OperationalStatus == OperationalStatus.Up,
                             VirtualLANs = appliedVLANs, // All applied vlan's to this interface
                             AllVirtualLANs = allVLANs,  
+                            IsHostInterface = isHostInterface,
                             Tagged = isTagged // Check if tagged
                         });
                 }

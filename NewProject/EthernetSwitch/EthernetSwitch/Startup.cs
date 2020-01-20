@@ -57,7 +57,7 @@ namespace EthernetSwitch
             // app.UseHttpsRedirection(); // HTTPS setting
 
             app.UseStaticFiles();
-
+            //app.UseDirectoryBrowser();
             app.UseRouting();
 
             app.UseAuthorization();
