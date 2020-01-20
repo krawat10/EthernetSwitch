@@ -12,6 +12,8 @@ using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
 using Microsoft.AspNetCore.Http.Features;
 using System.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EthernetSwitch.Controllers
 {
@@ -26,7 +28,8 @@ namespace EthernetSwitch.Controllers
             _bashCommand = bashCommand;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        public  IActionResult Index()
         {
             var viewModel = new IndexViewModel();
 

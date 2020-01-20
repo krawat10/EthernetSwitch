@@ -1,0 +1,12 @@
+{
+  "AllowAnonymousView": false,
+  "AllowTagging": true,
+  "Users": [
+    {
+      "IsAdmin": true,
+      "UserName": "admin",
+      "CanEdit": true,
+      "PasswordEncrypted": "AQAAAAEAACcQAAAAEGFy8Wkpl5tSDHaZ0Gb1k5ZfUL2vWNmGncAD199qZkhFgvsvN/D16BZI0kkgxal4vw=="
+    }
+  ] 
+}

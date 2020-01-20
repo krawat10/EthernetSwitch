@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +34,15 @@ namespace EthernetSwitch
         {
             services.AddControllersWithViews();
             services.AddSingleton<IBashCommand, BashCommand>();
+            services.AddSingleton<IUserService, UserService>();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+                    options =>
+                    {
+                        options.Cookie.HttpOnly = true;
+                        options.LoginPath = "/User/Login";
+                    });
 
             if (Env.IsDevelopment())
             {
@@ -51,16 +63,14 @@ namespace EthernetSwitch
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                // app.UseHsts(); // HTTPS setting
             }
-            // app.UseHttpsRedirection(); // HTTPS setting
-
+            
             app.UseStaticFiles();
-            //app.UseDirectoryBrowser();
             app.UseRouting();
-
+            
             app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseCookiePolicy();
 
             app.UseEndpoints(endpoints =>
             {
