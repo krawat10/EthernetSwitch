@@ -10,20 +10,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
-using Ploeh.AutoFixture;
 
 namespace EthernetSwitch.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IFixture _fixture;
         private readonly IBashCommand _bashCommand;
 
-        public HomeController(ILogger<HomeController> logger, IFixture fixture, IBashCommand bashCommand)
+        public HomeController(ILogger<HomeController> logger, IBashCommand bashCommand)
         {
             _logger = logger;
-            _fixture = fixture;
             _bashCommand = bashCommand;
         }
 

@@ -29,13 +29,22 @@ namespace EthernetSwitch.ViewModels
             }
         }
 
-        public string StatusClass =>
-            Status switch
+        public string StatusClass
+        {
+            get
             {
-                OperationalStatus.Up => "success",
-                OperationalStatus.Down => "danger",
-                _ => "warning"
-            };
+                switch (Status)
+                {
+                    case OperationalStatus.Up:
+                        return "success";
+                    case OperationalStatus.Down:
+                        return "danger";
+                    default: 
+                        return "warning";
+                };
+            }
+        }
+
 
         public IEnumerable<string> AllVirtualLANs { get; set; } = new List<string>();
         public IEnumerable<string> OtherVirtualLANs => AllVirtualLANs.Except(VirtualLANs);

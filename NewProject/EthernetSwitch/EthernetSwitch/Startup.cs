@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Ploeh.AutoFixture;
 
 namespace EthernetSwitch
 {
@@ -31,7 +30,6 @@ namespace EthernetSwitch
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddSingleton<IFixture, Fixture>();
             services.AddSingleton<IBashCommand, BashCommand>();
 
             if (Env.IsDevelopment())
