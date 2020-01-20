@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace EthernetSwitch.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -28,7 +29,8 @@ namespace EthernetSwitch.Controllers
             _bashCommand = bashCommand;
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+
+
         public  IActionResult Index()
         {
             var viewModel = new IndexViewModel();
@@ -133,7 +135,9 @@ namespace EthernetSwitch.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Privacy()
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
+
+        public IActionResult Settings()
         {
             return View();
         }

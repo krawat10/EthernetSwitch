@@ -60,5 +60,13 @@ namespace EthernetSwitch.Controllers
 
             return Redirect(ReturnUrl);
         }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Login");
+        }
     }
 }
