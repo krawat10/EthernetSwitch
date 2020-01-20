@@ -10,20 +10,42 @@
     <td>
         <input form="@Model.Guid" type="hidden" asp-for="Name"/>
         <div class="custom-control custom-switch">
-            <input form="@Model.Guid" type="checkbox" class="custom-control-input" name="IsActive" value="true" id="IsActive" @(Model.IsActive ? "checked" : string.Empty)>
-            <label class="custom-control-label" for="IsActive">
+            <input 
+                   form="@Model.Guid" 
+                   type="checkbox" 
+                   class="custom-control-input" 
+                   name="IsActive" 
+                   value="true" 
+                   id="IsActive-@Model.Guid" 
+                   @(Model.IsActive ? "checked" : string.Empty)>
+            <label 
+                   class="custom-control-label" 
+                   for="IsActive-@Model.Guid">
                 <span class="badge badge-@(Model.StatusClass)">@Html.DisplayFor(model => Model.Status)</span>
             </label>
         </div>
-        <input form="@Model.Guid" form="@Model.Guid" type="hidden" asp-for="Status"/>
+        <input form="@Model.Guid" type="hidden" asp-for="Status"/>
     </td>
     <td>
         @Html.CheckBoxFor(model => Model.Hidden, new {from = Model.Guid})
     </td>
     <td>
         <div class="custom-control custom-switch">
-            <input form="@Model.Guid" type="checkbox" class="custom-control-input" name="Tagged" value="true" id="Tagged" @(Model.Tagged ? "checked" : string.Empty)>
-            <label class="custom-control-label" for="Tagged" data-toggle="tooltip" data-placement="bottom" title="This change removes all VLANs from this interface!"></label>
+            <input 
+                   form="@Model.Guid" 
+                   type="checkbox" 
+                   class="custom-control-input" 
+                   name="Tagged" 
+                   value="true" 
+                   id="Tagged-@Model.Guid" 
+                   @(Model.Tagged ? "checked" : string.Empty)>
+            <label 
+                   class="custom-control-label" 
+                   for="Tagged-@Model.Guid" 
+                   data-toggle="tooltip" 
+                   data-placement="bottom" 
+                   title="This change removes all VLANs from this interface!">
+            </label>
         </div>
     </td>
     <td>
