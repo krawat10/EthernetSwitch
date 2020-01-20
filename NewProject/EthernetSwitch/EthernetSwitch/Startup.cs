@@ -56,14 +56,7 @@ namespace EthernetSwitch
             }
             // app.UseHttpsRedirection(); // HTTPS setting
 
-            var provider = new FileExtensionContentTypeProvider();
-            provider.Mappings[".css"] = "text/css";
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
-                ContentTypeProvider = provider
-            });
-
+            app.UseStaticFiles();
 
             app.UseRouting();
 
