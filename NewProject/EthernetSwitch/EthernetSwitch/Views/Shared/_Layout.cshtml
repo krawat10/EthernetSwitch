@@ -31,6 +31,9 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item ">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="ChangePassword">Change Password</a>
+                            </li>
+                            <li class="nav-item ">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
                             </li>
                         }

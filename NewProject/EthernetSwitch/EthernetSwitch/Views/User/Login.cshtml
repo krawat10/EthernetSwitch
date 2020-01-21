@@ -1,4 +1,4 @@
-﻿@model EthernetSwitch.Controllers.LoginViewModel
+﻿@model EthernetSwitch.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
 }
@@ -8,7 +8,7 @@
 <div>
     @Model.Message
 </div>
-<form method="post" asp-action="LoginPost">
+<form method="post" asp-action="Login">
     <div class="form-group">
         <label asp-for="@Model.UserName" class="col-form-label col-md-2"></label>
         <div class="col-md-10">
