@@ -6,9 +6,8 @@ namespace EthernetSwitch.ViewModels
     {
         public bool AllowTagging { get; set; }
         public bool AllowRegistration { get; set; }
-
+        public bool RequireConfirmation { get; set; }
         public IEnumerable<string> NotConfirmedUsers { get; set; }
-
-        public IEnumerable<string> ConfirmedUsers { get; set; }
+        public IEnumerable<string> AllUsers { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EthernetSwitch.Models;
@@ -13,6 +14,8 @@ namespace EthernetSwitch.Infrastructure
         User Login(string username, string password);
         User Register(string username, string password);
         User ChangePassword(string username, string password);
+        void RegisterUsers(string[] userNames);
+        void RemoveUsers(string[] userNames);
     }
 
     public class UserService : IUserService
@@ -53,8 +56,7 @@ namespace EthernetSwitch.Infrastructure
         {
             var user = new User
             {
-                CanEdit = true,
-                IsAdmin = false,
+                Role = UserRole.NotConfirmed,
                 UserName = username,
                 PasswordEncrypted = _passwordHasher.HashPassword(username, password)
             };
@@ -74,13 +76,41 @@ namespace EthernetSwitch.Infrastructure
 
             var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
 
-            if(user == null) throw new ArgumentException($"User {user} does not exists");
+            if (user == null) throw new ArgumentException($"User {user} does not exists");
 
             user.PasswordEncrypted = _passwordHasher.HashPassword(username, password);
 
             SaveSettings(settings);
 
             return user;
+        }
+
+        public void RegisterUsers(string[] userNames)
+        {
+            var settings = GetSettings();
+
+            foreach (var userName in userNames)
+            {
+                var user = settings.Users.FirstOrDefault(user1 => user1.UserName == userName);
+
+                if (user != null && user.Role != UserRole.Admin)
+                {
+                    user.Role = UserRole.User;
+                }
+            }
+
+            SaveSettings(settings);
+        }
+
+        public void RemoveUsers(string[] userNames)
+        {
+            var settings = GetSettings();
+            var users = settings.Users.ToList();
+
+
+            settings.Users = users.Where(user => !userNames.Contains(user.UserName));
+
+            SaveSettings(settings);
         }
     }
 }

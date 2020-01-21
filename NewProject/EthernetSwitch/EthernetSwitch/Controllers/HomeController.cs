@@ -108,14 +108,22 @@ namespace EthernetSwitch.Controllers
             var exitCode = 0;
 
 
+            var isBridgeExists = true;
+
             try
             {
-                var output = _bashCommand.Execute($"interface up {viewModel.Name}");
+
+                var output = _bashCommand.Execute($"brctl show br{viewModel.Name} | grep br'[0-9]' | cut -f 1");
             }
             catch (ProcessException e)
             {
-                errors += e.Message;
-                exitCode &= e.ExitCode;
+                if (exitCode == 404)
+                {
+                    // e.StandardOutput;
+                    // e.ExitCode;
+
+                    isBridgeExists = false;
+                }
             }
 
 
@@ -153,5 +161,6 @@ namespace EthernetSwitch.Controllers
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
+
     }
 }

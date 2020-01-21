@@ -1,6 +1,7 @@
 {
-  "AllowAnonymousView": false,
+  "RequireConfirmation": false,
   "AllowTagging": true,
+  "AllowRegistration": false,
   "Users": [
     {
       "IsAdmin": true,
@@ -8,5 +9,5 @@
       "CanEdit": true,
       "PasswordEncrypted": "AQAAAAEAACcQAAAAEGFy8Wkpl5tSDHaZ0Gb1k5ZfUL2vWNmGncAD199qZkhFgvsvN/D16BZI0kkgxal4vw=="
     }
-  ] 
+  ]
 }

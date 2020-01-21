@@ -48,7 +48,7 @@ namespace EthernetSwitch.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
+                    new Claim(ClaimTypes.Role, user.Role.ToString()),
                 };
 
                 var claimsIdentity = new ClaimsIdentity(
@@ -101,5 +101,26 @@ namespace EthernetSwitch.Controllers
         }
 
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
+        public IActionResult RegisterUsers(string[] users)
+        {
+            _userService.RegisterUsers(users);
+
+
+            return RedirectToAction("Settings", "Home");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
+        public IActionResult RemoveUsers(string[] users)
+        {
+            _userService.RemoveUsers(users);
+
+
+            return RedirectToAction("Settings", "Home");
+        }
     }
 }

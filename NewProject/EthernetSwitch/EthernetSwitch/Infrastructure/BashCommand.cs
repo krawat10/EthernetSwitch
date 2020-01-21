@@ -29,7 +29,8 @@ namespace EthernetSwitch.Infrastructure
 
             process.WaitForExit();
 
-            if(process.ExitCode > 0) throw new ProcessException(standardError, process.ExitCode);
+            if(process.ExitCode > 0 || !string.IsNullOrWhiteSpace(standardError)) 
+                throw new ProcessException(standardOutput, standardError, process.ExitCode);
 
             return standardOutput;
         }

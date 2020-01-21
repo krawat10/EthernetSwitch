@@ -26,6 +26,22 @@
     <div class="custom-control custom-switch">
         <input type="checkbox"
                class="custom-control-input"
+               name="@nameof(Model.RequireConfirmation)"
+               value="true"
+               id="@nameof(Model.RequireConfirmation)"
+               @(Model.RequireConfirmation ? "checked" : string.Empty)>
+        <label class="custom-control-label"
+               for="@nameof(Model.RequireConfirmation)"
+               data-toggle="tooltip"
+               data-placement="bottom"
+               title="Admin must confirm user in order to use this switch">
+            Require registration confirmation of new users
+        </label>
+    </div>
+
+    <div class="custom-control custom-switch">
+        <input type="checkbox"
+               class="custom-control-input"
                name="@nameof(Model.AllowTagging)"
                value="true"
                id="@nameof(Model.AllowTagging)"
@@ -41,5 +57,31 @@
 
     <div class="form-group">
         <button class="btn btn-outline-primary btn-sm">Save settings</button>
+    </div>
+</form>
+
+
+
+<form asp-action="RegisterUsers" asp-controller="User" method="post">
+    <div class="form-group">
+        <label for="NotConfirmedUsersSelect">Confirm new users</label>
+        <select multiple class="form-control" id="NotConfirmedUsersSelect">
+            @foreach (var  user in Model.NotConfirmedUsers)
+            {
+                <option>@user</option>
+            }
+        </select>
+    </div>
+</form>
+
+<form asp-action="RemoveUsers" asp-controller="User" method="post">
+    <div class="form-group">
+        <label for="RemoveUsersSelect">Delete users</label>
+        <select multiple class="form-control" id="RemoveUsersSelect">
+            @foreach (var user in Model.AllUsers)
+            {
+                <option>@user</option>
+            }
+        </select>
     </div>
 </form>

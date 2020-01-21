@@ -8,11 +8,15 @@ namespace EthernetSwitch.Models
         public IEnumerable<User> Users { get; set; }
     }
 
+    public enum UserRole
+    {
+        Admin, User, NotConfirmed
+    }
+
     public class User
     {
-        public bool IsAdmin { get; set; }
+        public UserRole Role { get; set; }
         public string UserName { get; set; }
-        public bool CanEdit { get; set; }
         public string PasswordEncrypted { get; set; }
     }
 }
