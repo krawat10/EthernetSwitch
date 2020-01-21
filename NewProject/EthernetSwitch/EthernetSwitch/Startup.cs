@@ -35,6 +35,7 @@ namespace EthernetSwitch
             services.AddControllersWithViews();
             services.AddSingleton<IBashCommand, BashCommand>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<ISettingsRepository, SettingsRepository>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,

@@ -54,26 +54,30 @@
             Allow tagged VLANs
         </label>
     </div>
-
+    <br />
     <div class="form-group">
         <button class="btn btn-outline-primary btn-sm">Save settings</button>
     </div>
 </form>
-
-
-
+<br />
+<br />
 <form asp-action="RegisterUsers" asp-controller="User" method="post">
     <div class="form-group">
         <label for="NotConfirmedUsersSelect">Confirm new users</label>
         <select multiple class="form-control" id="NotConfirmedUsersSelect">
-            @foreach (var  user in Model.NotConfirmedUsers)
+            @foreach (var user in Model.NotConfirmedUsers)
             {
                 <option>@user</option>
             }
         </select>
     </div>
-</form>
 
+    <div class="form-group">
+        <button class="btn btn-outline-primary btn-sm">Confirm users</button>
+    </div>
+</form>
+<br />
+<br />
 <form asp-action="RemoveUsers" asp-controller="User" method="post">
     <div class="form-group">
         <label for="RemoveUsersSelect">Delete users</label>
@@ -83,5 +87,9 @@
                 <option>@user</option>
             }
         </select>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-outline-danger btn-sm">Remove users</button>
     </div>
 </form>

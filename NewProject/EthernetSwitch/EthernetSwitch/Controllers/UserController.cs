@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure;
+using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -16,16 +17,20 @@ namespace EthernetSwitch.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
+        private readonly ISettingsRepository _settingsRepository;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ISettingsRepository settingsRepository)
         {
             _userService = userService;
+            _settingsRepository = settingsRepository;
         }
 
         [AllowAnonymous]
         public IActionResult Login()
         {
-            return View("Login", new LoginViewModel());
+            var settings = _settingsRepository.GetSettings();
+
+            return View("Login", new LoginViewModel {CanRegister = settings.AllowRegistration});
         }
 
         [HttpPost]
@@ -36,7 +41,19 @@ namespace EthernetSwitch.Controllers
             if (ModelState.IsValid)
             {
                 ReturnUrl ??= Url.Content("~/");
-                var user = _userService.Login(model.UserName, model.Password);
+
+                if (model.Type == LoginType.Register)
+                {
+                    var settings = _settingsRepository.GetSettings();
+                    if (settings.AllowRegistration)
+                    {
+                        var role = settings.RequireConfirmation ? UserRole.NotConfirmed : UserRole.User;
+                        _userService.Register(model.UserName, model.Password, role);
+                    }
+                }
+
+                var user = await _userService.Login(model.UserName, model.Password);
+                
                 if (user == null)
                 {
                     model.Password = String.Empty;
@@ -72,7 +89,7 @@ namespace EthernetSwitch.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> ChangePassword()
+        public IActionResult ChangePassword()
         {
             return View("ChangePassword", new ChangePasswordViewModel());
         }

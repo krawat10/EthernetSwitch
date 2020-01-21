@@ -5,45 +5,38 @@ using System.Linq;
 using EthernetSwitch.Models;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace EthernetSwitch.Infrastructure
 {
     public interface IUserService
     {
-        User Login(string username, string password);
-        User Register(string username, string password);
-        User ChangePassword(string username, string password);
-        void RegisterUsers(string[] userNames);
-        void RemoveUsers(string[] userNames);
+        Task<User> Login(string username, string password);
+        Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed);
+        Task<User> ChangePassword(string username, string password);
+        Task RegisterUsers(string[] userNames);
+        Task RemoveUsers(string[] userNames);
     }
 
     public class UserService : IUserService
     {
-        private readonly IHostEnvironment _environment;
+        private readonly ISettingsRepository _settingsRepository;
         private readonly PasswordHasher<string> _passwordHasher;
-        private readonly string _filename;
 
-        public UserService(IHostEnvironment environment)
+        public UserService(ISettingsRepository settingsRepository)
         {
-            _environment = environment;
+            _settingsRepository = settingsRepository;
             _passwordHasher = new PasswordHasher<string>();
-            _filename = "settings.json";
         }
 
-        private Settings GetSettings()
-        {
-            return JsonSerializer.Deserialize<Settings>(File.ReadAllText(_filename));
-        }
 
-        private void SaveSettings(Settings settings)
-        {
-            File.WriteAllText(_filename, JsonSerializer.Serialize(settings));
-        }
 
-        public User Login(string username, string password)
+        public async Task<User> Login(string username, string password)
         {
-            var user = GetSettings().Users.FirstOrDefault(usr => usr.UserName == username);
+            var settings =  _settingsRepository.GetSettings();
+            var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
 
             if (user == null) throw new ArgumentException("Wrong password or username");
 
@@ -52,27 +45,27 @@ namespace EthernetSwitch.Infrastructure
             return result == PasswordVerificationResult.Success ? user : null;
         }
 
-        public User Register(string username, string password)
+        public async Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed)
         {
             var user = new User
             {
-                Role = UserRole.NotConfirmed,
+                Role = role,
                 UserName = username,
                 PasswordEncrypted = _passwordHasher.HashPassword(username, password)
             };
 
-            var settings = GetSettings();
+            var settings =  _settingsRepository.GetSettings();
 
             settings.Users.Append(user);
 
-            SaveSettings(settings);
+            _settingsRepository.SaveSettings(settings);
 
             return user;
         }
 
-        public User ChangePassword(string username, string password)
+        public async Task<User> ChangePassword(string username, string password)
         {
-            var settings = GetSettings();
+            var settings =  _settingsRepository.GetSettings();
 
             var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
 
@@ -80,14 +73,14 @@ namespace EthernetSwitch.Infrastructure
 
             user.PasswordEncrypted = _passwordHasher.HashPassword(username, password);
 
-            SaveSettings(settings);
+            _settingsRepository.SaveSettings(settings);
 
             return user;
         }
 
-        public void RegisterUsers(string[] userNames)
+        public async Task RegisterUsers(string[] userNames)
         {
-            var settings = GetSettings();
+            var settings =  _settingsRepository.GetSettings();
 
             foreach (var userName in userNames)
             {
@@ -99,18 +92,18 @@ namespace EthernetSwitch.Infrastructure
                 }
             }
 
-            SaveSettings(settings);
+            _settingsRepository.SaveSettings(settings);
         }
 
-        public void RemoveUsers(string[] userNames)
+        public async Task RemoveUsers(string[] userNames)
         {
-            var settings = GetSettings();
+            var settings =  _settingsRepository.GetSettings();
             var users = settings.Users.ToList();
 
 
             settings.Users = users.Where(user => !userNames.Contains(user.UserName));
 
-            SaveSettings(settings);
+            _settingsRepository.SaveSettings(settings);
         }
     }
 }

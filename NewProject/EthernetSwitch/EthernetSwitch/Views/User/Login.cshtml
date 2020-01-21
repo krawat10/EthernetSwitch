@@ -1,4 +1,5 @@
-﻿@model EthernetSwitch.ViewModels.LoginViewModel
+﻿@using EthernetSwitch.ViewModels
+@model EthernetSwitch.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
 }
@@ -22,7 +23,14 @@
         </div>
     </div>
     <div class="form-group">
-        <button class="btn btn-outline-primary btn-sm">Log in</button>
+        <button class="btn btn-outline-primary btn-sm" name="@nameof(Model.Type)" value="@LoginType.Login">Log in</button>
     </div>
+    @if (Model.CanRegister)
+    {
+        <div class="form-group">
+            <button class="btn btn-outline-primary btn-sm" name="@nameof(Model.Type)" value="@LoginType.Register">Register Account</button>
+        </div>
+    }
 </form>
+
 

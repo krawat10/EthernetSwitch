@@ -2,6 +2,12 @@
 
 namespace EthernetSwitch.ViewModels
 {
+    public enum LoginType
+    {
+        Login,
+        Register
+    };
+
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Username is required")]
@@ -14,5 +20,8 @@ namespace EthernetSwitch.ViewModels
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
         public string Message { get; set; } = "";
+
+        public LoginType Type { get; set; }
+        public bool CanRegister { get; set; }
     }
 }

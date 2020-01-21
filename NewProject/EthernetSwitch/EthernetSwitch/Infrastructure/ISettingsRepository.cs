@@ -1,7 +1,11 @@
-﻿namespace EthernetSwitch.Infrastructure
+﻿using EthernetSwitch.Models;
+using Microsoft.Extensions.Hosting;
+
+namespace EthernetSwitch.Infrastructure
 {
     public interface ISettingsRepository
     {
-//        Set
+        Settings GetSettings();
+        void SaveSettings(Settings settings);
     }
 }

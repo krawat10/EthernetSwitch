@@ -23,11 +23,14 @@ namespace EthernetSwitch.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IBashCommand _bashCommand;
+        private readonly ISettingsRepository _settingsRepository;
 
-        public HomeController(ILogger<HomeController> logger, IBashCommand bashCommand)
+        public HomeController(ILogger<HomeController> logger, IBashCommand bashCommand,
+            ISettingsRepository settingsRepository)
         {
             _logger = logger;
             _bashCommand = bashCommand;
+            _settingsRepository = settingsRepository;
         }
 
 
@@ -66,34 +69,6 @@ namespace EthernetSwitch.Controllers
                 }
             }
 
-            // To train
-            // viewModel = new IndexViewModel
-            // {
-            //     Interfaces = new List<InterfaceViewModel>
-            //     {
-            //         new InterfaceViewModel
-            //         {
-            //             Hidden = false,
-            //             Name = "Abc",
-            //             Status = OperationalStatus.Up,
-            //             IsActive = true,
-            //             Tagged = true,
-            //             VirtualLANs = new[] {"123", "144"}, //Vland assigned to this interface
-            //             AllVirtualLANs = new[] {"123", "144", "1231"} // A
-            //         },
-            //         new InterfaceViewModel
-            //         {
-            //             Hidden = false,
-            //             Name = "Aerer",
-            //             Status = OperationalStatus.Up,
-            //             IsActive = true,
-            //             Tagged = true,
-            //             VirtualLANs = new[] {"123"}, //Vland assigned to this interface
-            //             AllVirtualLANs = new[] {"123", "144", "1231"} // A
-            //         }
-            //     }
-            // };
-
             return View(viewModel);
         }
 
@@ -112,16 +87,15 @@ namespace EthernetSwitch.Controllers
 
             try
             {
-
-                var output = _bashCommand.Execute($"brctl show br{viewModel.Name} | grep br'[0-9]' | cut -f 1");
+                // var execute = _bashCommand.Execute("sudo aptitude install bridge-utils");
+                // var output = _bashCommand.Execute($"brctl show br{viewModel.Name} | grep br'[0-9]' | cut -f 1");
             }
             catch (ProcessException e)
             {
-                if (exitCode == 404)
-                {
-                    // e.StandardOutput;
-                    // e.ExitCode;
+                var error = e.Message;
 
+                if (error.Contains($"br{viewModel.Name}") && error.Contains("does not exists"))
+                {
                     isBridgeExists = false;
                 }
             }
@@ -150,7 +124,44 @@ namespace EthernetSwitch.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Settings()
         {
-            return View();
+            var settings = _settingsRepository.GetSettings();
+
+            var model = new SettingsViewModel
+            {
+                AllowRegistration = settings.AllowRegistration,
+                AllowTagging = settings.AllowTagging,
+                RequireConfirmation = settings.RequireConfirmation,
+                NotConfirmedUsers = settings.Users
+                    .Where(user => user.Role == UserRole.NotConfirmed)
+                    .Select(user => user.UserName),
+                AllUsers = settings.Users
+                    .Where(user => user.Role != UserRole.Admin)
+                    .Select(user => user.UserName)
+            };
+
+            return View("Settings", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
+
+        public IActionResult Settings(SettingsViewModel model)
+        {
+            var settings =_settingsRepository.GetSettings();
+            
+            if (ModelState.IsValid)
+            {
+                settings.AllowRegistration = model.AllowRegistration;
+                settings.AllowTagging = model.AllowTagging;
+                settings.RequireConfirmation = model.RequireConfirmation;
+                
+                _settingsRepository.SaveSettings(settings);
+
+                return RedirectToAction("Settings", "Home");
+            }
+
+            return View(model);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -161,6 +172,5 @@ namespace EthernetSwitch.Controllers
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
-
     }
 }
