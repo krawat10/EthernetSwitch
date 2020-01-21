@@ -19,16 +19,27 @@
                data-toggle="tooltip"
                data-placement="bottom"
                title="Allow to register new users">
+            Allow registration of new users
         </label>
     </div>
 
-    <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="custom-control-input" id="customCheck1">
-        <label class="custom-control-label" for="customCheck1">Allow new user registration</label>
+    <div class="custom-control custom-switch">
+        <input type="checkbox"
+               class="custom-control-input"
+               name="@nameof(Model.AllowTagging)"
+               value="true"
+               id="@nameof(Model.AllowTagging)"
+               @(Model.AllowTagging ? "checked" : string.Empty)>
+        <label class="custom-control-label"
+               for="@nameof(Model.AllowTagging)"
+               data-toggle="tooltip"
+               data-placement="bottom"
+               title="Allow use tagged datagram">
+            Allow tagged VLANs
+        </label>
     </div>
 
-    <div class="custom-control custom-checkbox">
-        <input type="checkbox" class="custom-control-input" id="customCheck1">
-        <label class="custom-control-label" for="customCheck1">Allow new user registration</label>
+    <div class="form-group">
+        <button class="btn btn-outline-primary btn-sm">Save settings</button>
     </div>
 </form>
