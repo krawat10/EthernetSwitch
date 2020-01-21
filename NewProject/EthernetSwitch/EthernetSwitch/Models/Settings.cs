@@ -4,7 +4,6 @@ namespace EthernetSwitch.Models
 {
     public class Settings
     {
-        public bool AllowAnonymousView { get; set; }
         public bool AllowTagging { get; set; }
         public IEnumerable<User> Users { get; set; }
     }

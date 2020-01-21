@@ -12,6 +12,7 @@ using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
 using Microsoft.AspNetCore.Http.Features;
 using System.Net;
+using EthernetSwitch.Exceptions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 
@@ -30,15 +31,14 @@ namespace EthernetSwitch.Controllers
         }
 
 
-
-        public  IActionResult Index()
+        public IActionResult Index()
         {
             var viewModel = new IndexViewModel();
 
             var allVLANs = new List<string>(); // All vlan's
 
             var connectionLocalAddress = HttpContext.Connection.LocalIpAddress;
-            
+
 
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -49,8 +49,9 @@ namespace EthernetSwitch.Controllers
                         .UnicastAddresses
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
-                    var isTagged = false;// _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
-                    var appliedVLANs = new List<string>(); // _bashCommand.Execute($"interface {networkInterface.Name} vlans?");
+                    var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var appliedVLANs =
+                        new List<string>(); // _bashCommand.Execute($"interface {networkInterface.Name} vlans?");
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
                         {
@@ -58,7 +59,7 @@ namespace EthernetSwitch.Controllers
                             Status = networkInterface.OperationalStatus,
                             IsActive = networkInterface.OperationalStatus == OperationalStatus.Up,
                             VirtualLANs = appliedVLANs, // All applied vlan's to this interface
-                            AllVirtualLANs = allVLANs,  
+                            AllVirtualLANs = allVLANs,
                             IsHostInterface = isHostInterface,
                             Tagged = isTagged // Check if tagged
                         });
@@ -103,16 +104,20 @@ namespace EthernetSwitch.Controllers
         /// <returns>Redirect to home page</returns>
         public IActionResult Edit(InterfaceViewModel viewModel)
         {
-            var model = viewModel;
+            var errors = string.Empty;
+            var exitCode = 0;
 
-            if (viewModel.IsActive) // ON-OFF checkbox
+
+            try
             {
-                // _bashCommand.Execute($"interface up {viewModel.Name}");
+                var output = _bashCommand.Execute($"interface up {viewModel.Name}");
             }
-            else
+            catch (ProcessException e)
             {
-                // _bashCommand.Execute($"interface up {viewModel.Name}");
+                errors += e.Message;
+                exitCode &= e.ExitCode;
             }
+
 
             if (viewModel.Tagged) // Tag checkbox
             {
@@ -131,12 +136,10 @@ namespace EthernetSwitch.Controllers
             }
 
 
-
             return RedirectToAction("Index");
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
-
         public IActionResult Settings()
         {
             return View();

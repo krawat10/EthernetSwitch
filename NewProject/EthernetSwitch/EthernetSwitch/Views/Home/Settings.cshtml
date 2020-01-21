@@ -4,3 +4,31 @@
 <h1>@ViewData["Title"]</h1>
 
 <p>Use this page to detail your site's privacy policy.</p>
+@model EthernetSwitch.ViewModels.SettingsViewModel
+
+<form asp-action="Settings" method="post">
+    <div class="custom-control custom-switch">
+        <input type="checkbox"
+               class="custom-control-input"
+               name="@nameof(Model.AllowRegistration)"
+               value="true"
+               id="@nameof(Model.AllowRegistration)"
+               @(Model.AllowRegistration ? "checked" : string.Empty)>
+        <label class="custom-control-label"
+               for="@nameof(Model.AllowRegistration)"
+               data-toggle="tooltip"
+               data-placement="bottom"
+               title="Allow to register new users">
+        </label>
+    </div>
+
+    <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="customCheck1">
+        <label class="custom-control-label" for="customCheck1">Allow new user registration</label>
+    </div>
+
+    <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="customCheck1">
+        <label class="custom-control-label" for="customCheck1">Allow new user registration</label>
+    </div>
+</form>

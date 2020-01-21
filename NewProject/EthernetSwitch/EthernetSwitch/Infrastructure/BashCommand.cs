@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using EthernetSwitch.Exceptions;
 
 namespace EthernetSwitch.Infrastructure
 {
@@ -28,7 +29,7 @@ namespace EthernetSwitch.Infrastructure
 
             process.WaitForExit();
 
-            if(process.ExitCode > 0) throw new ApplicationException($"Cannot execute command, error: {standardError}");
+            if(process.ExitCode > 0) throw new ProcessException(standardError, process.ExitCode);
 
             return standardOutput;
         }
