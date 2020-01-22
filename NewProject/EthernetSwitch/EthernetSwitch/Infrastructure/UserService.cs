@@ -7,19 +7,11 @@ using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 namespace EthernetSwitch.Infrastructure
 {
-    public interface IUserService
-    {
-        User Login(string username, string password);
-        User Register(string username, string password, UserRole role = UserRole.NotConfirmed);
-        User ChangePassword(string username, string password);
-        void RegisterUsers(string[] userNames);
-        void RemoveUsers(string[] userNames);
-    }
-
     public class UserService : IUserService
     {
         private readonly ISettingsRepository _settingsRepository;
@@ -78,7 +70,7 @@ namespace EthernetSwitch.Infrastructure
             return user;
         }
 
-        public void RegisterUsers(string[] userNames)
+        public void RegisterUsers([Bind("UserNames")]IEnumerable<string> userNames)
         {
             var settings =  _settingsRepository.GetSettings();
 

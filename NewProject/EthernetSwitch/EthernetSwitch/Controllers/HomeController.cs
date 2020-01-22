@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace EthernetSwitch.Controllers
 {
-    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin,User")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -82,7 +82,20 @@ namespace EthernetSwitch.Controllers
             var errors = string.Empty;
             var exitCode = 0;
 
-
+            switch (viewModel.Type)
+            {
+                case InterfaceType.Off:
+                    //todo
+                    break;
+                case InterfaceType.Community:
+                    break;
+                case InterfaceType.Isolated:
+                    break;
+                case InterfaceType.Promiscuous:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             var isVlanExists = true;
             var ethInVlan = true;
             try

@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 
 namespace EthernetSwitch.ViewModels
 {
+    public enum InterfaceType {Off, Community, Isolated, Promiscuous }
     public class InterfaceViewModel
     {
         public Guid Guid { get; }
@@ -14,7 +15,7 @@ namespace EthernetSwitch.ViewModels
         public OperationalStatus Status { get; set; }
         public bool IsActive { get; set; }
         public bool Hidden { get; set; } = false;
-
+        public InterfaceType Type { get; set; } = InterfaceType.Off;
         public InterfaceViewModel()
         {
             Guid = Guid.NewGuid();
