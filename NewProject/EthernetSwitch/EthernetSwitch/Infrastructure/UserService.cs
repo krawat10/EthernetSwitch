@@ -14,7 +14,7 @@ namespace EthernetSwitch.Infrastructure
     public interface IUserService
     {
         Task<User> Login(string username, string password);
-        Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed);
+        User Register(string username, string password, UserRole role = UserRole.NotConfirmed);
         Task<User> ChangePassword(string username, string password);
         Task RegisterUsers(string[] userNames);
         Task RemoveUsers(string[] userNames);
@@ -38,14 +38,14 @@ namespace EthernetSwitch.Infrastructure
             var settings =  _settingsRepository.GetSettings();
             var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
 
-            if (user == null) throw new ArgumentException("Wrong password or username");
+            if (user == null) return null;
 
             var result = _passwordHasher.VerifyHashedPassword(user.UserName, user.PasswordEncrypted, password);
 
             return result == PasswordVerificationResult.Success ? user : null;
         }
 
-        public async Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed)
+        public User Register(string username, string password, UserRole role = UserRole.NotConfirmed)
         {
             var user = new User
             {
@@ -56,7 +56,7 @@ namespace EthernetSwitch.Infrastructure
 
             var settings =  _settingsRepository.GetSettings();
 
-            settings.Users.Append(user);
+            settings.Users.Add(user);
 
             _settingsRepository.SaveSettings(settings);
 
@@ -101,7 +101,7 @@ namespace EthernetSwitch.Infrastructure
             var users = settings.Users.ToList();
 
 
-            settings.Users = users.Where(user => !userNames.Contains(user.UserName));
+            settings.Users = users.Where(user => !userNames.Contains(user.UserName)).ToList();
 
             _settingsRepository.SaveSettings(settings);
         }

@@ -5,7 +5,7 @@ namespace EthernetSwitch.Models
     public class Settings
     {
         public bool AllowTagging { get; set; }
-        public IEnumerable<User> Users { get; set; }
+        public IList<User> Users { get; set; }
         public bool RequireConfirmation { get; set; }
         public bool AllowRegistration { get; set; }
     }
