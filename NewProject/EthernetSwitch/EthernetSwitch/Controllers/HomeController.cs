@@ -145,33 +145,28 @@ namespace EthernetSwitch.Controllers
                 ////////////////////////////Tworzenie Vlanu nietagowanego////////////////////////////////////
 
 
-                    if (isVlanExists == false)
+                    if (isVlanExists == false & viewModel.Tagged == false )
                  	    {
                             _bashCommand.Execute($"brctl addbr vlan{vlanName}");
                  	        _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
                         } 
 
                 ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////
-                    if (ethInVlan == true)
+                    if (ethInVlan == true & viewModel.Tagged == false)
                     {
                         //usunięci go z vlanu do którego jest przypisany
-                        var vlanID = _bashCommand.Execute($"brctl show | grep {viewModel.Name} | cut -f 1 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
-                        vlanID = vlanID.Replace("\n", "");
+                       var vlanID = _bashCommand.Execute($"ip link show | grep {viewModel.Name} | cut -d' ' -f9 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
+                       vlanID = vlanID.Replace("\n", "");
                         _bashCommand.Execute($"ip link set vlan{vlanID} down");
                         _bashCommand.Execute($"brctl delif vlan{vlanID} {viewModel.Name}");
                     }
+
+                    if (viewModel.Tagged==false)
+                    {
                             _bashCommand.Execute($"ip link set vlan{vlanName} down");
                             _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");
                  	        _bashCommand.Execute($"ip link set vlan{vlanName} up");
-                 	        
-
-                var findInterfaceInVlan = _bashCommand.Execute($"brctl show vlan{vlanName} | grep {viewModel.Name}");
-                    if (findInterfaceInVlan=="")
-                    {
-
                     }
-
-
             }
 
 
