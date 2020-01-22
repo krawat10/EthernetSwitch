@@ -83,8 +83,8 @@ namespace EthernetSwitch.Controllers
             var exitCode = 0;
 
 
-            var isBridgeExists = true;
-
+            var isVlanExists = true;
+            var ethInVlan = true;
             try
             {
                 // var execute = _bashCommand.Execute("sudo aptitude install bridge-utils");
@@ -96,7 +96,7 @@ namespace EthernetSwitch.Controllers
 
                 if (error.Contains($"br{viewModel.Name}") && error.Contains("does not exists"))
                 {
-                    isBridgeExists = false;
+                    isVlanExists = false;
                 }
             }
 
@@ -115,6 +115,59 @@ namespace EthernetSwitch.Controllers
                 // 1. Check if interface exists
                 // 2. Add this 
                 // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
+
+                //////////////////////////////Czy valan istnieje///////////////////////////////////////////
+                 try
+                 {
+                var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep br'[0-9]' | cut -f 1");
+                 }
+                catch (ProcessException e)
+                {
+                    var error = e.Message;
+                    if (error.Contains($"bridge vlan{vlanName} does not exist!\n"))
+                    {
+                    isVlanExists = false;   //true jak istnieje
+                    }
+                } 
+                /////////////////////////////Czy interfens jest w jakimkolwiek vlanie///////////////////////
+                try
+                 {
+                var output = _bashCommand.Execute($"brctl show | grep {viewModel.Name}");
+                 }
+                catch (ProcessException e)
+                {
+                    var error = e.ExitCode;
+                    if (error == 1)
+                    {
+                    ethInVlan = false;   //true jak jest
+                    }
+                } 
+                ////////////////////////////Tworzenie Vlanu nietagowanego////////////////////////////////////
+
+
+                    if (isVlanExists == false)
+                 	    {
+                            _bashCommand.Execute($"brctl addbr vlan{vlanName}");
+                 	        _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
+                        } 
+
+                ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////
+                    if (ethInVlan == true)
+                    {
+                        //usunięci go z vlanu do którego jest przypisany
+                    }
+                            _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                            _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");
+                 	        _bashCommand.Execute($"ip link set vlan{vlanName} up");
+                 	        
+
+                var findInterfaceInVlan = _bashCommand.Execute($"brctl show vlan{vlanName} | grep {viewModel.Name}");
+                    if (findInterfaceInVlan=="")
+                    {
+
+                    }
+
+
             }
 
 
