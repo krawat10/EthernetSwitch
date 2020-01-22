@@ -36,6 +36,9 @@ namespace EthernetSwitch.Controllers
 
         public IActionResult Index()
         {
+            var settings = _settingsRepository.GetSettings();
+            var allowTagging = settings.AllowTagging;
+
             var viewModel = new IndexViewModel();
 
             var allVLANs = new List<string>(); // All vlan's
@@ -64,7 +67,8 @@ namespace EthernetSwitch.Controllers
                             VirtualLANs = appliedVLANs, // All applied vlan's to this interface
                             AllVirtualLANs = allVLANs,
                             IsHostInterface = isHostInterface,
-                            Tagged = isTagged // Check if tagged
+                            Tagged = true, //isTagged, // Check if tagged
+                            AllowTagging = allowTagging
                         });
                 }
             }
@@ -79,13 +83,9 @@ namespace EthernetSwitch.Controllers
         /// <returns>Redirect to home page</returns>
         public IActionResult Edit(InterfaceViewModel viewModel)
         {
-            var errors = string.Empty;
-            var exitCode = 0;
-
             switch (viewModel.Type)
             {
                 case InterfaceType.Off:
-                    //todo
                     break;
                 case InterfaceType.Community:
                     break;
@@ -96,8 +96,8 @@ namespace EthernetSwitch.Controllers
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            var isVlanExists = true;
-            var ethInVlan = true;
+            var vlanExists = true;
+            var intervaceHasVlan = true;
             try
             {
                 // var execute = _bashCommand.Execute("sudo aptitude install bridge-utils");
@@ -109,7 +109,7 @@ namespace EthernetSwitch.Controllers
 
                 if (error.Contains($"br{viewModel.Name}") && error.Contains("does not exists"))
                 {
-                    isVlanExists = false;
+                    vlanExists = false;
                 }
             }
 
@@ -139,7 +139,7 @@ namespace EthernetSwitch.Controllers
                     var error = e.Message;
                     if (error.Contains($"bridge vlan{vlanName} does not exist!\n"))
                     {
-                        isVlanExists = false; //true jak istnieje
+                        vlanExists = false; //true jak istnieje
                     }
                 }
 
@@ -153,19 +153,19 @@ namespace EthernetSwitch.Controllers
                     var error = e.ExitCode;
                     if (error == 1)
                     {
-                        ethInVlan = false; //true jak jest
+                        intervaceHasVlan = false; //true jak jest
                     }
                 }
 
                 ////////////////////////////Tworzenie Vlanu nietagowanego////////////////////////////////////
-                if (!isVlanExists & !viewModel.Tagged)
+                if (!vlanExists & !viewModel.Tagged)
                 {
                     _bashCommand.Execute($"brctl addbr vlan{vlanName}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
                 }
 
                 ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////
-                if (ethInVlan == true & viewModel.Tagged == false)
+                if (intervaceHasVlan & viewModel.Tagged == false)
                 {
                     //usunięci go z vlanu do którego jest przypisany
                     var vlanID =
@@ -176,7 +176,7 @@ namespace EthernetSwitch.Controllers
                     _bashCommand.Execute($"brctl delif vlan{vlanID} {viewModel.Name}");
                 }
 
-                if (viewModel.Tagged == false)
+                if (!viewModel.Tagged)
                 {
                     _bashCommand.Execute($"ip link set vlan{vlanName} down");
                     _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");

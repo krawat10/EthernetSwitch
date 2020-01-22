@@ -65,7 +65,7 @@
             el += `<input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>`;
             el += `<span class="vlan-span badge badge-primary">`;
             el += `     ${vlan}<i data-interface="${interface}" data-vlan="${vlan
-                }" class="remove-vlan-icon fas fa-minus"></i>`;
+                }" class="remove-vlan-icon fas fa-minus" data-toggle="tooltip" data-placement="bottom" title="remove VLAN"></i> `;
             el += `</span>`;
 
             interfaceVLANs.prepend(el);
@@ -100,18 +100,20 @@
                 $(e.target).remove();
             });
 
-        $('body').on('click', '#create-vlan-submit', function(e) {
+        $('body').on('click',
+            '#create-vlan-submit',
+            function(e) {
                 $('#create-vlan-modal').modal('hide');
                 const vlan = $('#vlan-input').val();
 
                 addVLAN(current_interface_guid, vlan);
                 $('.vlans-dropdown-options')
-                    .filter((el) => $(el).data('interface') !== current_interface_guid)
                     .each((idx, dropdown) => {
-                        const current_iterface = $(dropdown).data('interface');
-                        const option =
-                            `<a class="dropdown-item vlan-dropdown" data-interface="${current_iterface}">${vlan}</a>`;
-                        $(dropdown).prepend(option);
+                        if ($(dropdown).data('interface') !== current_interface_guid) {
+                            const option =
+                                `<a class="dropdown-item vlan-dropdown" data-interface="${$(dropdown).data('interface')}">${vlan}</a>`;
+                            $(dropdown).prepend(option);
+                        }
                     });
             });
         @**@

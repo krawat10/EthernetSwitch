@@ -64,7 +64,7 @@
 <form asp-action="RegisterUsers" asp-controller="User" method="post">
     <div class="form-group">
         <label for="NotConfirmedUsersSelect">Confirm new users</label>
-        <select name="userNames" multiple class="form-control" id="NotConfirmedUsersSelect">
+        <select name="UserNames[]" multiple class="form-control" id="NotConfirmedUsersSelect">
             @foreach (var user in Model.NotConfirmedUsers)
             {
                 <option>@user</option>

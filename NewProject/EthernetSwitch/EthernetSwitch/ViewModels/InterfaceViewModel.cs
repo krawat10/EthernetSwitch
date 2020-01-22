@@ -51,5 +51,6 @@ namespace EthernetSwitch.ViewModels
         public IEnumerable<string> OtherVirtualLANs => AllVirtualLANs.Except(VirtualLANs);
 
         public bool IsHostInterface { get; set; }
+        public bool AllowTagging { get; set; }
     }
 }

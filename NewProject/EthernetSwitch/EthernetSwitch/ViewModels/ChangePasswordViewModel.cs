@@ -7,12 +7,13 @@ namespace EthernetSwitch.ViewModels
         [Required(ErrorMessage = "Password is required")]
         [StringLength(255, ErrorMessage = "Must be between 5 and 255 characters", MinimumLength = 5)]
         [DataType(DataType.Password)]
+
         public string NewPassword { get; set; } = "";
 
         [Required(ErrorMessage = "Confirm Password is required")]
         [StringLength(255, ErrorMessage = "Must be between 5 and 255 characters", MinimumLength = 5)]
         [DataType(DataType.Password)]
-        [Compare(nameof(NewPassword))]
+        [Compare(nameof(NewPassword), ErrorMessage = "Confirmed password is different.")]
         public string ConfirmPassword { get; set; } = "";
         public string Message { get; set; } = "";
         [DataType(DataType.Password)]

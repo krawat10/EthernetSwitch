@@ -41,10 +41,10 @@ namespace EthernetSwitch.Controllers
             if (ModelState.IsValid)
             {
                 ReturnUrl ??= Url.Content("~/");
+                var settings = _settingsRepository.GetSettings();
 
                 if (model.Type == LoginType.Register)
                 {
-                    var settings = _settingsRepository.GetSettings();
                     if (settings.AllowRegistration)
                     {
                         var role = settings.RequireConfirmation ? UserRole.NotConfirmed : UserRole.User;
@@ -53,11 +53,19 @@ namespace EthernetSwitch.Controllers
                 }
 
                 var user = _userService.Login(model.UserName, model.Password);
-                
+
                 if (user == null)
                 {
                     model.Password = String.Empty;
                     model.Message = "Wrong password or username";
+
+                    return View("Login", model);
+                }
+
+                if (settings.RequireConfirmation && user.Role == UserRole.NotConfirmed)
+                {
+                    model.Password = String.Empty;
+                    model.Message = "Your account is created but you must be approved by admin.";
 
                     return View("Login", model);
                 }
@@ -100,12 +108,21 @@ namespace EthernetSwitch.Controllers
         {
             var username = User?.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
             
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(username))
             {
-                _userService.ChangePassword(username, model.NewPassword);
+                try
+                {
+                    _userService.ChangePassword(username, model.NewPassword);
 
-                return RedirectToAction("Index","Home");
+                    return RedirectToAction("Index","Home");
+                }
+                catch (ArgumentException e)
+                {
+                    model.Message = e.Message;
+                }
             }
+            
+            model.OldPassword = string.Empty;
 
             return View(model);
         }
@@ -121,10 +138,9 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
-        public IActionResult RegisterUsers(string[] users)
+        public IActionResult RegisterUsers([Bind("UserNames")]IEnumerable<string> userNames)
         {
-            _userService.RegisterUsers(users);
-
+            _userService.RegisterUsers(userNames);
 
             return RedirectToAction("Settings", "Home");
         }
@@ -132,9 +148,9 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
-        public IActionResult RemoveUsers(string[] users)
+        public IActionResult RemoveUsers([Bind("UserNames")]IEnumerable<string> userNames)
         {
-            _userService.RemoveUsers(users);
+            _userService.RemoveUsers(userNames);
 
 
             return RedirectToAction("Settings", "Home");

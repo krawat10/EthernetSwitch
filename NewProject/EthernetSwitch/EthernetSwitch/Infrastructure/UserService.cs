@@ -63,6 +63,12 @@ namespace EthernetSwitch.Infrastructure
 
             if (user == null) throw new ArgumentException($"User {user} does not exists");
 
+            if (_passwordHasher.VerifyHashedPassword(username, user.PasswordEncrypted, password) ==
+                PasswordVerificationResult.Failed)
+            {
+                throw new ArgumentException("Old password is incorrect");
+            }
+
             user.PasswordEncrypted = _passwordHasher.HashPassword(username, password);
 
             _settingsRepository.SaveSettings(settings);
@@ -70,7 +76,7 @@ namespace EthernetSwitch.Infrastructure
             return user;
         }
 
-        public void RegisterUsers([Bind("UserNames")]IEnumerable<string> userNames)
+        public void RegisterUsers(IEnumerable<string> userNames)
         {
             var settings =  _settingsRepository.GetSettings();
 
@@ -87,7 +93,7 @@ namespace EthernetSwitch.Infrastructure
             _settingsRepository.SaveSettings(settings);
         }
 
-        public void RemoveUsers(string[] userNames)
+        public void RemoveUsers(IEnumerable<string> userNames)
         {
             var settings =  _settingsRepository.GetSettings();
             var users = settings.Users.ToList();

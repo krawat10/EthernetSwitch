@@ -9,6 +9,6 @@ namespace EthernetSwitch.Infrastructure
         User Register(string username, string password, UserRole role = UserRole.NotConfirmed);
         User ChangePassword(string username, string password);
         void RegisterUsers(IEnumerable<string> userNames);
-        void RemoveUsers(string[] userNames);
+        void RemoveUsers(IEnumerable<string> userNames);
     }
 }
