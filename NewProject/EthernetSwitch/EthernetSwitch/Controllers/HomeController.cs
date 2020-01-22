@@ -155,6 +155,10 @@ namespace EthernetSwitch.Controllers
                     if (ethInVlan == true)
                     {
                         //usunięci go z vlanu do którego jest przypisany
+                        var vlanID = _bashCommand.Execute($"brctl show | grep {viewModel.Name} | cut -f 1 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
+                        vlanID = vlanID.Replace("\n", "");
+                        _bashCommand.Execute($"ip link set vlan{vlanID} down");
+                        _bashCommand.Execute($"brctl delif vlan{vlanID} {viewModel.Name}");
                     }
                             _bashCommand.Execute($"ip link set vlan{vlanName} down");
                             _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");
