@@ -13,11 +13,11 @@ namespace EthernetSwitch.Infrastructure
 {
     public interface IUserService
     {
-        Task<User> Login(string username, string password);
+        User Login(string username, string password);
         User Register(string username, string password, UserRole role = UserRole.NotConfirmed);
-        Task<User> ChangePassword(string username, string password);
-        Task RegisterUsers(string[] userNames);
-        Task RemoveUsers(string[] userNames);
+        User ChangePassword(string username, string password);
+        void RegisterUsers(string[] userNames);
+        void RemoveUsers(string[] userNames);
     }
 
     public class UserService : IUserService
@@ -33,7 +33,7 @@ namespace EthernetSwitch.Infrastructure
 
 
 
-        public async Task<User> Login(string username, string password)
+        public User Login(string username, string password)
         {
             var settings =  _settingsRepository.GetSettings();
             var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
@@ -63,7 +63,7 @@ namespace EthernetSwitch.Infrastructure
             return user;
         }
 
-        public async Task<User> ChangePassword(string username, string password)
+        public User ChangePassword(string username, string password)
         {
             var settings =  _settingsRepository.GetSettings();
 
@@ -78,7 +78,7 @@ namespace EthernetSwitch.Infrastructure
             return user;
         }
 
-        public async Task RegisterUsers(string[] userNames)
+        public void RegisterUsers(string[] userNames)
         {
             var settings =  _settingsRepository.GetSettings();
 
@@ -95,7 +95,7 @@ namespace EthernetSwitch.Infrastructure
             _settingsRepository.SaveSettings(settings);
         }
 
-        public async Task RemoveUsers(string[] userNames)
+        public void RemoveUsers(string[] userNames)
         {
             var settings =  _settingsRepository.GetSettings();
             var users = settings.Users.ToList();

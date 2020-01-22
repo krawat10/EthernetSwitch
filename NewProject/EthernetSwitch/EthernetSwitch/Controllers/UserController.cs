@@ -52,7 +52,7 @@ namespace EthernetSwitch.Controllers
                     }
                 }
 
-                var user = await _userService.Login(model.UserName, model.Password);
+                var user = _userService.Login(model.UserName, model.Password);
                 
                 if (user == null)
                 {
