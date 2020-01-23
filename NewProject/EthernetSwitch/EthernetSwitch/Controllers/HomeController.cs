@@ -52,7 +52,7 @@ namespace EthernetSwitch.Controllers
                 {
                     var output =
                         _bashCommand.Execute(
-                            $"ip link show | grep {networkInterface}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
+                            $"ip link show | grep {networkInterface.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
 
 
                     var appliedVLANs = output
