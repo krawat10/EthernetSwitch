@@ -50,14 +50,25 @@ namespace EthernetSwitch.Controllers
             {
                 if (networkInterface.IsEthernet())
                 {
+                    var output =
+                        _bashCommand.Execute(
+                            $"ip link show | grep {networkInterface}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
+
+
+                    var appliedVLANs = output
+                        .Replace("\t", String.Empty)
+                        .Replace(networkInterface.Name, String.Empty)
+                        .Split('\n')
+                        .Select(vlan => vlan.Trim('.'))
+                        .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
+                        .ToList();
+
                     var isHostInterface = networkInterface
                         .GetIPProperties()
                         .UnicastAddresses
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
                     var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
-                    var appliedVLANs =
-                        new List<string>(); // _bashCommand.Execute($"interface {networkInterface.Name} vlans?");
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
                         {
@@ -96,6 +107,7 @@ namespace EthernetSwitch.Controllers
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             var vlanExists = true;
             var intervaceHasVlan = true;
             try
