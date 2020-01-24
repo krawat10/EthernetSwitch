@@ -141,7 +141,7 @@ namespace EthernetSwitch.Controllers
                 // 2. Add this 
                 // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
 
-                //////////////////////////////Czy valan istnieje///////////////////////////////////////////
+                //////////////////////////////Czy valan istnieje///////////////////////////////////////////OK
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep br'[0-9]' | cut -f 1");
@@ -155,7 +155,7 @@ namespace EthernetSwitch.Controllers
                     }
                 }
 
-                /////////////////////////////Czy interfens jest w jakimkolwiek vlanie///////////////////////
+                /////////////////////////////Czy interfens jest w jakimkolwiek vlanie///////////////////////OK
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show | grep {viewModel.Name}");
@@ -169,20 +169,20 @@ namespace EthernetSwitch.Controllers
                     }
                 }
 
-                ////////////////////////////Tworzenie Vlanu nietagowanego////////////////////////////////////
-                if (!vlanExists & !viewModel.Tagged)
+                ////////////////////////////Tworzenie Vlanu////////////////////////////////////
+                if (!vlanExists)
                 {
                     _bashCommand.Execute($"brctl addbr vlan{vlanName}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
                 }
 
-                ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////
+                ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////OK
                 if (intervaceHasVlan & viewModel.Tagged == false)
                 {
-                    //usunięci go z vlanu do którego jest przypisany
+                //usunięci go z vlanu do którego jest przypisany
                     var vlanID =
                         _bashCommand.Execute(
-                            $"ip link show | grep {viewModel.Name} | cut -d' ' -f9 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
+                            $"ip link show | grep [[:space:]]{viewModel.Name}: | cut -d' ' -f9 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
                     vlanID = vlanID.Replace("\n", "");
                     _bashCommand.Execute($"ip link set vlan{vlanID} down");
                     _bashCommand.Execute($"brctl delif vlan{vlanID} {viewModel.Name}");
@@ -194,8 +194,22 @@ namespace EthernetSwitch.Controllers
                     _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up");
                 }
+                ///////////////////////////Tworzenie tagowanego interfejsu///////////////////////////
+                 if (viewModel.Tagged)
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"ip link add link {viewModel.Name} name {viewModel.Name}.{vlanName} type vlan id {vlanName}");
+                    _bashCommand.Execute($"ip link set vlan{vlanName} up");
+                }
+                ///////////////////////////Dodanie tahowanego interfejsu do vlanu///////////////////////////
+                if (viewModel.Tagged)
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}.{vlanName}");
+                    _bashCommand.Execute($"ip link set {viewModel.Name}.{vlanName} up");
+                    _bashCommand.Execute($"ip link set vlan{vlanName} up");
+                }
             }
-
 
             return RedirectToAction("Index");
         }
