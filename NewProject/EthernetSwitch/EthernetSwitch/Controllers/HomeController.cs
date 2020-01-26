@@ -106,7 +106,7 @@ namespace EthernetSwitch.Controllers
 
                     try
                     {
-                        var findtag = _bashCommand.Execute($"ebtables -L | grep ACCEPT | cut -d' ' -f2 | grep {networkInterface.Name}");
+                        var findtag = _bashCommand.Execute($"ebtables -L | grep ACCEPT | cut -d' ' -f4 | grep {networkInterface.Name}");
                     }
                     catch (ProcessException e)
                     {
@@ -137,6 +137,7 @@ namespace EthernetSwitch.Controllers
                             IsHostInterface = isHostInterface,
                             Tagged = tagged, //isTagged, // Check if tagged
                             AllowTagging = allowTagging,
+                            Type=type
                         });
                 }
             }
