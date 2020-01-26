@@ -61,6 +61,7 @@ namespace EthernetSwitch.Controllers
                         .Split('\n')
                         .Select(vlan => vlan.Trim('.'))
                         .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
+                        .Where(vlan => !vlan.ToLower().Equals("down"))
                         .ToList();
 
                     var isHostInterface = networkInterface
