@@ -69,7 +69,20 @@ namespace EthernetSwitch.Controllers
                         .UnicastAddresses
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
-                    var isTagged = true; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var tagged = true;
+                    try
+                    {
+                        var findtag = _bashCommand.Execute($"ip link show | grep @{networkInterface.Name}");
+                    }
+                    catch (ProcessException e)
+                    {
+                        var error = e.ExitCode;
+                        if (error == 1)
+                        {
+                            tagged = false;
+                        }
+                    }
 
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
@@ -80,7 +93,7 @@ namespace EthernetSwitch.Controllers
                             VirtualLANs = appliedVLANs, // All applied vlan's to this interface
                             AllVirtualLANs = allVLANs,
                             IsHostInterface = isHostInterface,
-                            Tagged = true, //isTagged, // Check if tagged
+                            Tagged = tagged, //isTagged, // Check if tagged
                             AllowTagging = allowTagging
                         });
                 }
