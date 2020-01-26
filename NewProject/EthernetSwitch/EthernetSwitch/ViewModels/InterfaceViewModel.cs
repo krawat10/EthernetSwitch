@@ -5,7 +5,7 @@ using System.Net.NetworkInformation;
 
 namespace EthernetSwitch.ViewModels
 {
-    public enum InterfaceType {Off, Community, Isolated, Promiscuous }
+    public enum InterfaceType {Off, Isolated, Promiscuous }
     public class InterfaceViewModel
     {
         public Guid Guid { get; }

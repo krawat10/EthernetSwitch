@@ -45,7 +45,6 @@ namespace EthernetSwitch.Controllers
 
             var connectionLocalAddress = HttpContext.Connection.LocalIpAddress;
 
-
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (networkInterface.IsEthernet())
@@ -70,6 +69,7 @@ namespace EthernetSwitch.Controllers
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
                     var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                   
                     var tagged = true;
                     try
                     {
@@ -83,7 +83,48 @@ namespace EthernetSwitch.Controllers
                             tagged = false;
                         }
                     }
-                    var Type = "Off";
+                    ///////////////////////////////////////czy interfejs jest w isolated mode/////////////////////////////
+                    
+
+                    var isolated = true;
+
+                    try
+                    {
+                        var findtag = _bashCommand.Execute($"ebtables -L | grep DROP | cut -d' ' -f2 | grep {networkInterface.Name}");
+                    }
+                    catch (ProcessException e)
+                    {
+                        var error = e.ExitCode;
+                        if (error == 1)
+                        {
+                            isolated = false;
+                        }
+                    }
+
+                    ///////////////////////////////////////czy interfejs jest w Promiscuous mode/////////////////////////////
+                       var promiscuous = true;
+
+                    try
+                    {
+                        var findtag = _bashCommand.Execute($"ebtables -L | grep ACCEPT | cut -d' ' -f2 | grep {networkInterface.Name}");
+                    }
+                    catch (ProcessException e)
+                    {
+                        var error = e.ExitCode;
+                        if (error == 1)
+                        {
+                            promiscuous = false;
+                        }
+                    }
+                    var type = InterfaceType.Off;
+                    if (isolated == true)
+                    {
+                        type = InterfaceType.Isolated;
+                    }
+                     if (promiscuous == true)
+                    {
+                        type = InterfaceType.Promiscuous;
+                    }
 
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
@@ -95,7 +136,7 @@ namespace EthernetSwitch.Controllers
                             AllVirtualLANs = allVLANs,
                             IsHostInterface = isHostInterface,
                             Tagged = tagged, //isTagged, // Check if tagged
-                            AllowTagging = allowTagging
+                            AllowTagging = allowTagging,
                         });
                 }
             }
@@ -122,8 +163,9 @@ namespace EthernetSwitch.Controllers
             {
                 // _bashCommand.Execute($"untag interface {viewModel.Name}");
             }
+            
             ///////////////////////////////////////oranie konfiguracji interfejsu/////////////////////////////////
-
+           
             
              var output2 =
                         _bashCommand.Execute(
@@ -185,11 +227,8 @@ namespace EthernetSwitch.Controllers
                 }
             }
             
-
-
-
             
-
+                    
             foreach (var vlanName in viewModel.VirtualLANs) // All selected vlans
             {
                 // 1. Check if interface exists
@@ -289,7 +328,7 @@ namespace EthernetSwitch.Controllers
                             //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
                                         try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
                             }
                             catch (ProcessException e)
                             {
@@ -299,11 +338,7 @@ namespace EthernetSwitch.Controllers
                         }
                     } 
                     break;
-                 case InterfaceType.Community:
-                
 
-
-                    break;
                 case InterfaceType.Isolated:
 
                     foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
@@ -330,14 +365,17 @@ namespace EthernetSwitch.Controllers
                                 var error = e.ExitCode;
                             }   
                             //////////////////////////////////////////////blokowanie dostępu/////////////////////////////////////////////
-                            try
+                            if (viewModel.Name != networkInterface.Name)
                             {
-                                var output = _bashCommand.Execute($"ebtables -A FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                                try
+                                {
+                                    var output = _bashCommand.Execute($"ebtables -A FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                                }
+                                catch (ProcessException e)
+                                {
+                                    var error = e.ExitCode;
+                                }   
                             }
-                            catch (ProcessException e)
-                            {
-                                var error = e.ExitCode;
-                            }   
                         }
                     } 
 
@@ -361,21 +399,24 @@ namespace EthernetSwitch.Controllers
                             //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
                                         try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
                             }   
                             //////////////////////////////////////////////udzielanie dostepu/////////////////////////////////////////////
-                            try
+                            if (viewModel.Name != networkInterface.Name)
                             {
-                                var output = _bashCommand.Execute($"ebtables -I FORWARD -i {networkInterface.Name}  -o {viewModel.Name} -j ACCEPT");
+                                try
+                                {
+                                    var output = _bashCommand.Execute($"ebtables -I FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
+                                }
+                                catch (ProcessException e)
+                                {
+                                    var error = e.ExitCode;
+                                }   
                             }
-                            catch (ProcessException e)
-                            {
-                                var error = e.ExitCode;
-                            }   
                         }
                     } 
 
@@ -383,8 +424,6 @@ namespace EthernetSwitch.Controllers
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-
             /////////////////////////////////////////////////////////////////////////////////////////////////
             return RedirectToAction("Index");
         }
