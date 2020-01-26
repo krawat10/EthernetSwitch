@@ -69,7 +69,20 @@ namespace EthernetSwitch.Controllers
                         .UnicastAddresses
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
-                    var isTagged = true; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var tagged = true;
+                    try
+                    {
+                        var findtag = _bashCommand.Execute($"ip link show | grep @{networkInterface.Name}");
+                    }
+                    catch (ProcessException e)
+                    {
+                        var error = e.ExitCode;
+                        if (error == 1)
+                        {
+                            tagged = false;
+                        }
+                    }
 
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
@@ -80,7 +93,7 @@ namespace EthernetSwitch.Controllers
                             VirtualLANs = appliedVLANs, // All applied vlan's to this interface
                             AllVirtualLANs = allVLANs,
                             IsHostInterface = isHostInterface,
-                            Tagged = true, //isTagged, // Check if tagged
+                            Tagged = tagged, //isTagged, // Check if tagged
                             AllowTagging = allowTagging
                         });
                 }
@@ -112,23 +125,6 @@ namespace EthernetSwitch.Controllers
 
             var vlanExists = true;
             
-            
-            try
-            {
-                // var execute = _bashCommand.Execute("sudo aptitude install bridge-utils");
-                // var output = _bashCommand.Execute($"brctl show br{viewModel.Name} | grep br'[0-9]' | cut -f 1");
-            }
-            catch (ProcessException e)
-            {
-                var error = e.Message;
-
-                if (error.Contains($"br{viewModel.Name}") && error.Contains("does not exists"))
-                {
-                    vlanExists = false;
-                }
-            }
-
-
             if (viewModel.Tagged) // Tag checkbox
             {
                 // _bashCommand.Execute($"tag interface {viewModel.Name}");
