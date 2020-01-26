@@ -52,7 +52,7 @@ namespace EthernetSwitch.Controllers
                 {
                     var output =
                         _bashCommand.Execute(
-                            $"ip link show | grep {networkInterface}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
+                            $"ip link show | grep {networkInterface.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
 
 
                     var appliedVLANs = output
@@ -69,7 +69,8 @@ namespace EthernetSwitch.Controllers
                         .UnicastAddresses
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
-                    var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+                    var isTagged = true; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
+
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
                         {
@@ -110,7 +111,8 @@ namespace EthernetSwitch.Controllers
             }
 
             var vlanExists = true;
-            var intervaceHasVlan = true;
+            
+            
             try
             {
                 // var execute = _bashCommand.Execute("sudo aptitude install bridge-utils");
@@ -135,6 +137,71 @@ namespace EthernetSwitch.Controllers
             {
                 // _bashCommand.Execute($"untag interface {viewModel.Name}");
             }
+            ///////////////////////////////////////oranie konfiguracji interfejsu/////////////////////////////////
+
+            
+             var output2 =
+                        _bashCommand.Execute(
+                            $"ip link show | grep {viewModel.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
+
+
+                    var VLANsToRemove = output2
+                        .Replace("\t", String.Empty)
+                        .Replace(viewModel.Name, String.Empty)
+                        .Split('\n')
+                        .Select(vlan => vlan.Trim('.'))
+                        .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
+                        .ToList();
+
+              foreach (var vlanName in VLANsToRemove) // All selected vlans
+            {
+                //////////////////////////////////////////////tagowane////////////////////////////////////////////////
+                var ifToRemIsTaged = true;
+                try
+                {
+                    var output = _bashCommand.Execute($"ip link show {viewModel.Name}.{vlanName}");
+                }
+                catch (ProcessException e)
+                {
+                    var error = e.Message;
+                    if (error.Contains($"does not exist.\n"))
+                    {
+                        ifToRemIsTaged = false;
+                    } 
+                }
+
+                if(ifToRemIsTaged == true)
+                {
+                    _bashCommand.Execute($"ip link set {viewModel.Name}.{vlanName} down");  //usuwanie intrfejsów
+                    _bashCommand.Execute($"ip link delete {viewModel.Name}.{vlanName}");
+                } else
+                /////////////////////////////////////////////nietagowane///////////////////////////////////////////////
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"brctl delif vlan{vlanName} {viewModel.Name}");
+                    _bashCommand.Execute($"ip link set vlan{vlanName} up");
+                }
+
+                ////////////////////////////////////////////usuwanie pustych br////////////////////////////////////////
+                try
+                {
+                    var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep eth");
+                }
+                catch (ProcessException e)
+                {
+                    var error = e.ExitCode;
+                    if (error == 1)
+                    {
+                        _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                        _bashCommand.Execute($"ip link delete vlan{vlanName}");
+                    }
+                }
+            }
+            
+
+
+
+            
 
             foreach (var vlanName in viewModel.VirtualLANs) // All selected vlans
             {
@@ -142,10 +209,10 @@ namespace EthernetSwitch.Controllers
                 // 2. Add this 
                 // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
 
-                //////////////////////////////Czy valan istnieje///////////////////////////////////////////
+                //////////////////////////////Czy valan istnieje///////////////////////////////////////////OK
                 try
                 {
-                    var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep br'[0-9]' | cut -f 1");
+                    var output = _bashCommand.Execute($"brctl show vlan{vlanName}");
                 }
                 catch (ProcessException e)
                 {
@@ -156,7 +223,8 @@ namespace EthernetSwitch.Controllers
                     }
                 }
 
-                /////////////////////////////Czy interfens jest w jakimkolwiek vlanie///////////////////////
+                /////////////////////////////Czy interfens jest w jakimkolwiek vlanie///////////////////////OK
+                var intervaceHasVlan = true;
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show | grep {viewModel.Name}");
@@ -170,8 +238,8 @@ namespace EthernetSwitch.Controllers
                     }
                 }
 
-                ////////////////////////////Tworzenie Vlanu nietagowanego////////////////////////////////////
-                if (!vlanExists & !viewModel.Tagged)
+                ////////////////////////////Tworzenie Vlanu////////////////////////////////////
+                if (!vlanExists)
                 {
                     _bashCommand.Execute($"brctl addbr vlan{vlanName}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
@@ -180,10 +248,10 @@ namespace EthernetSwitch.Controllers
                 ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////
                 if (intervaceHasVlan & viewModel.Tagged == false)
                 {
-                    //usunięci go z vlanu do którego jest przypisany
+                //usunięci go z vlanu do którego jest przypisany
                     var vlanID =
                         _bashCommand.Execute(
-                            $"ip link show | grep {viewModel.Name} | cut -d' ' -f9 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
+                            $"ip link show | grep [[:space:]]{viewModel.Name}: | cut -d' ' -f9 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
                     vlanID = vlanID.Replace("\n", "");
                     _bashCommand.Execute($"ip link set vlan{vlanID} down");
                     _bashCommand.Execute($"brctl delif vlan{vlanID} {viewModel.Name}");
@@ -195,8 +263,22 @@ namespace EthernetSwitch.Controllers
                     _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up");
                 }
+                ///////////////////////////Tworzenie tagowanego interfejsu///////////////////////////
+                 if (viewModel.Tagged)
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"ip link add link {viewModel.Name} name {viewModel.Name}.{vlanName} type vlan id {vlanName}");
+                    _bashCommand.Execute($"ip link set vlan{vlanName} up");
+                }
+                ///////////////////////////Dodanie tahowanego interfejsu do vlanu///////////////////////////
+                if (viewModel.Tagged)
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}.{vlanName}");
+                    _bashCommand.Execute($"ip link set {viewModel.Name}.{vlanName} up");
+                    _bashCommand.Execute($"ip link set vlan{vlanName} up");
+                }
             }
-
 
             return RedirectToAction("Index");
         }
