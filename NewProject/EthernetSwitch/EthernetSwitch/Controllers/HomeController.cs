@@ -111,23 +111,6 @@ namespace EthernetSwitch.Controllers
 
             var vlanExists = true;
             
-            
-            try
-            {
-                // var execute = _bashCommand.Execute("sudo aptitude install bridge-utils");
-                // var output = _bashCommand.Execute($"brctl show br{viewModel.Name} | grep br'[0-9]' | cut -f 1");
-            }
-            catch (ProcessException e)
-            {
-                var error = e.Message;
-
-                if (error.Contains($"br{viewModel.Name}") && error.Contains("does not exists"))
-                {
-                    vlanExists = false;
-                }
-            }
-
-
             if (viewModel.Tagged) // Tag checkbox
             {
                 // _bashCommand.Execute($"tag interface {viewModel.Name}");
