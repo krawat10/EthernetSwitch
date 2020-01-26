@@ -83,6 +83,7 @@ namespace EthernetSwitch.Controllers
                             tagged = false;
                         }
                     }
+                    var Type = "Off";
 
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
@@ -109,19 +110,7 @@ namespace EthernetSwitch.Controllers
         /// <returns>Redirect to home page</returns>
         public IActionResult Edit(InterfaceViewModel viewModel)
         {
-            switch (viewModel.Type)
-            {
-                case InterfaceType.Off:
-                    break;
-                case InterfaceType.Community:
-                    break;
-                case InterfaceType.Isolated:
-                    break;
-                case InterfaceType.Promiscuous:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+
 
             var vlanExists = true;
             
@@ -148,6 +137,8 @@ namespace EthernetSwitch.Controllers
                         .Select(vlan => vlan.Trim('.'))
                         .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
                         .ToList();
+
+
 
               foreach (var vlanName in VLANsToRemove) // All selected vlans
             {
@@ -276,6 +267,125 @@ namespace EthernetSwitch.Controllers
                 }
             }
 
+            ///////////////////////////////Private vlan/////////////////////////////////////////////////////
+            switch (viewModel.Type)
+            {
+                case InterfaceType.Off:
+
+                    foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+                    {
+                        if (networkInterface.IsEthernet())
+                        {
+                            //////////////////////////////////////////////czyszczenie regół drop dot interfejsu/////////////////////////////////////////////
+                            try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                                
+                            //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
+                                        try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                                
+                        }
+                    } 
+                    break;
+                 case InterfaceType.Community:
+                
+
+
+                    break;
+                case InterfaceType.Isolated:
+
+                    foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+                    {
+                        if (networkInterface.IsEthernet())
+                        {
+                            //////////////////////////////////////////////czyszczenie regół drop dot interfejsu/////////////////////////////////////////////
+                            try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                               
+                            //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
+                                        try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                            //////////////////////////////////////////////blokowanie dostępu/////////////////////////////////////////////
+                            try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -A FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                        }
+                    } 
+
+
+                    break;
+                case InterfaceType.Promiscuous:
+                                       foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+                    {
+                        if (networkInterface.IsEthernet())
+                        {
+                            //////////////////////////////////////////////czyszczenie regół drop dot interfejsu/////////////////////////////////////////////
+                            try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                               
+                            //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
+                                        try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                            //////////////////////////////////////////////udzielanie dostepu/////////////////////////////////////////////
+                            try
+                            {
+                                var output = _bashCommand.Execute($"ebtables -I FORWARD -i {networkInterface.Name}  -o {viewModel.Name} -j ACCEPT");
+                            }
+                            catch (ProcessException e)
+                            {
+                                var error = e.ExitCode;
+                            }   
+                        }
+                    } 
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////
             return RedirectToAction("Index");
         }
 
