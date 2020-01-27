@@ -49,6 +49,7 @@ namespace EthernetSwitch.Controllers
             {
                 if (networkInterface.IsEthernet())
                 {
+                     //_bashCommand.Execute($"ip link set {networkInterface.Name} up");
                     var output =
                         _bashCommand.Execute(
                             $"ip link show | grep {networkInterface.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
@@ -154,7 +155,7 @@ namespace EthernetSwitch.Controllers
         {
 
 
-            var vlanExists = true;
+            
             
             if (viewModel.Tagged) // Tag checkbox
             {
@@ -232,11 +233,13 @@ namespace EthernetSwitch.Controllers
                     
             foreach (var vlanName in viewModel.VirtualLANs) // All selected vlans
             {
+
                 // 1. Check if interface exists
                 // 2. Add this 
                 // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
 
                 //////////////////////////////Czy valan istnieje///////////////////////////////////////////OK
+                var vlanExists = true;
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show vlan{vlanName}");
@@ -300,6 +303,8 @@ namespace EthernetSwitch.Controllers
                 ///////////////////////////Dodanie tahowanego interfejsu do vlanu///////////////////////////
                 if (viewModel.Tagged)
                 {
+                    _bashCommand.Execute($"ip link set {viewModel.Name} up");
+
                     _bashCommand.Execute($"ip link set vlan{vlanName} down");
                     _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}.{vlanName}");
                     _bashCommand.Execute($"ip link set {viewModel.Name}.{vlanName} up");
