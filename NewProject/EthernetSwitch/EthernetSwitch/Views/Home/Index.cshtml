@@ -71,16 +71,21 @@
             interfaceVLANs.prepend(el);
         };
 
-        $('body').on('change',
-            '.interface-type',
-            function(e) {
-                const select = $(e.target).first();
-                const inteface = select.data('interface');
-                const selectedOptionValue = select.find('option:selected').val();
+        $(document).ready(() => {
+            $('.interface-type').each((idx, el) => updateTaggedSwitch(el));
+        });
 
-                const taggedSwitch = $(`#Tagged-${inteface}`).first();
-                
-                if (taggedSwitch) {
+        $('body').on('change', '.interface-type',(e) => updateTaggedSwitch(e.target));
+
+        function updateTaggedSwitch(element) {
+            const select = $(element).first();
+            const inteface = select.data('interface');
+            const selectedOptionValue = select.find('option:selected').val();
+
+            const taggedSwitch = $(`#Tagged-${inteface}`).first();
+
+            if (taggedSwitch) {
+                if (taggedSwitch.data('allowed')) {
                     if (selectedOptionValue > 0) {
                         taggedSwitch.prop('disabled', true);
                         taggedSwitch.prop('enabled', false);
@@ -90,8 +95,10 @@
                         taggedSwitch.prop('enabled', true);
                         taggedSwitch.attr('checked', 'checked');
                     }
+
                 }
-            });
+            }
+        }
 
         $('body').on('click',
             '.remove-vlan-icon',

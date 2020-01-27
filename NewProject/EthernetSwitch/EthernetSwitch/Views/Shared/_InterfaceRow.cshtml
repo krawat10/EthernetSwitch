@@ -42,6 +42,7 @@
                    class="custom-control-input"
                    name="Tagged"
                    value="true"
+                   data-allowed="@Model.AllowTagging.ToString().ToLower()"
                    id="Tagged-@Model.Guid"
                    @(Model.AllowTagging ? "enabled": "disabled")
                    @(Model.Tagged ? "checked" : string.Empty)>
