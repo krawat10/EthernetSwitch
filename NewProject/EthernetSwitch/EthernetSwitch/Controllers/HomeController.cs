@@ -49,7 +49,7 @@ namespace EthernetSwitch.Controllers
             {
                 if (networkInterface.IsEthernet())
                 {
-                     //_bashCommand.Execute($"ip link set {networkInterface.Name} up");
+                     
                     var output =
                         _bashCommand.Execute(
                             $"ip link show | grep {networkInterface.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
@@ -155,7 +155,13 @@ namespace EthernetSwitch.Controllers
         {
 
 
-            
+              if (viewModel.IsActive == true)
+                    {
+                        _bashCommand.Execute($"ip link set {viewModel.Name} up");
+                    } else
+                    {
+                        _bashCommand.Execute($"ip link set {viewModel.Name} down");
+                    }
             
             if (viewModel.Tagged) // Tag checkbox
             {
@@ -237,7 +243,7 @@ namespace EthernetSwitch.Controllers
                 // 1. Check if interface exists
                 // 2. Add this 
                 // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
-
+              
                 //////////////////////////////Czy valan istnieje///////////////////////////////////////////OK
                 var vlanExists = true;
                 try
