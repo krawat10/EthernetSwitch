@@ -71,6 +71,28 @@
             interfaceVLANs.prepend(el);
         };
 
+        $('body').on('change',
+            '.interface-type',
+            function(e) {
+                const select = $(e.target).first();
+                const inteface = select.data('interface');
+                const selectedOptionValue = select.find('option:selected').val();
+
+                const taggedSwitch = $(`#Tagged-${inteface}`).first();
+                
+                if (taggedSwitch) {
+                    if (selectedOptionValue > 0) {
+                        taggedSwitch.prop('disabled', true);
+                        taggedSwitch.prop('enabled', false);
+                        taggedSwitch.removeAttr('checked');
+                    } else {
+                        taggedSwitch.prop('disabled', false);
+                        taggedSwitch.prop('enabled', true);
+                        taggedSwitch.attr('checked', 'checked');
+                    }
+                }
+            });
+
         $('body').on('click',
             '.remove-vlan-icon',
             function(e) {
@@ -111,7 +133,8 @@
                     .each((idx, dropdown) => {
                         if ($(dropdown).data('interface') !== current_interface_guid) {
                             const option =
-                                `<a class="dropdown-item vlan-dropdown" data-interface="${$(dropdown).data('interface')}">${vlan}</a>`;
+                                `<a class="dropdown-item vlan-dropdown" data-interface="${$(dropdown).data('interface')
+                                    }">${vlan}</a>`;
                             $(dropdown).prepend(option);
                         }
                     });

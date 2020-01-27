@@ -33,7 +33,7 @@
         <input form="@Model.Guid" type="hidden" asp-for="Status"/>
     </td>
     <td>
-        @Html.DropDownListFor(model => model.Type, Html.GetEnumSelectList<InterfaceType>(), new {@class = "form-control", form = Model.Guid})
+        @Html.DropDownListFor(model => model.Type, Html.GetEnumSelectList<InterfaceType>(), new {@class = "form-control interface-type", form = Model.Guid, data_interface = Model.Guid})
     </td>
     <td>
         <div class="custom-control custom-switch">
