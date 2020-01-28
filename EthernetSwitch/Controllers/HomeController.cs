@@ -188,21 +188,6 @@ namespace EthernetSwitch.Controllers
                     _bashCommand.Execute($"ip link set vlan{vlanName} down");
                     _bashCommand.Execute($"ip link delete vlan{vlanName}");
                 }
-
-                // Clears empty bridges
-                try
-                {
-                    var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep eth");
-                }
-                catch (ProcessException e)
-                {
-                    var error = e.ExitCode;
-                    if (error == 1)
-                    {
-                        _bashCommand.Execute($"ip link set vlan{vlanName} down");
-                        _bashCommand.Execute($"ip link delete vlan{vlanName}");
-                    }
-                }
             }
 
 
