@@ -154,7 +154,7 @@ namespace EthernetSwitch.Controllers
         public IActionResult Edit(InterfaceViewModel viewModel)
         {
 
-
+            ///////////////////////////On/Off interface//////////////////////////////////////////////////////////
               if (viewModel.IsActive == true)
                     {
                         _bashCommand.Execute($"ip link set {viewModel.Name} up");
@@ -220,6 +220,14 @@ namespace EthernetSwitch.Controllers
                 }
 
                 ////////////////////////////////////////////usuwanie pustych br////////////////////////////////////////
+                var output3 = _bashCommand.Execute($"brctl show vlan{vlanName} | grep vlan{vlanName} | cut -f6");
+
+                if (output3 == "\n")
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"ip link delete vlan{vlanName}");
+                }
+                /*
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep eth");
@@ -232,7 +240,7 @@ namespace EthernetSwitch.Controllers
                         _bashCommand.Execute($"ip link set vlan{vlanName} down");
                         _bashCommand.Execute($"ip link delete vlan{vlanName}");
                     }
-                }
+                }*/
             }
             
             
