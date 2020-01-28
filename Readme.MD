@@ -11,23 +11,23 @@ Features:
 - Private VLANs
 
 ## Installation
-#### (**Vagrant**) Self-deployment VM enviroment
-Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run network switch VM, go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
+#### 1. (**Vagrant**) Self-deployment VM enviroment
+Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run network the application on VM, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
     
     vagrant up
     
-#### (**DEBIAN**) Instal and run using deploy.sh script 
-To run and deploy an application using one script open terminal and go to Project's directory and type:
+#### 2. (**DEBIAN**) Instal and run using deploy.sh script 
+To run and deploy the application using one script open terminal and go to EthernetSwitch Project directory and type:
     
     sudo bash deploy.sh
 
 
 #### Bundles
 Repository contains 2 version of bundled application:
- - EthernetSwitch/publish/linux-x64.zip ***(debian tested)***
+ - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
  - EthernetSwitch/publish/linux-arm.zip ***(not tested)***
 
-Before executing an application please install the following packages:
+Before executing the application please install the following packages:
 
     apt-get update  
     apt-get install -y aptitude
@@ -36,7 +36,8 @@ Before executing an application please install the following packages:
     aptitude install -y ebtables
     aptitude install -y unzip
 
-Then:
+Then run the application:
+
     cd publish
     unzip linux-{version}.zip
     chmod +x EthernetSwitch  # make file executable
@@ -44,7 +45,7 @@ Then:
 
 
 ## Getting started
-After executingrunning an application terminal should return the following output:
+After executing an application terminal should return the following output:
     
     info: Microsoft.Hosting.Lifetime[0]
         Now listening on: http://[::]:80
@@ -57,7 +58,7 @@ After executingrunning an application terminal should return the following outpu
 
 Now the application is hosted on 80 port (http://localhost). 
 
-Type http://localhost (if you are using a computer where is hosted application). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
+Go to http://localhost using your browser (if you are using a machine where the application is hosted). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
 
 ![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/LoginPanel.jpg?raw=true)
 
