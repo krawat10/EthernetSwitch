@@ -11,18 +11,18 @@ Features:
 - Private VLANs
 
 ## Installation
-#### (**Vagrant**) Self-deployment VM enviroment
+#### 1. (**Vagrant**) Self-deployment VM enviroment
 Example self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run the VM and the application, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
     
     vagrant up
     
-#### (**DEBIAN**) Instal and run using deploy.sh script 
+#### 2. (**DEBIAN**) Instal and run using deploy.sh script 
 To run and deploy an application using one script open terminal and go to EthernetSwitch's project directory and type:
     
     sudo bash deploy.sh
 
 
-#### Bundles
+#### 3. Bundles
 Repository contains 2 version of bundled application:
  - EthernetSwitch/publish/linux-x64.zip ***(debian tested)***
  - EthernetSwitch/publish/linux-arm.zip ***(not tested)***
@@ -46,7 +46,7 @@ Then run the application:
 	sudo ./EthernetSwitch
 
 
-#### Getting started
+## Getting started
 After executing an application terminal should return the following output:
 	
 	info: Microsoft.Hosting.Lifetime[0]
