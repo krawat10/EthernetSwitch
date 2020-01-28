@@ -12,7 +12,7 @@ Features:
 
 ## Installation
 #### 1. (**Vagrant**) Self-deployment VM enviroment
-Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run network the application on VM, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
+Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run the application on VM, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
     
     vagrant up
     
