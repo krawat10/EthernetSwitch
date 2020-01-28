@@ -11,18 +11,18 @@ Features:
 - Private VLANs
 
 ## Installation
-#### 1. (**Vagrant**) Self-deployment VM enviroment
-Example self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run the VM and the application, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
+#### (**Vagrant**) Self-deployment VM enviroment
+Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run network switch VM, go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
     
     vagrant up
     
-#### 2. (**DEBIAN**) Instal and run using deploy.sh script 
-To run and deploy an application using one script open terminal and go to EthernetSwitch's project directory and type:
+#### (**DEBIAN**) Instal and run using deploy.sh script 
+To run and deploy an application using one script open terminal and go to Project's directory and type:
     
     sudo bash deploy.sh
 
 
-#### 3. Bundles
+#### Bundles
 Repository contains 2 version of bundled application:
  - EthernetSwitch/publish/linux-x64.zip ***(debian tested)***
  - EthernetSwitch/publish/linux-arm.zip ***(not tested)***
@@ -38,16 +38,15 @@ Before executing an application please install the following packages:
     aptitude install -y ebtables
     aptitude install -y unzip
 
-Then run the application:
-
+Then:
 	cd publish
 	unzip linux-{version}.zip
-	chmod +x EthernetSwitch    # make file executable
+	chmod EthernetSwitch 777    # make file executable
 	sudo ./EthernetSwitch
 
 
-## Getting started
-After executing an application terminal should return the following output:
+#### Getting started
+After executingrunning an application terminal should return the following output:
 	
 	info: Microsoft.Hosting.Lifetime[0]
 	    Now listening on: http://[::]:80
@@ -58,6 +57,15 @@ After executing an application terminal should return the following output:
 	info: Microsoft.Hosting.Lifetime[0]
 	    Content root path: /home/vagrant/EthernetSwitch/publish
 
-Now the application is hosted on 80 port (http://localhost).
+Now the application is hosted on 80 port (http://localhost). 
 
+Type http://localhost (if you are using computer where is hosted application). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
+
+![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/LoginPanel.jpg?raw=true)
+
+After login you should see the following dashboard (rows can be different based on connected interfaces):
+
+![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/Home.jpg?raw=true)
+
+##### **Now you can modify your interfaces!**
 
