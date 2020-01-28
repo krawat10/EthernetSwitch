@@ -22,7 +22,7 @@ To run and deploy the application using one script open terminal and go to Ether
     sudo bash deploy.sh
 
 
-#### Bundles
+#### 3. Bundles
 Repository contains 2 version of bundled application:
  - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
  - EthernetSwitch/publish/linux-arm.zip ***(not tested)***
