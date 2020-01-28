@@ -38,7 +38,7 @@ Before executing an application please install the following packages:
     aptitude install -y ebtables
     aptitude install -y unzip
 
-Then:
+Then run the application:
 	cd publish
 	unzip linux-{version}.zip
 	chmod EthernetSwitch 777    # make file executable
@@ -46,7 +46,7 @@ Then:
 
 
 #### Getting started
-After executingrunning an application terminal should return the following output:
+After executing an application terminal should return the following output:
 	
 	info: Microsoft.Hosting.Lifetime[0]
 	    Now listening on: http://[::]:80
@@ -58,6 +58,5 @@ After executingrunning an application terminal should return the following outpu
 	    Content root path: /home/vagrant/EthernetSwitch/publish
 
 Now the application is hosted on 80 port (http://localhost).
-
 
 
