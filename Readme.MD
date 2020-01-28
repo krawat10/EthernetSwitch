@@ -31,9 +31,7 @@ Before executing an application please install the following packages:
 
     apt-get update  
     apt-get install -y aptitude
-    aptitude install -y tcpdump
     aptitude install -y bridge-utils
-    aptitude install -y vlan
     aptitude install -y gnupg
     aptitude install -y ebtables
     aptitude install -y unzip
@@ -41,7 +39,7 @@ Before executing an application please install the following packages:
 Then:
     cd publish
     unzip linux-{version}.zip
-    chmod EthernetSwitch 777    # make file executable
+    chmod +x EthernetSwitch  # make file executable
     sudo ./EthernetSwitch
 
 
