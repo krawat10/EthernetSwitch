@@ -6,8 +6,7 @@ namespace EthernetSwitch.Extensions
     {
         public static bool IsEthernet(this NetworkInterface networkInterface)
         {
-            return networkInterface.Name != "eth0" &
-                   networkInterface.Name.Contains("vlan") == false & 
+            return networkInterface.Name.Contains("vlan") == false & 
                    networkInterface.Name.Contains(".") == false &
                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet3Megabit ||
