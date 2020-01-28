@@ -39,6 +39,7 @@ Before executing an application please install the following packages:
     aptitude install -y unzip
 
 Then run the application:
+
 	cd publish
 	unzip linux-{version}.zip
 	chmod +x EthernetSwitch    # make file executable
