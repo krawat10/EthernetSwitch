@@ -24,8 +24,8 @@ To run and deploy an application using one script open terminal and go to Projec
 
 #### Bundles
 Repository contains 2 version of bundled application:
- - EthernetSwitch/publish/linux-x64 ***(debian tested)***
- - EthernetSwitch/publish/linux-arm ***(not tested)***
+ - EthernetSwitch/publish/linux-x64.zip ***(debian tested)***
+ - EthernetSwitch/publish/linux-arm.zip ***(not tested)***
 
 Before executing an application please install the following packages:
 
