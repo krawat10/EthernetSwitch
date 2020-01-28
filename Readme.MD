@@ -43,7 +43,7 @@ Then:
     sudo ./EthernetSwitch
 
 
-#### Getting started
+## Getting started
 After executingrunning an application terminal should return the following output:
     
     info: Microsoft.Hosting.Lifetime[0]
