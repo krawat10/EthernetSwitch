@@ -12,12 +12,12 @@ Features:
 
 ## Installation
 #### (**Vagrant**) Self-deployment VM enviroment
-Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run network switch VM, go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
+Example self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run the VM and the application, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
     
     vagrant up
     
 #### (**DEBIAN**) Instal and run using deploy.sh script 
-To run and deploy an application using one script open terminal and go to Project's directory and type:
+To run and deploy an application using one script open terminal and go to EthernetSwitch's project directory and type:
     
     sudo bash deploy.sh
 
@@ -41,7 +41,7 @@ Before executing an application please install the following packages:
 Then run the application:
 	cd publish
 	unzip linux-{version}.zip
-	chmod EthernetSwitch 777    # make file executable
+	chmod +x EthernetSwitch    # make file executable
 	sudo ./EthernetSwitch
 
 
