@@ -3,26 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Threading.Tasks;
+using EthernetSwitch.Exceptions;
 using EthernetSwitch.Extensions;
 using EthernetSwitch.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
-using Microsoft.AspNetCore.Http.Features;
-using System.Net;
-using EthernetSwitch.Exceptions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace EthernetSwitch.Controllers
 {
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin,User")]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IBashCommand _bashCommand;
+        private readonly ILogger<HomeController> _logger;
         private readonly ISettingsRepository _settingsRepository;
 
         public HomeController(ILogger<HomeController> logger, IBashCommand bashCommand,
@@ -46,18 +43,16 @@ namespace EthernetSwitch.Controllers
             var connectionLocalAddress = HttpContext.Connection.LocalIpAddress;
 
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
-            {
                 if (networkInterface.IsEthernet())
                 {
-                     
                     var output =
                         _bashCommand.Execute(
                             $"ip link show | grep {networkInterface.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
 
 
                     var appliedVLANs = output
-                        .Replace("\t", String.Empty)
-                        .Replace(networkInterface.Name, String.Empty)
+                        .Replace("\t", string.Empty)
+                        .Replace(networkInterface.Name, string.Empty)
                         .Split('\n')
                         .Select(vlan => vlan.Trim('.'))
                         .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
@@ -69,63 +64,49 @@ namespace EthernetSwitch.Controllers
                         .UnicastAddresses
                         .Any(unicastInfo => unicastInfo.Address.Equals(connectionLocalAddress));
 
-                    var isTagged = false; // _bashCommand.Execute($"interface {networkInterface.Name} is tagged?");
-                   
                     var tagged = true;
                     try
                     {
-                        var findtag = _bashCommand.Execute($"ip link show | grep @{networkInterface.Name}");
+                        _bashCommand.Execute($"ip link show | grep @{networkInterface.Name}");
                     }
                     catch (ProcessException e)
                     {
                         var error = e.ExitCode;
-                        if (error == 1)
-                        {
-                            tagged = false;
-                        }
+                        if (error == 1) tagged = false;
                     }
-                    ///////////////////////////////////////czy interfejs jest w isolated mode/////////////////////////////
-                    
 
-                    var isolated = true;
+
+                    //Checks if interface is in isolated mode
+                    var isIsolated = true;
 
                     try
                     {
-                        var findtag = _bashCommand.Execute($"ebtables -L | grep DROP | cut -d' ' -f2 | grep {networkInterface.Name}");
+                        _bashCommand.Execute($"ebtables -L | grep DROP | cut -d' ' -f2 | grep {networkInterface.Name}");
                     }
                     catch (ProcessException e)
                     {
                         var error = e.ExitCode;
-                        if (error == 1)
-                        {
-                            isolated = false;
-                        }
+                        if (error == 1) isIsolated = false;
                     }
 
-                    ///////////////////////////////////////czy interfejs jest w Promiscuous mode/////////////////////////////
-                       var promiscuous = true;
+                    // Checks if interface is in promiscuous mode
+                    var isPromiscuous = true;
 
                     try
                     {
-                        var findtag = _bashCommand.Execute($"ebtables -L | grep ACCEPT | cut -d' ' -f4 | grep {networkInterface.Name}");
+                        _bashCommand.Execute(
+                            $"ebtables -L | grep ACCEPT | cut -d' ' -f4 | grep {networkInterface.Name}");
                     }
                     catch (ProcessException e)
                     {
                         var error = e.ExitCode;
-                        if (error == 1)
-                        {
-                            promiscuous = false;
-                        }
+                        if (error == 1) isPromiscuous = false;
                     }
+
                     var type = InterfaceType.Off;
-                    if (isolated == true)
-                    {
-                        type = InterfaceType.Isolated;
-                    }
-                     if (promiscuous == true)
-                    {
-                        type = InterfaceType.Promiscuous;
-                    }
+                    if (isIsolated) type = InterfaceType.Isolated;
+
+                    if (isPromiscuous) type = InterfaceType.Promiscuous;
 
                     viewModel.Interfaces
                         .Add(new InterfaceViewModel
@@ -133,66 +114,49 @@ namespace EthernetSwitch.Controllers
                             Name = networkInterface.Name,
                             Status = networkInterface.OperationalStatus,
                             IsActive = networkInterface.OperationalStatus == OperationalStatus.Up,
-                            VirtualLANs = appliedVLANs, // All applied vlan's to this interface
+                            VirtualLANs = appliedVLANs, // All applied VLANs to this interface
                             AllVirtualLANs = allVLANs,
                             IsHostInterface = isHostInterface,
-                            Tagged = tagged, //isTagged, // Check if tagged
+                            Tagged = tagged,
                             AllowTagging = allowTagging,
-                            Type=type
+                            Type = type
                         });
                 }
-            }
 
             return View(viewModel);
         }
 
         /// <summary>
-        /// Action after "Update" button click
+        ///     Action after "Update" button click
         /// </summary>
         /// <param name="viewModel">Interface options from form.</param>
         /// <returns>Redirect to home page</returns>
         public IActionResult Edit(InterfaceViewModel viewModel)
         {
-
-
-              if (viewModel.IsActive == true)
-                    {
-                        _bashCommand.Execute($"ip link set {viewModel.Name} up");
-                    } else
-                    {
-                        _bashCommand.Execute($"ip link set {viewModel.Name} down");
-                    }
-            
-            if (viewModel.Tagged) // Tag checkbox
-            {
-                // _bashCommand.Execute($"tag interface {viewModel.Name}");
-            }
+            if (viewModel.IsActive)
+                _bashCommand.Execute($"ip link set {viewModel.Name} up");
             else
+                _bashCommand.Execute($"ip link set {viewModel.Name} down");
+
+
+            // Gets interface config
+            var output2 =
+                _bashCommand.Execute(
+                    $"ip link show | grep {viewModel.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
+
+
+            var VLANsToRemove = output2
+                .Replace("\t", string.Empty)
+                .Replace(viewModel.Name, string.Empty)
+                .Split('\n')
+                .Select(vlan => vlan.Trim('.'))
+                .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
+                .ToList();
+
+
+            foreach (var vlanName in VLANsToRemove) // All selected vlans
             {
-                // _bashCommand.Execute($"untag interface {viewModel.Name}");
-            }
-            
-            ///////////////////////////////////////oranie konfiguracji interfejsu/////////////////////////////////
-           
-            
-             var output2 =
-                        _bashCommand.Execute(
-                            $"ip link show | grep {viewModel.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
-
-
-                    var VLANsToRemove = output2
-                        .Replace("\t", String.Empty)
-                        .Replace(viewModel.Name, String.Empty)
-                        .Split('\n')
-                        .Select(vlan => vlan.Trim('.'))
-                        .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
-                        .ToList();
-
-
-
-              foreach (var vlanName in VLANsToRemove) // All selected vlans
-            {
-                //////////////////////////////////////////////tagowane////////////////////////////////////////////////
+                // Tagged interfaces
                 var ifToRemIsTaged = true;
                 try
                 {
@@ -201,25 +165,22 @@ namespace EthernetSwitch.Controllers
                 catch (ProcessException e)
                 {
                     var error = e.Message;
-                    if (error.Contains($"does not exist.\n"))
-                    {
-                        ifToRemIsTaged = false;
-                    } 
+                    if (error.Contains("does not exist.\n")) ifToRemIsTaged = false;
                 }
 
-                if(ifToRemIsTaged == true)
+                if (ifToRemIsTaged)
                 {
-                    _bashCommand.Execute($"ip link set {viewModel.Name}.{vlanName} down");  //usuwanie intrfejsów
+                    _bashCommand.Execute($"ip link set {viewModel.Name}.{vlanName} down"); // Off interface
                     _bashCommand.Execute($"ip link delete {viewModel.Name}.{vlanName}");
-                } else
-                /////////////////////////////////////////////nietagowane///////////////////////////////////////////////
+                }
+                else //Non-tagged
                 {
                     _bashCommand.Execute($"ip link set vlan{vlanName} down");
                     _bashCommand.Execute($"brctl delif vlan{vlanName} {viewModel.Name}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up");
                 }
 
-                ////////////////////////////////////////////usuwanie pustych br////////////////////////////////////////
+                //Clears empty bridges
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep eth");
@@ -234,33 +195,24 @@ namespace EthernetSwitch.Controllers
                     }
                 }
             }
-            
-            
-                    
-            foreach (var vlanName in viewModel.VirtualLANs) // All selected vlans
-            {
 
-                // 1. Check if interface exists
-                // 2. Add this 
-                // _bashCommand.Execute($"interface add vlan {vlanName} to {viewModel.Name}");
-              
-                //////////////////////////////Czy valan istnieje///////////////////////////////////////////OK
+
+            foreach (var vlanName in viewModel.VirtualLANs) // All selected VLANs
+            {
+                // Checks if VLAN exists
                 var vlanExists = true;
                 try
                 {
-                    var output = _bashCommand.Execute($"brctl show vlan{vlanName}");
+                    _bashCommand.Execute($"brctl show vlan{vlanName}");
                 }
                 catch (ProcessException e)
                 {
                     var error = e.Message;
-                    if (error.Contains($"bridge vlan{vlanName} does not exist!\n"))
-                    {
-                        vlanExists = false; //true jak istnieje
-                    }
+                    if (error.Contains($"bridge vlan{vlanName} does not exist!\n")) vlanExists = false; //true if exists
                 }
 
-                /////////////////////////////Czy interfens jest w jakimkolwiek vlanie///////////////////////OK
-                var intervaceHasVlan = true;
+                // Checks if interface is in any VLAN
+                var interfaceHasVLAN = true;
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show | grep {viewModel.Name}");
@@ -268,26 +220,23 @@ namespace EthernetSwitch.Controllers
                 catch (ProcessException e)
                 {
                     var error = e.ExitCode;
-                    if (error == 1)
-                    {
-                        intervaceHasVlan = false; //true jak jest
-                    }
+                    if (error == 1) interfaceHasVLAN = false; //true jak jest
                 }
 
-                ////////////////////////////Tworzenie Vlanu////////////////////////////////////
+                // Creates VLAN
                 if (!vlanExists)
                 {
                     _bashCommand.Execute($"brctl addbr vlan{vlanName}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
                 }
 
-                ///////////////////////////Dodanie nietagowanego interfejsu do vlanu///////////////////////////
-                if (intervaceHasVlan & viewModel.Tagged == false)
+                // Adds non-tagged interface to VLAN
+                if (interfaceHasVLAN & (viewModel.Tagged == false))
                 {
-                //usunięci go z vlanu do którego jest przypisany
+                    // Removes from VLAN which is assigned to
                     var vlanID =
                         _bashCommand.Execute(
-                            $"ip link show | grep [[:space:]]{viewModel.Name}: | cut -d' ' -f9 | cut -d'n' -f2"); //pobranie numeru vlanu w którym jest interfej
+                            $"ip link show | grep [[:space:]]{viewModel.Name}: | cut -d' ' -f9 | cut -d'n' -f2"); // Gets VLAN numer
                     vlanID = vlanID.Replace("\n", "");
                     _bashCommand.Execute($"ip link set vlan{vlanID} down");
                     _bashCommand.Execute($"brctl delif vlan{vlanID} {viewModel.Name}");
@@ -299,14 +248,17 @@ namespace EthernetSwitch.Controllers
                     _bashCommand.Execute($"brctl addif vlan{vlanName} {viewModel.Name}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up");
                 }
-                ///////////////////////////Tworzenie tagowanego interfejsu///////////////////////////
-                 if (viewModel.Tagged)
+
+                //Creates tagged interface
+                if (viewModel.Tagged)
                 {
                     _bashCommand.Execute($"ip link set vlan{vlanName} down");
-                    _bashCommand.Execute($"ip link add link {viewModel.Name} name {viewModel.Name}.{vlanName} type vlan id {vlanName}");
+                    _bashCommand.Execute(
+                        $"ip link add link {viewModel.Name} name {viewModel.Name}.{vlanName} type vlan id {vlanName}");
                     _bashCommand.Execute($"ip link set vlan{vlanName} up");
                 }
-                ///////////////////////////Dodanie tahowanego interfejsu do vlanu///////////////////////////
+
+                //Adds tagged interface to VLAN
                 if (viewModel.Tagged)
                 {
                     _bashCommand.Execute($"ip link set {viewModel.Name} up");
@@ -318,125 +270,125 @@ namespace EthernetSwitch.Controllers
                 }
             }
 
-            ///////////////////////////////Private vlan/////////////////////////////////////////////////////
+            //Private VLAN
             switch (viewModel.Type)
             {
                 case InterfaceType.Off:
 
                     foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
-                    {
                         if (networkInterface.IsEthernet())
                         {
-                            //////////////////////////////////////////////czyszczenie regół drop dot interfejsu/////////////////////////////////////////////
+                            //Clear interface drop rules
                             try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                                var output = _bashCommand.Execute(
+                                    $"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
-                            }   
-                                
-                            //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
-                                        try
+                            }
+
+                            //Clear interface acceptation rules
+                            try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
+                                var output = _bashCommand.Execute(
+                                    $"ebtables -D FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
-                            }   
-                                
+                            }
                         }
-                    } 
+
                     break;
 
                 case InterfaceType.Isolated:
 
                     foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
-                    {
                         if (networkInterface.IsEthernet())
                         {
-                            //////////////////////////////////////////////czyszczenie regół drop dot interfejsu/////////////////////////////////////////////
+                            //Clear interface drop rules
                             try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                                var output = _bashCommand.Execute(
+                                    $"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
-                            }   
-                               
-                            //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
-                                        try
+                            }
+
+                            //Clear interface acceptation rules
+                            try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
+                                var output = _bashCommand.Execute(
+                                    $"ebtables -D FORWARD -i {networkInterface.Name}  -o  {viewModel.Name} -j ACCEPT");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
-                            }   
-                            //////////////////////////////////////////////blokowanie dostępu/////////////////////////////////////////////
+                            }
+
+                            // Block access
                             if (viewModel.Name != networkInterface.Name)
-                            {
                                 try
                                 {
-                                    var output = _bashCommand.Execute($"ebtables -A FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                                    var output = _bashCommand.Execute(
+                                        $"ebtables -A FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
                                 }
                                 catch (ProcessException e)
                                 {
                                     var error = e.ExitCode;
-                                }   
-                            }
+                                }
                         }
-                    } 
 
 
                     break;
                 case InterfaceType.Promiscuous:
-                                       foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
-                    {
+                    foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
                         if (networkInterface.IsEthernet())
                         {
-                            //////////////////////////////////////////////czyszczenie regół drop dot interfejsu/////////////////////////////////////////////
+                            // Clears interface drop rules
                             try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
+                                var output = _bashCommand.Execute(
+                                    $"ebtables -D FORWARD -i {viewModel.Name} -o {networkInterface.Name} -j DROP");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
-                            }   
-                               
-                            //////////////////////////////////////////////czyszczenie regół accept dot interfejsu/////////////////////////////////////////////
-                                        try
+                            }
+
+                            //Clear interface acceptation rules
+                            try
                             {
-                                var output = _bashCommand.Execute($"ebtables -D FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
+                                var output = _bashCommand.Execute(
+                                    $"ebtables -D FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
                             }
                             catch (ProcessException e)
                             {
                                 var error = e.ExitCode;
-                            }   
-                            //////////////////////////////////////////////udzielanie dostepu/////////////////////////////////////////////
+                            }
+
+                            // Grants access
                             if (viewModel.Name != networkInterface.Name)
-                            {
                                 try
                                 {
-                                    var output = _bashCommand.Execute($"ebtables -I FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
+                                    _bashCommand.Execute(
+                                        $"ebtables -I FORWARD -i {networkInterface.Name} -o {viewModel.Name} -j ACCEPT");
                                 }
                                 catch (ProcessException e)
                                 {
                                     var error = e.ExitCode;
-                                }   
-                            }
+                                }
                         }
-                    } 
 
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            /////////////////////////////////////////////////////////////////////////////////////////////////
+
             return RedirectToAction("Index");
         }
 
