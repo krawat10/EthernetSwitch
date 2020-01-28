@@ -180,7 +180,16 @@ namespace EthernetSwitch.Controllers
                     _bashCommand.Execute($"ip link set vlan{vlanName} up");
                 }
 
-                //Clears empty bridges
+                // Clears empty bridged
+                var output3 = _bashCommand.Execute($"brctl show vlan{vlanName} | grep vlan{vlanName} | cut -f6");
+
+                if (output3 == "\n")
+                {
+                    _bashCommand.Execute($"ip link set vlan{vlanName} down");
+                    _bashCommand.Execute($"ip link delete vlan{vlanName}");
+                }
+
+                // Clears empty bridges
                 try
                 {
                     var output = _bashCommand.Execute($"brctl show vlan{vlanName} | grep eth");
@@ -220,14 +229,14 @@ namespace EthernetSwitch.Controllers
                 catch (ProcessException e)
                 {
                     var error = e.ExitCode;
-                    if (error == 1) interfaceHasVLAN = false; //true jak jest
+                    if (error == 1) interfaceHasVLAN = false;
                 }
 
                 // Creates VLAN
                 if (!vlanExists)
                 {
                     _bashCommand.Execute($"brctl addbr vlan{vlanName}");
-                    _bashCommand.Execute($"ip link set vlan{vlanName} up"); //stworzenie vlanu
+                    _bashCommand.Execute($"ip link set vlan{vlanName} up"); //Create VLAN
                 }
 
                 // Adds non-tagged interface to VLAN
