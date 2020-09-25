@@ -1,7 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-@using EthernetSwitch.ViewModels
 @model EthernetSwitch.ViewModels.IndexViewModel
 <div class="text-center">
     <h1 class="display-4">Ethernet Switch</h1>
@@ -9,12 +8,12 @@
     <table class="table table-striped">
         <thead>
         <tr>
-            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Name)</th>
-            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Status)</th>
+            <th> Name</th>
+            <th> Status</th>
             <th> Private VLAN</th>
-            <th> @Html.DisplayNameFor(model => model.Interfaces[0].Tagged)</th>
-            <th> Virtual Lans</th>
-            <th> Operations</th>
+            <th> Tagged</th>
+            <th> Virtual VLANs</th>
+            <th> Action</th>
         </tr>
         </thead>
         <tbody>
@@ -47,7 +46,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="create-vlan-submit" type="button" class="btn btn-primary">Save changes</button>
+                <button onclick="createVLAN(this)" type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
@@ -58,31 +57,28 @@
     <script>
         let current_interface_guid = '';
 
-        function addVLAN(interface, vlan) {
-            const interfaceVLANs = $(`.vlan-inputs-${interface}`);
+        $(document).ready(() => $('.interface-type').each((idx, el) => updateTaggedSwitch(el)));
 
-            let el = '';
-            el += `<input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>`;
-            el += `<span class="vlan-span badge badge-primary">`;
-            el += `     ${vlan}<i data-interface="${interface}" data-vlan="${vlan
-                }" class="remove-vlan-icon fas fa-minus" data-toggle="tooltip" data-placement="bottom" title="remove VLAN"></i> `;
-            el += `</span>`;
+        function createVLAN(e) {
+            $('#create-vlan-modal').modal('hide');
+            const vlan = $('#vlan-input').val();
 
-            interfaceVLANs.prepend(el);
-        };
+            addVLAN(current_interface_guid, vlan);
+            $(`.vlans-dropdown-options[data-interface=${current_interface_guid}]`)
+                .each((idx, dropdown) => {
+                    $(dropdown)
+                        .prepend(`<a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="${$(dropdown).data('interface')}">${vlan}</a>`);
 
-        $(document).ready(() => {
-            $('.interface-type').each((idx, el) => updateTaggedSwitch(el));
-        });
+                });
+        }
 
-        $('body').on('change', '.interface-type',(e) => updateTaggedSwitch(e.target));
 
-        function updateTaggedSwitch(element) {
-            const select = $(element).first();
-            const inteface = select.data('interface');
+        function updateTaggedSwitch(e) {
+            const select = $(e).first();
+            const interface = select.data('interface');
             const selectedOptionValue = select.find('option:selected').val();
 
-            const taggedSwitch = $(`#Tagged-${inteface}`).first();
+            const taggedSwitch = $(`#Tagged-${interface}`).first();
 
             if (taggedSwitch) {
                 if (taggedSwitch.data('allowed')) {
@@ -99,68 +95,56 @@
             }
         }
 
-        $('body').on('click',
-            '.remove-vlan-icon',
-            function(e) {
-                const vlan = e.target.dataset.vlan;
-                const interface = e.target.dataset.interface;
+        function removeVLAN(e) {
+            const vlan = e.dataset.vlan;
+            const interface = e.dataset.interface;
 
-                let input = $(`.vlan-inputs-${interface}`).find(`input[value=${vlan}]`);
-                const span = $(e.target).parent();
+            let input = $(`.vlan-inputs-${interface}`).find(`input[value=${vlan}]`);
+            const span = $(e).parent();
 
-                $(input).remove();
-                $(span).remove();
+            $(input).remove();
+            $(span).remove();
 
-                $('.vlans-dropdown-options')
-                    .each((idx, dropdown) => {
-                        if ($(dropdown).data('interface') === interface) {
-                            const option =
-                                `<a class="dropdown-item vlan-dropdown" data-interface="${interface}">${vlan}</a>\n`;
-                            $(dropdown).prepend(option);
-                        }
-                    });
-            });
+            $('.vlans-dropdown-options')
+                .each((idx, dropdown) => {
+                    if ($(dropdown).data('interface') === interface) {
+                        const option =
+                            `<a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="${interface}">${vlan}</a>\n`;
+                        $(dropdown).prepend(option);
+                    }
+                });
+        }
 
-        $('body').on('click',
-            '.vlan-dropdown',
-            function(e) {
-                addVLAN(e.target.dataset.interface, e.target.text);
-                $(e.target).remove();
-            });
+        function addOtherVLAN(e) {
+            addVLAN(e.dataset.interface, e.text);
+            $(e).remove();
+        }
 
-        $('body').on('click',
-            '#create-vlan-submit',
-            function(e) {
-                $('#create-vlan-modal').modal('hide');
-                const vlan = $('#vlan-input').val();
+        function addVLAN(interface, vlan) {
+            const interfaceVLANs = $(`.vlan-inputs-${interface}`);
 
-                addVLAN(current_interface_guid, vlan);
-                $('.vlans-dropdown-options')
-                    .each((idx, dropdown) => {
-                        if ($(dropdown).data('interface') !== current_interface_guid) {
-                            const option =
-                                `<a class="dropdown-item vlan-dropdown" data-interface="${$(dropdown).data('interface')
-                                    }">${vlan}</a>`;
-                            $(dropdown).prepend(option);
-                        }
-                    });
-            });
-        @**@
-        @* *@
-        @*         $('.vlans-dropdown-options').each(function(idx, el) { *@
-        @*             if (el.dataset.interface !== current_interface_guid) { *@
-        @*                 $(element).prepend( *@
-        @*                     ); *@
-        @*             } *@
-        @*         }); *@
-        @*         }); *@
+            let el = `
+                <input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>
+                    <span class="vlan-span badge badge-primary">
+                    ${vlan}
+                    <i
+                        data-interface="${interface}" 
+                        data-vlan="${vlan}" 
+                        class="fas fa-minus" 
+                        data-toggle="tooltip" 
+                        data-placement="bottom" 
+                        title="remove VLAN"
+                        onclick="removeVLAN(this)"
+                    >
+                    </i>
+                </span>`;
 
-        $('body').on('click',
-            '.create-new-vlan-btn',
-            function(e) {
-                current_interface_guid = e.target.dataset.interface;
-                $('#create-vlan-modal').modal('show');
+            interfaceVLANs.prepend(el);
+        };
 
-            });
+        function openNewVLANForm(e) {
+            current_interface_guid = e.dataset.interface;
+            $('#create-vlan-modal').modal('show');
+        }
     </script>
 }

@@ -10,7 +10,7 @@ namespace EthernetSwitch.Extensions
                    networkInterface.Name.Contains(".") == false &
                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet3Megabit ||
-                   networkInterface.NetworkInterfaceType == NetworkInterfaceType.FastEthernetFx ||
+                   networkInterface.NetworkInterfaceType == NetworkInterfaceType.FastEthernetFx ||  
                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.FastEthernetT ||
                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.GigabitEthernet;
         }
