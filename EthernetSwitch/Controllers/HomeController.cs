@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Ploeh.AutoFixture;
 
 namespace EthernetSwitch.Controllers
 {
@@ -38,15 +37,15 @@ namespace EthernetSwitch.Controllers
 
         public IActionResult Index()
         {
-            GetRequestMessage request = new GetRequestMessage(VersionCode.V3, Messenger.NextMessageId, Messenger.NextRequestId, new OctetString("myname"), new List<variable> { new Variable(new ObjectIdentifier("1.3.6.1.2.1.1.1.0")) }, priv, Messenger.MaxMessageSize, report);
-            ISnmpMessage reply = request.GetResponse(60000, new IPEndPoint(IPAddress.Parse("192.168.1.2"), 161));
-            if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
-            {
-                throw ErrorException.Create(
-                    "error in response",
-                    IPAddress.Parse("192.168.1.2"),
-                    reply);
-            }
+            // GetRequestMessage request = new GetRequestMessage(VersionCode.V3, Messenger.NextMessageId, Messenger.NextRequestId, new OctetString("myname"), new List<variable> { new Variable(new ObjectIdentifier("1.3.6.1.2.1.1.1.0")) }, priv, Messenger.MaxMessageSize, report);
+            // ISnmpMessage reply = request.GetResponse(60000, new IPEndPoint(IPAddress.Parse("192.168.1.2"), 161));
+            // if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
+            // {
+            //     throw ErrorException.Create(
+            //         "error in response",
+            //         IPAddress.Parse("192.168.1.2"),
+            //         reply);
+            // }
 
             var settings = _settingsRepository.GetSettings();
             var allowTagging = settings.AllowTagging;
