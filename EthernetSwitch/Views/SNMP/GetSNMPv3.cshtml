@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Get SNMP v3";
+}
+
+<h2>SNMP v3</h2>
+@using Lextm.SharpSnmpLib
+
+@model EthernetSwitch.Models.SNMP.GetSNMPv3ViewModel
+<form asp-action="GetSNMPv3" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="IpAddress">IP Address: </label>
+            <input class="form-control" asp-for="IpAddress" id="IpAddress" />
+        </div>
+        <div class="form-group col-md-6">
+            <label for="Port">Port:</label>
+            <input class="form-control" asp-for="Port" id="Port" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="UserName">Username: </label>
+            <input class="form-control" asp-for="UserName" id="UserName" />
+        </div>
+        <div class="form-group col-md-4">
+            <label for="Password">Password (MD5): </label>
+            <input class="form-control" asp-for="Password" id="Password" />
+        </div>
+        <div class="form-group col-md-4">
+            <label for="Encryption">Encryption (DES): </label>
+            <input class="form-control" asp-for="Encryption" id="Encryption" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label for="VersionCode">Version: </label>
+            <input class="form-control" asp-for="VersionCode" value="@VersionCode.V3" disabled="disabled" id="VersionCode" />
+        </div>
+        <div class="form-group col-md-5">
+            <label for="Object">Object: </label>
+            <input class="form-control" asp-for="OID.Id" placeholder="1.3.6.1.2.1.1.1.0" id="Object" />
+        </div>
+        <div class="form-group col-md-5">
+            <label for="ObjectValue">Value: </label>
+            <input class="form-control" asp-for="OID.Value" disabled="disabled" id="ObjectValue" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Fetch Variable</button>
+</form>

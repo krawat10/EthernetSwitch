@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Walk SNMP v1";
+}
+
+<h2>SNMP v1</h2>
+@using Lextm.SharpSnmpLib
+
+@model EthernetSwitch.Models.SNMP.WalkSNMPv1ViewModel
+<form asp-action="GetSNMPv3" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="IpAddress">IP Address: </label>
+            <input class="form-control" asp-for="IpAddress" id="IpAddress" />
+        </div>
+        <div class="form-group col-md-6">
+            <label for="Port">Port:</label>
+            <input class="form-control" asp-for="Port" id="Port" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label for="Group">Group: </label>
+            <input class="form-control" asp-for="Group" id="Group" placeholder="public"/>
+        </div>
+        <div class="form-group col-md-5">
+            <label for="StartObjectId">Start OID: </label>
+            <input class="form-control" asp-for="StartObjectId" id="StartObjectId" placeholder="1.3.6.1.2.1.1"/>
+        </div>
+        <div class="form-group col-md-2">
+            <label for="VersionCode">Version: </label>
+            <input class="form-control" asp-for="VersionCode" value="@VersionCode.V1" disabled="disabled" id="VersionCode" />
+        </div>
+            @foreach (var oid in Model.OIDs)
+            {
+                <div class="form-group col-md-2">
+                    <label for="@oid.Id">@oid.Id: </label>
+                    <input class="form-control" disabled="disabled" id="@oid.Id" value="@oid.Value" />
+                </div>
+            }
+        </div>
+    <div class="form-row">
+    </div>
+    <button type="submit" class="btn btn-primary">Fetch Variable</button>
+</form>

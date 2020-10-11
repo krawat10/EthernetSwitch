@@ -47,54 +47,6 @@ namespace EthernetSwitch.Controllers {
                         _bashCommand.Execute (
                             $"ip link show | grep {networkInterface.Name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
 
-                    foreach (UnicastIPAddressInformation ip in networkInterface.GetIPProperties ().UnicastAddresses) {
-                        try {
-                            var result = new List<Variable> ();
-                            // var ipAddress = IPAddress.Parse ("10.11.44.124");
-                            var ipAddress = IPAddress.Parse ("127.0.0.1");
-                            // Messenger.Walk (VersionCode.V1,
-                            //     new IPEndPoint (IPAddress.Parse ("10.11.44.124"), 161),
-                            //     new OctetString ("public"),
-                            //     new ObjectIdentifier ("1.3.6.1.2.1.1"),
-                            //     result,
-                            //     60000,
-                            //     WalkMode.WithinSubtree);
-                            Discovery discovery = Messenger.GetNextDiscovery (SnmpType.GetRequestPdu);
-                            ReportMessage report = discovery.GetResponse (60000, new IPEndPoint (ipAddress, 161));
-
-                            GetRequestMessage request = new GetRequestMessage (
-                                VersionCode.V3,
-                                Messenger.NextMessageId,
-                                Messenger.NextRequestId,
-                                new OctetString ("krawat"),
-                                new List<Variable> { new Variable (new ObjectIdentifier ("1.3.6.1.2.1.1.1.0")) },
-                                new DESPrivacyProvider (
-                                    new OctetString ("fffff"),
-                                    new MD5AuthenticationProvider (
-                                        new OctetString ("fffff")
-                                    )
-                                ),
-                                Messenger.MaxMessageSize,
-                                report);
-
-                            ISnmpMessage reply = request.GetResponse (60000, new IPEndPoint (ipAddress, 161));
-                            
-                            var res = reply.Pdu ().Variables;
-                            if (reply.Pdu ().ErrorStatus.ToInt32 () != 0) // != ErrorCode.NoError
-                            {
-                                throw ErrorException.Create (
-                                    "error in response",
-                                    IPAddress.Parse ("192.168.1.2"),
-                                    reply);
-                            }
-
-                        } catch (System.Exception e) {
-
-                            throw;
-                        }
-
-                    }
-
                     var appliedVLANs = output
                         .Replace ("\t", string.Empty)
                         .Replace (networkInterface.Name, string.Empty)
