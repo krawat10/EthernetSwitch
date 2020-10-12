@@ -61,8 +61,7 @@ namespace EthernetSwitch.Controllers
                     viewModel.Port,
                     viewModel.Password,
                     viewModel.Encryption,
-                    viewModel.OID.Id
-                ));
+                    viewModel.OID.Id));
             }
             catch (Exception e)
             {
@@ -86,8 +85,7 @@ namespace EthernetSwitch.Controllers
                     viewModel.Port,
                     viewModel.Password,
                     viewModel.Encryption,
-                    viewModel.OID
-                    ));
+                    viewModel.OID));
             }
             catch (Exception e)
             {
