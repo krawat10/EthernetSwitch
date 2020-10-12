@@ -1,15 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using EthernetSwitch.Infrastructure.SNMP;
 using Lextm.SharpSnmpLib;
 
 namespace EthernetSwitch.Models.SNMP
 {
-    public class OID
-    {
-        public string Id { get; set; }
-        public string Value { get; set; }
-    }
-
-
     public class GetSNMPv3ViewModel
     {
         public string UserName { get; set; }

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EthernetSwitch.Data\EthernetSwitch.Data.csproj" />
+    <ProjectReference Include="..\EthernetSwitch.Infrastructure\EthernetSwitch.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

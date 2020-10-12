@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using EthernetSwitch.Infrastructure.SNMP;
 using Lextm.SharpSnmpLib;
 
 namespace EthernetSwitch.Models.SNMP
