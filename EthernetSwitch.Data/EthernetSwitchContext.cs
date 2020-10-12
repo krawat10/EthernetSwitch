@@ -14,6 +14,10 @@ namespace EthernetSwitch.Data
 
         public EthernetSwitchContext()
         {
+            if (Database.GetPendingMigrations().Any())
+            {
+                Database.Migrate();
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

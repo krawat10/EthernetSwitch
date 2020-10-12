@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using EthernetSwitch.Data;
 using EthernetSwitch.Infrastructure;
+using EthernetSwitch.Infrastructure.SNMP;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,6 +38,7 @@ namespace EthernetSwitch
             services.AddControllersWithViews();
             services.AddSingleton<IBashCommand, BashCommand>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<SNMPServices>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
 
