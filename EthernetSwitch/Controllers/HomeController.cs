@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using EthernetSwitch.Data.Models;
 using EthernetSwitch.Exceptions;
 using EthernetSwitch.Extensions;
 using EthernetSwitch.Infrastructure;
@@ -22,18 +23,20 @@ namespace EthernetSwitch.Controllers {
     [Authorize (AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin,User")]
     public class HomeController : Controller {
         private readonly IBashCommand _bashCommand;
+        private readonly IUserService _userService;
         private readonly ILogger<HomeController> _logger;
         private readonly ISettingsRepository _settingsRepository;
 
-        public HomeController (ILogger<HomeController> logger, IBashCommand bashCommand,
+        public HomeController (ILogger<HomeController> logger, IBashCommand bashCommand, IUserService userService,
             ISettingsRepository settingsRepository) {
             _logger = logger;
             _bashCommand = bashCommand;
+            _userService = userService;
             _settingsRepository = settingsRepository;
         }
 
         public async Task<IActionResult> Index () {
-            var settings = _settingsRepository.GetSettings ();
+            var settings = await _settingsRepository.GetSettings ();
             var allowTagging = settings.AllowTagging;
 
             var viewModel = new IndexViewModel ();
@@ -324,17 +327,18 @@ namespace EthernetSwitch.Controllers {
         }
 
         [Authorize (AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
-        public IActionResult Settings () {
-            var settings = _settingsRepository.GetSettings ();
+        public async Task<IActionResult> Settings () {
+            var settings = await _settingsRepository.GetSettings ();
+            var users = await _userService.GetUsers();
 
             var model = new SettingsViewModel {
                 AllowRegistration = settings.AllowRegistration,
                 AllowTagging = settings.AllowTagging,
                 RequireConfirmation = settings.RequireConfirmation,
-                NotConfirmedUsers = settings.Users
+                NotConfirmedUsers = users
                 .Where (user => user.Role == UserRole.NotConfirmed)
                 .Select (user => user.UserName),
-                AllUsers = settings.Users
+                AllUsers = users
                 .Where (user => user.Role != UserRole.Admin)
                 .Select (user => user.UserName)
             };
@@ -345,15 +349,15 @@ namespace EthernetSwitch.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize (AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
-        public IActionResult Settings (SettingsViewModel model) {
-            var settings = _settingsRepository.GetSettings ();
+        public async Task<IActionResult> Settings (SettingsViewModel model) {
+            var settings = await _settingsRepository.GetSettings ();
 
             if (ModelState.IsValid) {
                 settings.AllowRegistration = model.AllowRegistration;
                 settings.AllowTagging = model.AllowTagging;
                 settings.RequireConfirmation = model.RequireConfirmation;
 
-                _settingsRepository.SaveSettings (settings);
+                await _settingsRepository.SaveSettings (settings);
 
                 return RedirectToAction ("Settings", "Home");
             }

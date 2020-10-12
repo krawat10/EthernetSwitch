@@ -1,27 +1,41 @@
-﻿using System.IO;
-using System.Text.Json;
-using EthernetSwitch.Models;
-using Microsoft.Extensions.Configuration;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using EthernetSwitch.Data;
+using EthernetSwitch.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EthernetSwitch.Infrastructure
 {
     class SettingsRepository : ISettingsRepository
     {
-        private string _filename;
+        private readonly EthernetSwitchContext _context;
 
-        public SettingsRepository(IConfiguration configuration)
+        public SettingsRepository(EthernetSwitchContext context)
         {
-            _filename = configuration["SettingsFile"];
+            _context = context;
+
+            if (!context.Settings.Any())
+            {
+                context.Settings.Add(new Settings
+                {
+                    AllowRegistration = false,
+                    AllowTagging = false,
+                    RequireConfirmation = true
+                });
+
+                context.SaveChanges();
+            }
         }
 
-        public Settings GetSettings()
+        public async Task<Settings> GetSettings()
         {
-            return JsonSerializer.Deserialize<Settings>(File.ReadAllText(_filename));
+            return await _context.Settings.FirstOrDefaultAsync();
         }
 
-        public void SaveSettings(Settings settings)
+        public async Task SaveSettings(Settings settings)
         {
-            File.WriteAllText(_filename, JsonSerializer.Serialize(settings));
+            _context.Settings.Update(settings);
+            await _context.SaveChangesAsync();
         }
     }
 }

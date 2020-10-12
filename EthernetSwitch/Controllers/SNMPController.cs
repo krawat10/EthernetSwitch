@@ -50,6 +50,13 @@ namespace EthernetSwitch.Controllers
 
             return View("WalkSNMPv1", viewModel);
         }
+        //
+        // [HttpPost]
+        // public IActionResult TrapSNMPv3(GetSNMPv3ViewModel viewModel)
+        // {
+        //     
+        // }
+
 
         [HttpPost]
         public IActionResult GetSNMPv3(GetSNMPv3ViewModel viewModel)
@@ -74,7 +81,7 @@ namespace EthernetSwitch.Controllers
                     ),
                     Messenger.MaxMessageSize,
                     report);
-
+                
                 ISnmpMessage reply = request.GetResponse(10000, new IPEndPoint(ipAddress, 161));
 
                 var valiable = reply

@@ -1,11 +1,13 @@
-﻿using EthernetSwitch.Models;
+﻿using System.Threading.Tasks;
+using EthernetSwitch.Data.Models;
+using EthernetSwitch.Models;
 using Microsoft.Extensions.Hosting;
 
 namespace EthernetSwitch.Infrastructure
 {
     public interface ISettingsRepository
     {
-        Settings GetSettings();
-        void SaveSettings(Settings settings);
+        Task<Settings> GetSettings();
+        Task SaveSettings(Settings settings);
     }
 }

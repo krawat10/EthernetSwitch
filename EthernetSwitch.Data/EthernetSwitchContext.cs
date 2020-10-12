@@ -1,0 +1,28 @@
+﻿using System;
+using System.Linq;
+using EthernetSwitch.Data.Models;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Sqlite;
+
+namespace EthernetSwitch.Data
+{
+    public class EthernetSwitchContext : DbContext
+    {
+        public DbSet<Settings> Settings { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        public EthernetSwitchContext()
+        {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = "sqlitedemo.db"};
+            var connectionString = connectionStringBuilder.ToString();
+            var connection = new SqliteConnection(connectionString);
+
+            options.UseSqlite(connection);
+        }
+    }
+}

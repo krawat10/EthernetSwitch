@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using EthernetSwitch.Data;
 using EthernetSwitch.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -34,8 +36,9 @@ namespace EthernetSwitch
         {
             services.AddControllersWithViews();
             services.AddSingleton<IBashCommand, BashCommand>();
-            services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<ISettingsRepository, SettingsRepository>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ISettingsRepository, SettingsRepository>();
+            services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
@@ -72,7 +75,7 @@ namespace EthernetSwitch
             app.UseAuthorization();
             app.UseAuthentication();
             app.UseCookiePolicy();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

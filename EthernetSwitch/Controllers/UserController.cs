@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure;
 using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
@@ -26,9 +27,9 @@ namespace EthernetSwitch.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
-            var settings = _settingsRepository.GetSettings();
+            var settings =await _settingsRepository.GetSettings();
 
             return View("Login", new LoginViewModel {CanRegister = settings.AllowRegistration});
         }
@@ -41,18 +42,18 @@ namespace EthernetSwitch.Controllers
             if (ModelState.IsValid)
             {
                 ReturnUrl ??= Url.Content("~/");
-                var settings = _settingsRepository.GetSettings();
+                var settings = await _settingsRepository.GetSettings();
 
                 if (model.Type == LoginType.Register)
                 {
                     if (settings.AllowRegistration)
                     {
                         var role = settings.RequireConfirmation ? UserRole.NotConfirmed : UserRole.User;
-                        _userService.Register(model.UserName, model.Password, role);
+                        await _userService.Register(model.UserName, model.Password, role);
                     }
                 }
 
-                var user = _userService.Login(model.UserName, model.Password);
+                var user = await _userService.Login(model.UserName, model.Password);
 
                 if (user == null)
                 {

@@ -6,29 +6,40 @@ using EthernetSwitch.Models;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EthernetSwitch.Data;
+using EthernetSwitch.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace EthernetSwitch.Infrastructure
 {
     public class UserService : IUserService
     {
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly EthernetSwitchContext _context;
         private readonly PasswordHasher<string> _passwordHasher;
 
-        public UserService(ISettingsRepository settingsRepository)
+        public UserService(EthernetSwitchContext context)
         {
-            _settingsRepository = settingsRepository;
+            _context = context;
             _passwordHasher = new PasswordHasher<string>();
+
+            if (!_context.Users.Any())
+            {
+                _context.Users.Add(new User
+                {
+                    PasswordEncrypted = "AQAAAAEAACcQAAAAEGFy8Wkpl5tSDHaZ0Gb1k5ZfUL2vWNmGncAD199qZkhFgvsvN/D16BZI0kkgxal4vw==",
+                    UserName = "admin",
+                    Role = UserRole.Admin
+                });
+                _context.SaveChanges();
+            }
         }
 
-
-
-        public User Login(string username, string password)
+        public async Task<User> Login(string username, string password)
         {
-            var settings =  _settingsRepository.GetSettings();
-            var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
+            var user = await _context.Users.FirstOrDefaultAsync(usr => usr.UserName == username);
 
             if (user == null) return null;
 
@@ -37,7 +48,7 @@ namespace EthernetSwitch.Infrastructure
             return result == PasswordVerificationResult.Success ? user : null;
         }
 
-        public User Register(string username, string password, UserRole role = UserRole.NotConfirmed)
+        public async Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed)
         {
             var user = new User
             {
@@ -46,20 +57,22 @@ namespace EthernetSwitch.Infrastructure
                 PasswordEncrypted = _passwordHasher.HashPassword(username, password)
             };
 
-            var settings =  _settingsRepository.GetSettings();
 
-            settings.Users.Add(user);
+            _context.Users.Add(user);
 
-            _settingsRepository.SaveSettings(settings);
+            await _context.SaveChangesAsync();
 
             return user;
         }
 
-        public User ChangePassword(string username, string password)
+        public async Task<IEnumerable<User>> GetUsers()
         {
-            var settings =  _settingsRepository.GetSettings();
+            return await _context.Users.ToListAsync();
+        }
 
-            var user = settings.Users.FirstOrDefault(usr => usr.UserName == username);
+        public async Task<User> ChangePassword(string username, string password)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(usr => usr.UserName == username);
 
             if (user == null) throw new ArgumentException($"User {user} does not exists");
 
@@ -71,37 +84,38 @@ namespace EthernetSwitch.Infrastructure
 
             user.PasswordEncrypted = _passwordHasher.HashPassword(username, password);
 
-            _settingsRepository.SaveSettings(settings);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
 
             return user;
         }
 
-        public void RegisterUsers(IEnumerable<string> userNames)
+        public async Task RegisterUsers(IEnumerable<string> userNames)
         {
-            var settings =  _settingsRepository.GetSettings();
-
             foreach (var userName in userNames)
             {
-                var user = settings.Users.FirstOrDefault(user1 => user1.UserName == userName);
+                var user = _context.Users.FirstOrDefault(user1 => user1.UserName == userName);
 
                 if (user != null && user.Role != UserRole.Admin)
                 {
                     user.Role = UserRole.User;
+                    _context.Users.Update(user);
                 }
             }
 
-            _settingsRepository.SaveSettings(settings);
+            await _context.SaveChangesAsync();
         }
 
-        public void RemoveUsers(IEnumerable<string> userNames)
+        public async Task RemoveUsers(IEnumerable<string> userNames)
         {
-            var settings =  _settingsRepository.GetSettings();
-            var users = settings.Users.ToList();
+            var users = _context.Users.ToList();
 
+            foreach (var user in users)
+            {
+                _context.Users.Remove(user);
+            }
 
-            settings.Users = users.Where(user => !userNames.Contains(user.UserName)).ToList();
-
-            _settingsRepository.SaveSettings(settings);
+            await _context.SaveChangesAsync();
         }
     }
 }

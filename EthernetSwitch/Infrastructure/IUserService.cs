@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using EthernetSwitch.Data.Models;
 using EthernetSwitch.Models;
 
 namespace EthernetSwitch.Infrastructure
 {
     public interface IUserService
     {
-        User Login(string username, string password);
-        User Register(string username, string password, UserRole role = UserRole.NotConfirmed);
-        User ChangePassword(string username, string password);
-        void RegisterUsers(IEnumerable<string> userNames);
-        void RemoveUsers(IEnumerable<string> userNames);
+        Task<User> Login(string username, string password);
+        Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed);
+        Task<IEnumerable<User>> GetUsers();
+        Task<User> ChangePassword(string username, string password);
+        Task RegisterUsers(IEnumerable<string> userNames);
+        Task RemoveUsers(IEnumerable<string> userNames);
     }
 }
