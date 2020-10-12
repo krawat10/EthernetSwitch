@@ -1,4 +1,4 @@
-﻿namespace EthernetSwitch.Infrastructure
+﻿namespace EthernetSwitch.Infrastructure.Bash
 {
     public interface IBashCommand
     {

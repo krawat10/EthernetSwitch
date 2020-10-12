@@ -5,6 +5,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure;
+using EthernetSwitch.Infrastructure.Settings;
+using EthernetSwitch.Infrastructure.Users;
 using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
 using Microsoft.AspNetCore.Authentication;

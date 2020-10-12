@@ -1,12 +1,11 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EthernetSwitch.Data;
-using EthernetSwitch.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace EthernetSwitch.Infrastructure
+namespace EthernetSwitch.Infrastructure.Settings
 {
-    class SettingsRepository : ISettingsRepository
+    public class SettingsRepository : ISettingsRepository
     {
         private readonly EthernetSwitchContext _context;
 
@@ -16,7 +15,7 @@ namespace EthernetSwitch.Infrastructure
 
             if (!context.Settings.Any())
             {
-                context.Settings.Add(new Settings
+                context.Settings.Add(new Data.Models.Settings
                 {
                     AllowRegistration = false,
                     AllowTagging = false,
@@ -27,12 +26,12 @@ namespace EthernetSwitch.Infrastructure
             }
         }
 
-        public async Task<Settings> GetSettings()
+        public async Task<Data.Models.Settings> GetSettings()
         {
             return await _context.Settings.FirstOrDefaultAsync();
         }
 
-        public async Task SaveSettings(Settings settings)
+        public async Task SaveSettings(Data.Models.Settings settings)
         {
             _context.Settings.Update(settings);
             await _context.SaveChangesAsync();

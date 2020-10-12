@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using EthernetSwitch.Models;
-using Microsoft.Extensions.Hosting;
-using System.Text.Json;
 using System.Threading.Tasks;
 using EthernetSwitch.Data;
 using EthernetSwitch.Data.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
-namespace EthernetSwitch.Infrastructure
+namespace EthernetSwitch.Infrastructure.Users
 {
     public class UserService : IUserService
     {

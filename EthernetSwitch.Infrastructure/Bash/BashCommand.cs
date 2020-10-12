@@ -1,10 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using EthernetSwitch.Exceptions;
+﻿using System.Diagnostics;
+using EthernetSwitch.Infrastructure.Bash.Exceptions;
 
-namespace EthernetSwitch.Infrastructure
+namespace EthernetSwitch.Infrastructure.Bash
 {
-    class BashCommand : IBashCommand
+    public class BashCommand : IBashCommand
     {
         public string Execute(string command)
         {

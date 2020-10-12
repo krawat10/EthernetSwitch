@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using EthernetSwitch.Data.Models;
-using EthernetSwitch.Models;
 
-namespace EthernetSwitch.Infrastructure
+namespace EthernetSwitch.Infrastructure.Users
 {
     public interface IUserService
     {

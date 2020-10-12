@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EthernetSwitch.Exceptions
+namespace EthernetSwitch.Infrastructure.Bash.Exceptions
 {
     public class ProcessException : Exception
     {

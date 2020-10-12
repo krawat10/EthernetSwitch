@@ -1,6 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 
-namespace EthernetSwitch.Extensions
+namespace EthernetSwitch.Infrastructure.Extensions
 {
     public static class NetworkInterfaceExtensions
     {
