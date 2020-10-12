@@ -20,23 +20,33 @@ namespace EthernetSwitch.Controllers
 
         public IActionResult WalkSNMPv1()
         {
-            return View(new WalkSNMPv1ViewModel {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
+            return View(new WalkSNMPv1ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
         }
 
+        [HttpPost]
         public IActionResult GetSNMPv1(WalkSNMPv1ViewModel viewModel)
         {
             IList<Variable> result = new List<Variable>();
+            viewModel.Error = "";
 
-            Messenger.Walk(VersionCode.V1,
-                new IPEndPoint(IPAddress.Parse(viewModel.IpAddress), viewModel.Port),
-                new OctetString(viewModel.Group),
-                new ObjectIdentifier(viewModel.StartObjectId),
-                result,
-                60000,
-                WalkMode.WithinSubtree);
+            try
+            {
+                Messenger.Walk(VersionCode.V1,
+                    new IPEndPoint(IPAddress.Parse(viewModel.IpAddress), viewModel.Port),
+                    new OctetString(viewModel.Group),
+                    new ObjectIdentifier(viewModel.StartObjectId),
+                    result,
+                    10000,
+                    WalkMode.WithinSubtree);
+            }
+            catch (System.Exception e)
+            {
+                viewModel.Error = e.Message;
+            }
 
-            viewModel.OIDs = result.Select(variable =>
-                new OID {Id = variable.Id.ToString(), Value = variable.Data.ToString()});
+            viewModel.OIDs = result
+                .Select(variable => new OID { Id = variable.Id.ToString(), Value = variable.Data.ToString() })
+                .ToList();
 
             return View("WalkSNMPv1", viewModel);
         }
@@ -45,41 +55,46 @@ namespace EthernetSwitch.Controllers
         public IActionResult GetSNMPv3(GetSNMPv3ViewModel viewModel)
         {
             var ipAddress = IPAddress.Parse(viewModel.IpAddress);
+            viewModel.Error = "";
 
-            Discovery discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
-            ReportMessage report = discovery.GetResponse(60000, new IPEndPoint(ipAddress, viewModel.Port));
-
-            GetRequestMessage request = new GetRequestMessage(
-                VersionCode.V3,
-                Messenger.NextMessageId,
-                Messenger.NextRequestId,
-                new OctetString(viewModel.UserName),
-                new List<Variable> {new Variable(new ObjectIdentifier(viewModel.OID.Id))},
-                new DESPrivacyProvider(
-                    new OctetString(viewModel.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(viewModel.Password)
-                    )
-                ),
-                Messenger.MaxMessageSize,
-                report);
-
-            ISnmpMessage reply = request.GetResponse(60000, new IPEndPoint(ipAddress, 161));
-
-            var valiable = reply
-                .Pdu().Variables
-                .FirstOrDefault(variable => variable.Id.ToString() == viewModel.OID.Id);
-
-            if (valiable != null)
+            try
             {
-                viewModel.OID.Value = valiable?.Data.ToString();
+                Discovery discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
+                ReportMessage report = discovery.GetResponse(10000, new IPEndPoint(ipAddress, viewModel.Port));
+
+                GetRequestMessage request = new GetRequestMessage(
+                    VersionCode.V3,
+                    Messenger.NextMessageId,
+                    Messenger.NextRequestId,
+                    new OctetString(viewModel.UserName),
+                    new List<Variable> { new Variable(new ObjectIdentifier(viewModel.OID.Id)) },
+                    new DESPrivacyProvider(
+                        new OctetString(viewModel.Encryption),
+                        new MD5AuthenticationProvider(new OctetString(viewModel.Password))
+                    ),
+                    Messenger.MaxMessageSize,
+                    report);
+
+                ISnmpMessage reply = request.GetResponse(10000, new IPEndPoint(ipAddress, 161));
+
+                var valiable = reply
+                    .Pdu().Variables
+                    .FirstOrDefault(variable => variable.Id.ToString() == viewModel.OID.Id);
+
+                if (valiable != null)
+                {
+                    viewModel.OID.Value = valiable?.Data.ToString();
+                }
+
+                if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
+                {
+                    throw ErrorException.Create("error in response", ipAddress, reply);
+                }
+
             }
-
-            if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
+            catch (System.Exception e)
             {
-                throw ErrorException.Create(
-                    "error in response",
-                    IPAddress.Parse("192.168.1.2"),
-                    reply);
+                viewModel.Error = e.Message;
             }
 
             return View("GetSNMPv3", viewModel);

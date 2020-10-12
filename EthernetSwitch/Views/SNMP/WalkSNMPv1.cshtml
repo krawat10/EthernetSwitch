@@ -6,7 +6,7 @@
 @using Lextm.SharpSnmpLib
 
 @model EthernetSwitch.Models.SNMP.WalkSNMPv1ViewModel
-<form asp-action="GetSNMPv3" method="post">
+<form asp-action="GetSNMPv1" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="IpAddress">IP Address: </label>
@@ -30,15 +30,34 @@
             <label for="VersionCode">Version: </label>
             <input class="form-control" asp-for="VersionCode" value="@VersionCode.V1" disabled="disabled" id="VersionCode" />
         </div>
-            @foreach (var oid in Model.OIDs)
-            {
-                <div class="form-group col-md-2">
-                    <label for="@oid.Id">@oid.Id: </label>
-                    <input class="form-control" disabled="disabled" id="@oid.Id" value="@oid.Value" />
-                </div>
-            }
-        </div>
-    <div class="form-row">
     </div>
     <button type="submit" class="btn btn-primary">Fetch Variable</button>
+@if(!string.IsNullOrWhiteSpace(Model.Error))
+{
+        <div class="alert alert-danger" role="alert">
+    @Model.Error
+    </div>
+}
+
+
 </form>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Value</th>    
+    </tr>
+  </thead>
+  <tbody>
+              @foreach (var oid in Model.OIDs)
+        {
+    <tr>
+
+            <td>@oid.Id</td> 
+            <td>@oid.Value</td> 
+       
+    </tr>
+     } 
+  </tbody>
+</table>

@@ -37,13 +37,19 @@
             <input class="form-control" asp-for="VersionCode" value="@VersionCode.V3" disabled="disabled" id="VersionCode" />
         </div>
         <div class="form-group col-md-5">
-            <label for="Object">Object: </label>
-            <input class="form-control" asp-for="OID.Id" placeholder="1.3.6.1.2.1.1.1.0" id="Object" />
+            <label for="OID.Id">Object: </label>
+            <input class="form-control" asp-for="OID.Id" placeholder="1.3.6.1.2.1.1.1.0" id="OID.Id" />
         </div>
         <div class="form-group col-md-5">
-            <label for="ObjectValue">Value: </label>
-            <input class="form-control" asp-for="OID.Value" disabled="disabled" id="ObjectValue" />
+            <label for="OID.Value">Value: </label>
+            <input class="form-control" asp-for="OID.Value" disabled="disabled" id="OID.Value" />
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Fetch Variable</button>
+    @if(!string.IsNullOrWhiteSpace(Model.Error))
+{
+        <div class="alert alert-danger" role="alert">
+    @Model.Error
+    </div>
+}
 </form>
