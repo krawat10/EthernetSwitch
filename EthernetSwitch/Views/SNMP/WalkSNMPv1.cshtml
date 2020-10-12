@@ -10,11 +10,11 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="IpAddress">IP Address: </label>
-            <input class="form-control" asp-for="IpAddress" id="IpAddress" />
+            <input class="form-control" asp-for="IpAddress" id="IpAddress"/>
         </div>
         <div class="form-group col-md-6">
             <label for="Port">Port:</label>
-            <input class="form-control" asp-for="Port" id="Port" />
+            <input class="form-control" asp-for="Port" id="Port"/>
         </div>
     </div>
     <div class="form-row">
@@ -28,36 +28,36 @@
         </div>
         <div class="form-group col-md-2">
             <label for="VersionCode">Version: </label>
-            <input class="form-control" asp-for="VersionCode" value="@VersionCode.V1" disabled="disabled" id="VersionCode" />
+            <input class="form-control" asp-for="VersionCode" value="@VersionCode.V1" disabled="disabled" id="VersionCode"/>
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Fetch Variable</button>
-@if(!string.IsNullOrWhiteSpace(Model.Error))
-{
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
         <div class="alert alert-danger" role="alert">
-    @Model.Error
-    </div>
-}
+            @Model.Error
+        </div>
+    }
 
 
 </form>
 
 <table class="table">
-  <thead>
+    <thead>
     <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Value</th>    
+        <th scope="col">Id</th>
+        <th scope="col">Value</th>
     </tr>
-  </thead>
-  <tbody>
-              @foreach (var oid in Model.OIDs)
-        {
-    <tr>
+    </thead>
+    <tbody>
+    @foreach (var oid in Model.OIDs)
+    {
+        <tr>
 
-            <td>@oid.Id</td> 
-            <td>@oid.Value</td> 
-       
-    </tr>
-     } 
-  </tbody>
+            <td>@oid.Id</td>
+            <td>@oid.Value</td>
+
+        </tr>
+    }
+    </tbody>
 </table>
