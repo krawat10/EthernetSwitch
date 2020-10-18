@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
 using EthernetSwitch.Infrastructure.Bash;
+using EthernetSwitch.Infrastructure.LLDP;
 
-
-class EthernetNeighbor
+public class EthernetNeighbor
 {
     public string EthernetInterfaceName { get; set; }
     public string Updated { get; set; }
@@ -13,9 +14,10 @@ class EthernetNeighbor
     public string SystemName { get; set; }
     public string SystemDescription { get; set; }
     public IPAddress IPAddress { get; set; }
+    public string Capability { get; internal set; }
 }
 
-class LLDPServices
+public class LLDPServices
 {
     private readonly IBashCommand _bash;
 
@@ -23,7 +25,7 @@ class LLDPServices
     {
         this._bash = bash;
 
-        _bash.Install("lldpd");
+        //_bash.Install("lldpd");
     }
 
     public void ActivateLLDPAgent()
@@ -33,19 +35,29 @@ class LLDPServices
 
     public List<EthernetNeighbor> GetNeighbours()
     {
-        var output = _bash.Execute("lldpcli show neighbors -f json0");
-        var lldpOutput = JsonSerializer.Deserialize<LLDPOutput>(output);
-
         var result = new List<EthernetNeighbor>();
+        var output = _bash.Execute("lldpcli show neighbors -f json0");
 
-
-        foreach(var neighbor in lldpOutput.LLDP.Interface.Interfaces)
+        try
         {
-            result.Add(new EthernetNeighbor
+            var lldpOutput = JsonSerializer.Deserialize<LldpOutput>(output);
+
+            foreach (var neighbor in lldpOutput.Lldp.First().Interface)
             {
-                EthernetInterfaceName = neighbor.Key,
-                IPAddress = IPAddress.Parse(neighbor.Value.Chassis.LLDPSystemDescription.First().Value.MgmtIp),
-            });
+                result.Add(new EthernetNeighbor
+                {
+                    EthernetInterfaceName = neighbor.Name,
+                    IPAddress = IPAddress.Parse(neighbor.Chassis.FirstOrDefault()?.MgmtIp.FirstOrDefault()?.Value),
+                    MAC = neighbor.Chassis.FirstOrDefault()?.Id.FirstOrDefault(id => id.Type == "mac")?.Value,
+                    SystemDescription = neighbor.Chassis.FirstOrDefault()?.Descr.FirstOrDefault()?.Value,
+                    SystemName = neighbor.Chassis.FirstOrDefault()?.Name.FirstOrDefault()?.Value,
+                    Capability = neighbor.Chassis.FirstOrDefault()?.Capability.FirstOrDefault(cap => cap.Enabled)?.Type
+                });
+            }
+        }
+        catch(Exception e)
+        {
+
         }
 
         return result;

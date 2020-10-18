@@ -52,5 +52,6 @@ namespace EthernetSwitch.ViewModels
 
         public bool IsHostInterface { get; set; }
         public bool AllowTagging { get; set; }
+        public EthernetNeighbor Neighbor { get; internal set; }
     }
 }

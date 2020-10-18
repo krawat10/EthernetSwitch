@@ -1,79 +1,82 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-public class LLDPOutput {
-    [JsonPropertyName ("lldp")]
-    public LLDP LLDP { get; set; }
-}
 
-public class LLDP {
-    [JsonPropertyName ("interface")]
-    public LLDPInterfaces Interface { get; set; }
-}
+namespace EthernetSwitch.Infrastructure.LLDP
+{
+    public partial class LldpOutput
+    {
+        [JsonPropertyName("lldp")]
+        public Lldp[] Lldp { get; set; }
+    }
 
-public class LLDPInterfaces {
-    public IDictionary<string, LLDPInterface> Interfaces { get; set; }
-}
+    public partial class Lldp
+    {
+        [JsonPropertyName("interface")]
+        public Interface[] Interface { get; set; }
+    }
 
-public class LLDPInterface {
-    [JsonPropertyName ("via")]
-    public string Via { get; set; }
+    public partial class Interface
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
-    [JsonPropertyName ("rid")]
-    public string Rid { get; set; }
+        [JsonPropertyName("via")]
+        public string Via { get; set; }
 
-    [JsonPropertyName ("age")]
-    public string Age { get; set; }
+        [JsonPropertyName("rid")]
+        public string Rid { get; set; }
 
-    [JsonPropertyName ("chassis")]
-    public Chassis Chassis { get; set; }
+        [JsonPropertyName("age")]
+        public string Age { get; set; }
 
-    [JsonPropertyName ("port")]
-    public Port Port { get; set; }
-}
+        [JsonPropertyName("chassis")]
+        public Chassis[] Chassis { get; set; }
 
-public class Chassis {
-    [JsonPropertyName ("raspberrypi")]
-    public IDictionary<string, LLDPSystemDescription> LLDPSystemDescription { get; set; }
-}
+        [JsonPropertyName("port")]
+        public Port[] Port { get; set; }
+    }
 
-public class LLDPSystemDescription {
-    [JsonPropertyName ("id")]
-    public Id Id { get; set; }
+    public partial class Chassis
+    {
+        [JsonPropertyName("id")]
+        public Variable[] Id { get; set; }
 
-    [JsonPropertyName ("descr")]
-    public string Descr { get; set; }
+        [JsonPropertyName("name")]
+        public Variable[] Name { get; set; }
 
-    [JsonPropertyName ("mgmt-ip")]
-    public string MgmtIp { get; set; }
+        [JsonPropertyName("descr")]
+        public Variable[] Descr { get; set; }
 
-    [JsonPropertyName ("capability")]
-    public Capability Capability { get; set; }
-}
+        [JsonPropertyName("mgmt-ip")]
+        public Variable[] MgmtIp { get; set; }
 
-public class Capability {
-    [JsonPropertyName ("type")]
-    public string Type { get; set; }
+        [JsonPropertyName("capability")]
+        public Variable[] Capability { get; set; }
+    }
 
-    [JsonPropertyName ("enabled")]
-    public bool Enabled { get; set; }
-}
+    public partial class Port
+    {
+        [JsonPropertyName("id")]
+        public Variable[] Id { get; set; }
 
-public class Id {
-    [JsonPropertyName ("type")]
-    public string Type { get; set; }
+        [JsonPropertyName("descr")]
+        public Variable[] Descr { get; set; }
 
-    [JsonPropertyName ("value")]
-    public string Value { get; set; }
-}
+        [JsonPropertyName("ttl")]
+        public Variable[] Ttl { get; set; }
+    }
 
-public class Port {
-    [JsonPropertyName ("id")]
-    public Id Id { get; set; }
+    public partial class Variable
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
 
-    [JsonPropertyName ("descr")]
-    public string Descr { get; set; }
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
 
-    [JsonPropertyName ("ttl")]
-    public string Ttl { get; set; }
+        [JsonPropertyName("enabled")]
+        public bool Enabled { get; set; }
+
+    }
+
 }

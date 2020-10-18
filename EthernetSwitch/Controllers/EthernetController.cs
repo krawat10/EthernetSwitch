@@ -16,19 +16,22 @@ namespace EthernetSwitch.Controllers {
     [Authorize (AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin,User")]
     public class EthernetController : Controller {
         private readonly EthernetServices _ethernetServices;
+        private readonly LLDPServices _lldpSercives;
         private readonly ILogger<EthernetController> _logger;
         private readonly ISettingsRepository _settingsRepository;
 
-        public EthernetController (ILogger<EthernetController> logger, EthernetServices ethernetServices,
+        public EthernetController(ILogger<EthernetController> logger, EthernetServices ethernetServices, LLDPServices lldpSercives,
             ISettingsRepository settingsRepository) {
             _logger = logger;
             _ethernetServices = ethernetServices;
+            _lldpSercives = lldpSercives;
             _settingsRepository = settingsRepository;
         }
 
         public async Task<IActionResult> Index () {
             var settings = await _settingsRepository.GetSettings ();
-            
+            var neighbours = _lldpSercives.GetNeighbours();
+
             var viewModel = new IndexViewModel
             {
                 Interfaces = _ethernetServices
@@ -43,7 +46,8 @@ namespace EthernetSwitch.Controllers {
                         Tagged = @interface.Tagged,
                         Type = @interface.Type,
                         VirtualLANs = @interface.VirtualLANs,
-                        Hidden = settings.HiddenInterfaces.Contains(@interface.Name)
+                        Hidden = settings.HiddenInterfaces.Contains(@interface.Name),
+                        Neighbor = neighbours.FirstOrDefault(x => x.EthernetInterfaceName == @interface.Name)
                     })
             };
 
