@@ -34,10 +34,10 @@ public class LLDPInterface {
 
 public class Chassis {
     [JsonPropertyName ("raspberrypi")]
-    public Raspberrypi Raspberrypi { get; set; }
+    public IDictionary<string, LLDPSystemDescription> LLDPSystemDescription { get; set; }
 }
 
-public class Raspberrypi {
+public class LLDPSystemDescription {
     [JsonPropertyName ("id")]
     public Id Id { get; set; }
 

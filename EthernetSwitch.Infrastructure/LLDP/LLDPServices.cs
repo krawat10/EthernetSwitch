@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using EthernetSwitch.Infrastructure.Bash;
@@ -21,14 +22,20 @@ class LLDPServices
     public LLDPServices(IBashCommand bash)
     {
         this._bash = bash;
+
+        _bash.Install("lldpd");
     }
-    public IEnumerable<LLDPInterface> GetNeighbours()
+
+    public void ActivateLLDPAgent()
     {
-        var output = _bash.Execute("lldpcli show neighbors");
+        _bash.Execute("lldpd -d");
+    }
+
+    public List<EthernetNeighbor> GetNeighbours()
+    {
+        var output = _bash.Execute("lldpcli show neighbors -f json0");
         var lldpOutput = JsonSerializer.Deserialize<LLDPOutput>(output);
 
-        return lldpOutput.LLDP.Interface.Interfaces.To       
- 
         var result = new List<EthernetNeighbor>();
 
 
@@ -37,8 +44,10 @@ class LLDPServices
             result.Add(new EthernetNeighbor
             {
                 EthernetInterfaceName = neighbor.Key,
-                IPAddress = IPAddress.Parse(neighbor.Value.Chassis.)
-            })
+                IPAddress = IPAddress.Parse(neighbor.Value.Chassis.LLDPSystemDescription.First().Value.MgmtIp),
+            });
         }
+
+        return result;
     }
 }

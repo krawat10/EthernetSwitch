@@ -33,5 +33,10 @@ namespace EthernetSwitch.Infrastructure.Bash
 
             return standardOutput;
         }
+
+        public void Install(string appName)
+        {
+            Execute("apt-get -y install " + appName);
+        }
     }
 }

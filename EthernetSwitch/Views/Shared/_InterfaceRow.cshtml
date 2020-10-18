@@ -1,9 +1,10 @@
-﻿@using EthernetSwitch.ViewModels
+﻿@using EthernetSwitch.Infrastructure.Ethernet
+@using EthernetSwitch.ViewModels
 @model EthernetSwitch.ViewModels.InterfaceViewModel
 
 <tr>
     <td>
-        <form asp-action="Edit" asp-antiforgery="true" id="@Model.Guid"></form>
+        <form asp-action="Edit" asp-controller="Ethernet" asp-antiforgery="true" id="@Model.Guid"></form>
         @if (Model.IsHostInterface)
         {
             <i class="fas fa-file-code"

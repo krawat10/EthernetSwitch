@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using EthernetSwitch.Infrastructure.Ethernet;
 
 namespace EthernetSwitch.ViewModels
 {
-    public enum InterfaceType {Off, Isolated, Promiscuous }
     public class InterfaceViewModel
     {
         public Guid Guid { get; }

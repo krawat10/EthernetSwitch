@@ -3,5 +3,6 @@
     public interface IBashCommand
     {
         string Execute(string command);
+        void Install(string appName);
     }
 }
