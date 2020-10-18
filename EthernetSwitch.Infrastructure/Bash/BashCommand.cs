@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using EthernetSwitch.Infrastructure.Bash.Exceptions;
 
 namespace EthernetSwitch.Infrastructure.Bash
@@ -13,12 +14,12 @@ namespace EthernetSwitch.Infrastructure.Bash
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "/bin/bash",
+                    FileName = Environment.GetEnvironmentVariable("SHELL"),
                     Arguments = $"-c \"{escapedArgs}\"",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                    RedirectStandardError = true
+                    RedirectStandardError = true,
                 }
             };
             process.Start();

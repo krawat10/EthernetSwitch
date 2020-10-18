@@ -46,7 +46,7 @@ namespace EthernetSwitch.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(SettingsViewModel model)
+        public async Task<IActionResult> Post(SettingsViewModel model)
         {
             var settings = await _settingsRepository.GetSettings();
 

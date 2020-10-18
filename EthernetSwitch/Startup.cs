@@ -1,25 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using EthernetSwitch.Data;
-using EthernetSwitch.Infrastructure;
 using EthernetSwitch.Infrastructure.Bash;
+using EthernetSwitch.Infrastructure.Ethernet;
 using EthernetSwitch.Infrastructure.Settings;
 using EthernetSwitch.Infrastructure.SNMP;
 using EthernetSwitch.Infrastructure.Users;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
 namespace EthernetSwitch
@@ -43,6 +32,8 @@ namespace EthernetSwitch
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<SNMPServices>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
+            services.AddScoped<EthernetServices>();
+            services.AddScoped<LLDPServices>();
             services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

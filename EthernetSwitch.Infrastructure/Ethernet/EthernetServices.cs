@@ -154,7 +154,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
 
         }
 
-        public void ApplyEthernetInterfaceVLANs(string ethernetName, IEnumerable<string> vlanNames)
+        public void ApplyEthernetInterfaceVLANs(string ethernetName, bool isTagged, IEnumerable<string> vlanNames)
         {
             foreach (var vlanName in vlanNames) // All selected VLANs
             {
@@ -192,7 +192,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 // Adds non-tagged interface to VLAN
                 var tagged = IsTagged(ethernetName);
 
-                if (interfaceHasVLAN & (tagged == false))
+                if (interfaceHasVLAN & (isTagged == false))
                 {
                     // Removes from VLAN which is assigned to
                     var vlanID =
@@ -203,7 +203,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     _bash.Execute($"brctl delif vlan{vlanID} {ethernetName}");
                 }
 
-                if (!tagged)
+                if (!isTagged)
                 {
                     _bash.Execute($"ip link set vlan{vlanName} down");
                     _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}");
@@ -211,7 +211,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 }
 
                 //Creates tagged interface
-                if (tagged)
+                if (isTagged)
                 {
                     _bash.Execute($"ip link set vlan{vlanName} down");
                     _bash.Execute($"ip link add link {ethernetName} name {ethernetName}.{vlanName} type vlan id {vlanName}");
@@ -219,7 +219,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 }
 
                 //Adds tagged interface to VLAN
-                if (tagged)
+                if (isTagged)
                 {
                     _bash.Execute($"ip link set {ethernetName} up");
                     _bash.Execute($"ip link set vlan{vlanName} down");

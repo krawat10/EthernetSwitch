@@ -46,9 +46,9 @@ namespace EthernetSwitch.Controllers {
                         Tagged = @interface.Tagged,
                         Type = @interface.Type,
                         VirtualLANs = @interface.VirtualLANs,
-                        Hidden = settings.HiddenInterfaces.Contains(@interface.Name),
+                        Hidden = settings.HiddenInterfaces?.Contains(@interface.Name) ?? false,
                         Neighbor = neighbours.FirstOrDefault(x => x.EthernetInterfaceName == @interface.Name)
-                    })
+                    }).ToList()
             };
 
             return View (viewModel);
@@ -63,7 +63,7 @@ namespace EthernetSwitch.Controllers {
                 
             _ethernetServices.SetEthernetInterfaceState(viewModel.Name, viewModel.IsActive);
             _ethernetServices.ClearEthernetInterfaceVLANs(viewModel.Name);
-            _ethernetServices.ApplyEthernetInterfaceVLANs(viewModel.Name, viewModel.VirtualLANs);
+            _ethernetServices.ApplyEthernetInterfaceVLANs(viewModel.Name, viewModel.Tagged, viewModel.VirtualLANs);
             _ethernetServices.SetEthernetInterfaceType(viewModel.Name, viewModel.Type);
 
             return RedirectToAction ("Index");

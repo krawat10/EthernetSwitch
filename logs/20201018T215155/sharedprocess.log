@@ -1,0 +1,3 @@
+[2020-10-18 21:52:01.983] [sharedprocess] [info] main {"machineId":"a9495279cacd607c15caf823a9318992ae8d729d955ecba25e3275b5bbf22fe6","windowId":2}
+[2020-10-18 21:52:02.076] [sharedprocess] [error] [File Watcher (node.js)] Error: ENOENT: no such file or directory, stat '/home/krawat/Repositories/EthernetSwitch/User/snippets'
+[2020-10-18 21:52:42.036] [sharedprocess] [info] Starting to clean up unused language packs.

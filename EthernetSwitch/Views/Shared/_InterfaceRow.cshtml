@@ -7,19 +7,8 @@
         <form asp-action="Edit" asp-controller="Ethernet" asp-antiforgery="true" id="@Model.Guid"></form>
         @if (Model.IsHostInterface)
         {
-            <i class="fas fa-file-code"
-               data-toggle="tooltip"
-               data-placement="bottom"
-               title="This interface host this page!">
-            </i>
-        }
-        @if (Model.Neighbor != null)
-        {
-            <i class="fas fa-server"
-               data-toggle="tooltip"
-               data-placement="bottom"
-               data-html="true"
-               title="<ul><li>@Model.Neighbor.SystemName</li><li>@Model.Neighbor.SystemDescription</li><li>@Model.Neighbor.MAC</li><li>@Model.Neighbor.IPAddress.ToString()</li></ul>">
+            <i class="fas fa-file-code" data-toggle="tooltip" data-placement="bottom"
+            title="This interface host this page!">
             </i>
         }
         @Html.DisplayFor(model => Model.Name)
@@ -28,15 +17,9 @@
     <td>
         <input form="@Model.Guid" id="Name-@Model.Guid" type="hidden" asp-for="Name" />
         <div class="custom-control custom-switch">
-            <input form="@Model.Guid"
-                   type="checkbox"
-                   class="custom-control-input"
-                   name="IsActive"
-                   value="true"
-                   id="IsActive-@Model.Guid"
-                   @(Model.IsActive ? "checked" : string.Empty)>
-            <label class="custom-control-label"
-                   for="IsActive-@Model.Guid">
+            <input form="@Model.Guid" type="checkbox" class="custom-control-input" name="IsActive" value="true"
+            id="IsActive-@Model.Guid" @(Model.IsActive ? "checked" : string.Empty)>
+            <label class="custom-control-label" for="IsActive-@Model.Guid">
                 <span class="badge badge-@(Model.StatusClass)">@Html.DisplayFor(model => Model.Status)</span>
             </label>
         </div>
@@ -45,29 +28,21 @@
     <td>
         @Html.DropDownListFor(model => model.Type, Html.GetEnumSelectList<InterfaceType>(), new
         {
-            @class = "form-control interface-type",
-            form = Model.Guid,
-            data_interface = Model.Guid,
-            onclick = "updateTaggedSwitch(this)",
-            id = $"Type-{Model.Guid}"
+        @class = "form-control interface-type",
+        form = Model.Guid,
+        data_interface = Model.Guid,
+        onclick = "updateTaggedSwitch(this)",
+        id = $"Type-{Model.Guid}"
         })
     </td>
     <td>
         <div class="custom-control custom-switch">
-            <input form="@Model.Guid"
-                   type="checkbox"
-                   class="custom-control-input"
-                   name="@nameof(InterfaceViewModel.Tagged)"
-                   value="true"
-                   data-allowed="@Model.AllowTagging.ToString().ToLower()"
-                   id="Tagged-@Model.Guid"
-                   @(Model.AllowTagging ? "enabled" : "disabled")
-                   @(Model.Tagged ? "checked" : "")>
-            <label class="custom-control-label"
-                   for="Tagged-@Model.Guid"
-                   data-toggle="tooltip"
-                   data-placement="bottom"
-                   title="@(Model.AllowTagging ? "This change removes all VLANs from this interface!" : "Tagging is disabled by admin.") ">
+            <input form="@Model.Guid" type="checkbox" class="custom-control-input"
+            name="@nameof(InterfaceViewModel.Tagged)" value="true"
+            data-allowed="@Model.AllowTagging.ToString().ToLower()" id="Tagged-@Model.Guid" @(Model.AllowTagging ?
+                    "enabled" : "disabled") @(Model.Tagged ? "checked" : "")>
+            <label class="custom-control-label" for="Tagged-@Model.Guid" data-toggle="tooltip" data-placement="bottom"
+            title="@(Model.AllowTagging ? "This change removes all VLANs from this interface!" : "Tagging is disabled by admin.") ">
             </label>
         </div>
     </td>
@@ -78,22 +53,26 @@
                 <input form="@Model.Guid" name="@nameof(InterfaceViewModel.VirtualLANs)" value="@virtualLan" hidden />
                 <span class="vlan-span badge badge-primary">
                     @Html.DisplayFor(model => virtualLan)
-                    <i data-interface="@Model.Guid" data-vlan="@virtualLan" onclick="removeVLAN(this)" class="fas fa-minus" data-toggle="tooltip" data-placement="bottom" title="remove VLAN"></i>
+                    <i data-interface="@Model.Guid" data-vlan="@virtualLan" onclick="removeVLAN(this)" class="fas fa-minus"
+                    data-toggle="tooltip" data-placement="bottom" title="remove VLAN"></i>
                 </span>
             }
 
             @if (Model.CanAddVlan)
             {
                 <div class="dropdown">
-                    <span class="badge badge-primary btn dropdown-toggle" type="button" id="vlans-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="badge badge-primary btn dropdown-toggle" type="button" id="vlans-dropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-plus"></i> Add VLAN
                     </span>
-                    <div class="dropdown-menu vlans-dropdown-options" data-interface="@Model.Guid" aria-labelledby="vlans-dropdown">
+                    <div class="dropdown-menu vlans-dropdown-options" data-interface="@Model.Guid"
+                    aria-labelledby="vlans-dropdown">
                         @foreach (var vlan in Model.OtherVirtualLANs)
                         {
                             <a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="@Model.Guid">@vlan</a>
                         }
-                        <button type="button" data-interface="@Model.Guid" onclick="openNewVLANForm(this)" class="dropdown-item">Create New</button>
+                        <button type="button" data-interface="@Model.Guid" onclick="openNewVLANForm(this)"
+                        class="dropdown-item">Create New</button>
                     </div>
                 </div>
             }
@@ -101,6 +80,22 @@
 
     </td>
     <td>
-        <button form="@Model.Guid" class="btn btn-outline-secondary" type="submit"><i class="fas fa-edit"></i> Update</button>
+        @if (Model.Neighbor != null)
+        {
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-primary py-0">@Model.Neighbor.SystemName</li>
+                <li class="list-group-item list-group-item-secondary py-0">@Model.Neighbor.SystemDescription</li>
+                <li class="list-group-item list-group-item-success py-0">MAC: @Model.Neighbor.MAC</li>
+                <li class="list-group-item list-group-item-info py-0">IP: @Model.Neighbor.IPAddress</li>
+            </ul>
+        }
+        else
+        {
+            <span class="badge badge-primary">Not Available (Turn On LLDP in device)</span>
+        }
+    </td>
+    <td>
+        <button form="@Model.Guid" class="btn btn-outline-secondary" type="submit"><i class="fas fa-edit"></i>
+            Update</button>
     </td>
 </tr>
