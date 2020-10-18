@@ -1,0 +1,123 @@
+{
+  "lldp": [
+    {
+      "interface": [
+        {
+          "name": "enp2s0",
+          "via": "LLDP",
+          "rid": "1",
+          "age": "0 day, 00:00:10",
+          "chassis": [
+            {
+              "id": [
+                {
+                  "type": "mac",
+                  "value": "b8:27:eb:53:de:50"
+                }
+              ],
+              "name": [
+                {
+                  "value": "raspberrypi"
+                }
+              ],
+              "descr": [
+                {
+                  "value": "Linux raspberrypi 4.19.75-v7+ #1270 SMP Tue Sep 24 18:45:11 BST 2019 armv7l"
+                }
+              ],
+              "mgmt-ip": [
+                {
+                  "value": "10.11.44.124"
+                }
+              ],
+              "capability": [
+                {
+                  "type": "Router",
+                  "enabled": true
+                }
+              ]
+            }
+          ],
+          "port": [
+            {
+              "id": [
+                {
+                  "type": "mac",
+                  "value": "b8:27:eb:53:de:50"
+                }
+              ],
+              "descr": [
+                {
+                  "value": "Interface   2 as eth0"
+                }
+              ],
+              "ttl": [
+                {
+                  "value": "120"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "wlp3s0",
+          "via": "LLDP",
+          "rid": "1",
+          "age": "0 day, 00:01:21",
+          "chassis": [
+            {
+              "id": [
+                {
+                  "type": "mac",
+                  "value": "b8:27:eb:53:de:50"
+                }
+              ],
+              "name": [
+                {
+                  "value": "raspberrypi"
+                }
+              ],
+              "descr": [
+                {
+                  "value": "Linux raspberrypi 4.19.75-v7+ #1270 SMP Tue Sep 24 18:45:11 BST 2019 armv7l"
+                }
+              ],
+              "mgmt-ip": [
+                {
+                  "value": "10.11.44.124"
+                }
+              ],
+              "capability": [
+                {
+                  "type": "Router",
+                  "enabled": true
+                }
+              ]
+            }
+          ],
+          "port": [
+            {
+              "id": [
+                {
+                  "type": "mac",
+                  "value": "b8:27:eb:06:8b:05"
+                }
+              ],
+              "descr": [
+                {
+                  "value": "wlan0"
+                }
+              ],
+              "ttl": [
+                {
+                  "value": "120"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
