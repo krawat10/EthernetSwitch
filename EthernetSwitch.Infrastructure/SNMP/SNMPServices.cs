@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using EthernetSwitch.BackgroundWorkers;
 using EthernetSwitch.Infrastructure.Patterns;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
 using EthernetSwitch.Infrastructure.SNMP.Queries;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using Samples.Pipeline;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
@@ -21,8 +24,70 @@ namespace EthernetSwitch.Infrastructure.SNMP
     public class SNMPServices :
         IQueryHandler<WalkV1Query, OID[]>,
         IQueryHandler<GetV3Query, OID>,
-        ICommandHandler<SetV3Command>
+        ICommandHandler<SetV3Command>,
+        ICommandHandler<InitializeTrapListenerV3Command>
     {
+        private readonly IBackgroundTaskQueue taskQueue;
+
+        public SNMPServices(IBackgroundTaskQueue taskQueue)
+        {
+            this.taskQueue = taskQueue;
+        }
+
+        public async Task Handle(InitializeTrapListenerV3Command query)
+        {
+            query.IpAddress ??= IPAddress.Any;
+
+            var users = new UserRegistry();
+            users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
+            
+            users.Add(
+                new OctetString(query.UserName),
+                new DESPrivacyProvider(
+                    new OctetString(query.Encryption),
+                    new MD5AuthenticationProvider(new OctetString(query.Password))));
+
+            taskQueue.QueueBackgroundWorkItem(async token =>
+            {
+                var trapv2 = new TrapV2MessageHandler();
+                trapv2.MessageReceived += (object sender, TrapV2MessageReceivedEventArgs e) =>
+                {
+                    Console.WriteLine("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
+                    foreach (var variable in e.TrapV2Message.Variables())
+                    {
+                        Console.WriteLine(variable);
+                    }
+                };
+                var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trapv2);
+
+                var inform = new InformRequestMessageHandler();
+                inform.MessageReceived += (object sender, InformRequestMessageReceivedEventArgs e) =>
+                {
+                    Console.WriteLine("INFORM version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
+                    foreach (var variable in e.InformRequestMessage.Variables())
+                    {
+                        Console.WriteLine(variable);
+                    }
+                };
+
+                var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
+                var store = new ObjectStore();
+                var v1 = new Version1MembershipProvider(new OctetString("public"), new OctetString("public"));
+                var v2 = new Version2MembershipProvider(new OctetString("public"), new OctetString("public"));
+                var v3 = new Version3MembershipProvider();
+                var membership = new ComposedMembershipProvider(new IMembershipProvider[] { v1, v2, v3 });
+                var handlerFactory = new MessageHandlerFactory(new[] { trapv2Mapping, informMapping });
+
+                var pipelineFactory = new SnmpApplicationFactory(store, membership, handlerFactory);
+
+                using var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
+                engine.Listener.AddBinding(new IPEndPoint(IPAddress.Any, query.Port));
+                engine.Start();
+            });
+            
+            //engine.Stop();
+        }
+
         public async Task<OID[]> Handle(WalkV1Query query)
         {
             IList<Variable> result = new List<Variable>();
@@ -36,7 +101,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
 
             return result
-                .Select(variable => new OID {Id = variable.Id.ToString(), Value = variable.Data.ToString()})
+                .Select(variable => new OID { Id = variable.Id.ToString(), Value = variable.Data.ToString() })
                 .ToArray();
         }
 
@@ -50,7 +115,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(query.UserName),
-                new List<Variable> {new Variable(new ObjectIdentifier(query.OID_Id))},
+                new List<Variable> { new Variable(new ObjectIdentifier(query.OID_Id)) },
                 new DESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password))
@@ -74,7 +139,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 throw ErrorException.Create("error in response", query.IpAddress, reply);
             }
 
-            return new OID {Id = oid.Id.ToString(), Value = oid.Data.ToString()};
+            return new OID { Id = oid.Id.ToString(), Value = oid.Data.ToString() };
         }
 
         public async Task Handle(SetV3Command command)
