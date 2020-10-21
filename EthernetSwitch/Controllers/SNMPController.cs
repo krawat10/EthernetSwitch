@@ -25,6 +25,8 @@ namespace EthernetSwitch.Controllers
 
         public IActionResult WalkSNMPv1() => View(new WalkSNMPv1ViewModel {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
 
+        public IActionResult TrapSNMPv3() => View(new TrapSNMPv3ViewModel { });
+
         [HttpPost]
         public async Task<IActionResult> GetSNMPv1(WalkSNMPv1ViewModel viewModel)
         {
