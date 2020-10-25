@@ -1,5 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Lextm.SharpSnmpLib;
+using Microsoft.EntityFrameworkCore;
 
 namespace EthernetSwitch.Models.SNMP
 {
@@ -11,7 +14,6 @@ namespace EthernetSwitch.Models.SNMP
         public int Port { get; set; } = 162;
         [DataType(DataType.Password)] public string Password { get; set; }
         [DataType(DataType.Password)] public string Encryption { get; set; }
-
-
+        public ICollection<Data.Models.SNMPMessage> Messages { get; set; }
     }
 }

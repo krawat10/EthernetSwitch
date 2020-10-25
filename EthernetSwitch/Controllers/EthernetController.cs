@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
@@ -30,11 +32,19 @@ namespace EthernetSwitch.Controllers {
 
         public async Task<IActionResult> Index () {
             var settings = await _settingsRepository.GetSettings ();
-            var neighbours = _lldpSercives.GetNeighbours();
+            var neighbours = new List<EthernetNeighbor>();
+            var viewModel = new IndexViewModel();
 
-            var viewModel = new IndexViewModel
+            try
             {
-                Interfaces = _ethernetServices
+                neighbours = _lldpSercives.GetNeighbours();
+            }
+            catch(Exception e)
+            {
+                viewModel.Error = e.Message;
+            }
+
+            viewModel.Interfaces = _ethernetServices
                     .GetEthernetInterfaces()
                     .Select(@interface => new InterfaceViewModel
                     {
@@ -48,9 +58,8 @@ namespace EthernetSwitch.Controllers {
                         VirtualLANs = @interface.VirtualLANs,
                         Hidden = settings.HiddenInterfaces?.Contains(@interface.Name) ?? false,
                         Neighbor = neighbours.FirstOrDefault(x => x.EthernetInterfaceName == @interface.Name)
-                    }).ToList()
-            };
-
+                    }).ToList();
+            
             return View (viewModel);
         }
 

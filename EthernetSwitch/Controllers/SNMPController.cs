@@ -1,31 +1,62 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using EthernetSwitch.Data;
 using EthernetSwitch.Infrastructure.SNMP;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
 using EthernetSwitch.Infrastructure.SNMP.Queries;
 using EthernetSwitch.Models.SNMP;
 using Lextm.SharpSnmpLib;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EthernetSwitch.Controllers
 {
     public class SNMPController : Controller
     {
         private readonly SNMPServices _services;
+        private readonly EthernetSwitchContext _context;
 
-        public SNMPController(SNMPServices services)
+        public SNMPController(SNMPServices services, EthernetSwitchContext context)
         {
             _services = services;
+            _context = context;
         }
 
-        public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
+        public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
 
-        public IActionResult SetSNMPv3() => View(new SetSNMPv3ViewModel {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
+        public IActionResult SetSNMPv3() => View(new SetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
 
-        public IActionResult WalkSNMPv1() => View(new WalkSNMPv1ViewModel {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
+        public IActionResult WalkSNMPv1() => View(new WalkSNMPv1ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
 
-        public IActionResult TrapSNMPv3() => View(new TrapSNMPv3ViewModel { });
+        public async Task<IActionResult> TrapSNMPv3()
+        {
+            ViewData["Messages"] = await _context.TrapMessages.ToListAsync();
+
+            return View(new TrapSNMPv3ViewModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TrapSNMPv3(TrapSNMPv3ViewModel viewModel)
+        {
+            try
+            {
+                await _services.Handle(new InitializeTrapListenerV3Command(
+                    viewModel.UserName,
+                    IPAddress.Parse(viewModel.IpAddress),
+                    viewModel.Port,
+                    viewModel.Password,
+                    viewModel.Encryption));
+            }
+            catch (Exception e)
+            {
+                viewModel.Error = e.Message;
+            }
+
+            ViewData["Messages"] = await _context.TrapMessages.ToListAsync();
+
+            return View("TrapSNMPv3", viewModel);
+        }
 
         [HttpPost]
         public async Task<IActionResult> GetSNMPv1(WalkSNMPv1ViewModel viewModel)
