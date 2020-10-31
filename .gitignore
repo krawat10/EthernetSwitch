@@ -29,6 +29,15 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Oo]ut/
+User/
+Cache*
+blob_storage/
+Backups/
+Code Cache/
+Crash Reports/
+Dictionaries/
+GPUCache/
+Local Storage/
 msbuild.log
 msbuild.err
 msbuild.wrn
