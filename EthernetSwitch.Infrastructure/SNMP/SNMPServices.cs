@@ -14,6 +14,7 @@ using EthernetSwitch.Seciurity;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
 
 namespace EthernetSwitch.Infrastructure.SNMP
@@ -32,11 +33,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
     {
         private readonly IBackgroundTaskQueue taskQueue;
         private readonly EthernetSwitchContext context;
+        private readonly ILogger<SNMPServices> logger;
 
-        public SNMPServices(IBackgroundTaskQueue taskQueue, EthernetSwitchContext context)
+        public SNMPServices(IBackgroundTaskQueue taskQueue, EthernetSwitchContext context, ILoggerFactory loggerFactory)
         {
             this.taskQueue = taskQueue;
             this.context = context;
+            this.logger = loggerFactory.CreateLogger<SNMPServices>();
         }
         
         public async Task Handle(InitializeTrapListenerV3Command query)
@@ -53,12 +56,14 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     new MD5AuthenticationProvider(new OctetString(query.Password))));
             }
 
+            await taskQueue.DequeueAsync(new CancellationToken(true));
+
             taskQueue.QueueBackgroundWorkItem(async token =>
             {
                 var trapv2 = new TrapV2MessageHandler();
                 trapv2.MessageReceived += async (object sender, TrapV2MessageReceivedEventArgs e) =>
                 {
-                    Console.WriteLine("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
+                    logger.LogWarning("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
 
                     var message = (new SNMPMessage
                     {
@@ -88,7 +93,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 var inform = new InformRequestMessageHandler();
                 inform.MessageReceived += async (object sender, InformRequestMessageReceivedEventArgs e) =>
                 {
-                    Console.WriteLine("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
+                    logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
 
                     var message = (new SNMPMessage
                     {
@@ -124,12 +129,11 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 var handlerFactory = new MessageHandlerFactory(new[] { trapv2Mapping, informMapping });
                 var pipelineFactory = new SnmpApplicationFactory(store, membership, handlerFactory);
 
-                using (var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup()))
-                {
-                    engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
-
-                    engine.Start();
-                }
+                using var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
+                engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
+                engine.Start();
+                while (!token.IsCancellationRequested) await Task.Delay(50000);
+                engine.Stop();
             });
         }
 
