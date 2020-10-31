@@ -38,13 +38,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
             this.taskQueue = taskQueue;
             this.context = context;
         }
-
+        
         public async Task Handle(InitializeTrapListenerV3Command query)
         {
             var users = new UserRegistry();
             users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
-            
-            if(!string.IsNullOrWhiteSpace(query.UserName))
+
+            if (!string.IsNullOrWhiteSpace(query.UserName))
             {
                 users.Add(
                 new OctetString(query.UserName),
@@ -52,8 +52,6 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password))));
             }
-
-            await taskQueue.DequeueAsync(new CancellationToken(true));
 
             taskQueue.QueueBackgroundWorkItem(async token =>
             {
@@ -126,11 +124,12 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 var handlerFactory = new MessageHandlerFactory(new[] { trapv2Mapping, informMapping });
                 var pipelineFactory = new SnmpApplicationFactory(store, membership, handlerFactory);
 
-                using var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
-                engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
-                engine.Start();
-                while (!token.IsCancellationRequested) await Task.Delay(50000);
-                engine.Stop();
+                using (var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup()))
+                {
+                    engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
+
+                    engine.Start();
+                }
             });
         }
 
@@ -155,6 +154,8 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             var discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             var report = discovery.GetResponse(10000, new IPEndPoint(query.IpAddress, query.Port));
+               var isSupported1 = AESPrivacyProvider.IsSupported;
+               var isSupported2 = DESPrivacyProvider.IsSupported;
 
             var request = new GetRequestMessage(
                 Lextm.SharpSnmpLib.VersionCode.V3,
@@ -175,7 +176,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 .Pdu().Variables
                 .FirstOrDefault(variable => variable.Id.ToString() == query.OID_Id);
 
-            if (oid != null)
+            if (oid == null)
             {
                 throw new KeyNotFoundException($"Cannot find variable with ID {query.OID_Id}");
             }

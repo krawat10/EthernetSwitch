@@ -9,6 +9,7 @@ using EthernetSwitch.Models.SNMP;
 using Lextm.SharpSnmpLib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using EthernetSwitch.Infrastructure.Extensions;
 
 namespace EthernetSwitch.Controllers
 {
@@ -43,7 +44,7 @@ namespace EthernetSwitch.Controllers
             {
                 await _services.Handle(new InitializeTrapListenerV3Command(
                     viewModel.UserName,
-                    IPAddress.Parse(viewModel.IpAddress),
+                    viewModel.IpAddress.IsEmpty() ? IPAddress.Any : IPAddress.Parse(viewModel.IpAddress),
                     viewModel.Port,
                     viewModel.Password,
                     viewModel.Encryption));
