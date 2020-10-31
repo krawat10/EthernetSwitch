@@ -37,6 +37,7 @@ Code Cache/
 Crash Reports/
 Dictionaries/
 GPUCache/
+Network Persistent State/
 Local Storage/
 msbuild.log
 msbuild.err
