@@ -38,15 +38,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
             this.taskQueue = taskQueue;
             this.context = context;
         }
-
+        
         public async Task Handle(InitializeTrapListenerV3Command query)
         {
-            query.IpAddress ??= IPAddress.Any;
-
             var users = new UserRegistry();
             users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
-            
-            if(!string.IsNullOrWhiteSpace(query.UserName))
+
+            if (!string.IsNullOrWhiteSpace(query.UserName))
             {
                 users.Add(
                 new OctetString(query.UserName),
@@ -54,7 +52,6 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password))));
             }
-
             taskQueue.QueueBackgroundWorkItem(async token =>
             {
                 var trapv2 = new TrapV2MessageHandler();
@@ -131,10 +128,14 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
 
                     engine.Start();
+
+                    while (!token.IsCancellationRequested)
+                    {
+
+                    }
+                    engine.Stop();
                 }
             });
-            
-            //engine.Stop();
         }
 
         public async Task<OID[]> Handle(WalkV1Query query)
@@ -158,6 +159,8 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             var discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             var report = discovery.GetResponse(10000, new IPEndPoint(query.IpAddress, query.Port));
+               var isSupported1 = AESPrivacyProvider.IsSupported;
+               var isSupported2 = DESPrivacyProvider.IsSupported;
 
             var request = new GetRequestMessage(
                 Lextm.SharpSnmpLib.VersionCode.V3,
