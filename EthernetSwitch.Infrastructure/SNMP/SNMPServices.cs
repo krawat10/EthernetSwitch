@@ -13,6 +13,7 @@ using EthernetSwitch.Infrastructure.SNMP.Queries;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using Samples.BouncyCastle;
 using Samples.Pipeline;
 
 namespace EthernetSwitch.Infrastructure.SNMP
@@ -164,7 +165,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 Messenger.NextRequestId,
                 new OctetString(query.UserName),
                 new List<Variable> { new Variable(new ObjectIdentifier(query.OID_Id)) },
-                new DESPrivacyProvider(
+                new BouncyCastleDESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password))
                 ),
@@ -201,7 +202,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 Messenger.NextRequestId,
                 new OctetString(command.UserName),
                 new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id)) },
-                new DESPrivacyProvider(
+                new BouncyCastleDESPrivacyProvider(
                     new OctetString(command.Encryption),
                     new MD5AuthenticationProvider(new OctetString(command.Password))
                 ),
