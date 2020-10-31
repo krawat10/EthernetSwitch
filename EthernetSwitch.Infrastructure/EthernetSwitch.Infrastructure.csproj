@@ -1,16 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lextm.SharpSnmpLib" Version="12.1.0" />
+    <PackageReference Include="Lextm.SharpSnmpLib" Version="12.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="3.1.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EthernetSwitch.Data\EthernetSwitch.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Samples.Engine">
+      <HintPath>..\DLLs\Samples.Engine.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

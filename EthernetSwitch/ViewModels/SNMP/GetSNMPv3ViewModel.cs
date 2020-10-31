@@ -4,7 +4,7 @@ using Lextm.SharpSnmpLib;
 
 namespace EthernetSwitch.Models.SNMP
 {
-    public class GetSNMPv3ViewModel
+    public class GetSNMPv3ViewModel : BaseViewModel
     {
         public string UserName { get; set; }
         public VersionCode VersionCode { get; set; } = VersionCode.V3;
@@ -13,6 +13,5 @@ namespace EthernetSwitch.Models.SNMP
         [DataType(DataType.Password)]public string Password { get; set; }
         [DataType(DataType.Password)]public string Encryption { get; set; }
         public OID OID { get; set; }
-        public string Error { get;  set; }
     }
 }
