@@ -12,9 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.MD = Readme.MD
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthernetSwitch.Data", "EthernetSwitch.Data\EthernetSwitch.Data.csproj", "{86AB6C82-A3CD-45D3-AE9D-7D329F2856BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernetSwitch.Data", "EthernetSwitch.Data\EthernetSwitch.Data.csproj", "{86AB6C82-A3CD-45D3-AE9D-7D329F2856BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthernetSwitch.Infrastructure", "EthernetSwitch.Infrastructure\EthernetSwitch.Infrastructure.csproj", "{0B09F0F5-906B-4886-805C-CF41E066E312}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernetSwitch.Infrastructure", "EthernetSwitch.Infrastructure\EthernetSwitch.Infrastructure.csproj", "{0B09F0F5-906B-4886-805C-CF41E066E312}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthernetSwitch.Seciurity", "EthernetSwitch.Seciurity\EthernetSwitch.Seciurity.csproj", "{D8C939BE-71B0-4851-801A-F80B1F5FC843}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +36,10 @@ Global
 		{0B09F0F5-906B-4886-805C-CF41E066E312}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B09F0F5-906B-4886-805C-CF41E066E312}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B09F0F5-906B-4886-805C-CF41E066E312}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8C939BE-71B0-4851-801A-F80B1F5FC843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8C939BE-71B0-4851-801A-F80B1F5FC843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8C939BE-71B0-4851-801A-F80B1F5FC843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8C939BE-71B0-4851-801A-F80B1F5FC843}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
