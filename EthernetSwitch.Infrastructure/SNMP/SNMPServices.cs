@@ -10,10 +10,10 @@ using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.Patterns;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
 using EthernetSwitch.Infrastructure.SNMP.Queries;
+using EthernetSwitch.Seciurity;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
-using Samples.BouncyCastle;
 using Samples.Pipeline;
 
 namespace EthernetSwitch.Infrastructure.SNMP

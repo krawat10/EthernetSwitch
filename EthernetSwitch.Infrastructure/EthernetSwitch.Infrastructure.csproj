@@ -12,12 +12,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EthernetSwitch.Data\EthernetSwitch.Data.csproj" />
+    <ProjectReference Include="..\EthernetSwitch.Seciurity\EthernetSwitch.Seciurity.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Samples.BouncyCastle">
-      <HintPath>..\DLLs\Samples.BouncyCastle.dll</HintPath>
-    </Reference>
     <Reference Include="Samples.Engine">
       <HintPath>..\DLLs\Samples.Engine.dll</HintPath>
     </Reference>
