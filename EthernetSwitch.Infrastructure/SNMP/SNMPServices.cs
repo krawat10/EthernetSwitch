@@ -131,7 +131,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
                     while (!token.IsCancellationRequested)
                     {
-
+                        await Task.Delay(10000);
                     }
                     engine.Stop();
                 }
@@ -181,7 +181,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 .Pdu().Variables
                 .FirstOrDefault(variable => variable.Id.ToString() == query.OID_Id);
 
-            if (oid != null)
+            if (oid == null)
             {
                 throw new KeyNotFoundException($"Cannot find variable with ID {query.OID_Id}");
             }
