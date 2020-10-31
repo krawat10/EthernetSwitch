@@ -41,8 +41,6 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
         public async Task Handle(InitializeTrapListenerV3Command query)
         {
-            query.IpAddress ??= IPAddress.Any;
-
             var users = new UserRegistry();
             users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
             
@@ -50,10 +48,12 @@ namespace EthernetSwitch.Infrastructure.SNMP
             {
                 users.Add(
                 new OctetString(query.UserName),
-                new DESPrivacyProvider(
+                new BouncyCastleDESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password))));
             }
+
+            await taskQueue.DequeueAsync(new CancellationToken(true));
 
             taskQueue.QueueBackgroundWorkItem(async token =>
             {
@@ -126,15 +126,12 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 var handlerFactory = new MessageHandlerFactory(new[] { trapv2Mapping, informMapping });
                 var pipelineFactory = new SnmpApplicationFactory(store, membership, handlerFactory);
 
-                using (var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup()))
-                {
-                    engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
-
-                    engine.Start();
-                }
+                using var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
+                engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
+                engine.Start();
+                while (!token.IsCancellationRequested) await Task.Delay(50000);
+                engine.Stop();
             });
-            
-            //engine.Stop();
         }
 
         public async Task<OID[]> Handle(WalkV1Query query)
