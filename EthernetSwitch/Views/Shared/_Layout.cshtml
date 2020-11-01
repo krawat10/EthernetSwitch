@@ -30,17 +30,16 @@
                         }
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="SNMP" asp-action="WalkSNMPv1">WALK SNMPv1</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="SNMP" asp-action="GetSNMPv3">GET SNMPv3</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="SNMP" asp-action="SetSNMPv3">SET SNMPv3</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="SNMP" asp-action="TrapSNMPv3">TRAP SNMPv3</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    SNMP
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" asp-area="" asp-controller="SNMP" asp-action="WalkSNMPv1">WALK v1</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="SNMP" asp-action="GetSNMPv3">Get v3</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="SNMP" asp-action="SetSNMPv3">Set v3</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="SNMP" asp-action="TrapSNMPv3">Trap v3</a>
+                                </div>
                             </li>
                             <li class="nav-item ">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="ChangePassword">Change Password</a>

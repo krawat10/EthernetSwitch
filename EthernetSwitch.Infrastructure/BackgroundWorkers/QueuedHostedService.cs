@@ -9,6 +9,7 @@ namespace EthernetSwitch.BackgroundWorkers
     public class QueuedHostedService : BackgroundService
     {
         private readonly ILogger<QueuedHostedService> _logger;
+        private CancellationToken cancellationToken;
 
         public QueuedHostedService(IBackgroundTaskQueue taskQueue,
             ILogger<QueuedHostedService> logger)
@@ -21,24 +22,23 @@ namespace EthernetSwitch.BackgroundWorkers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            cancellationToken = stoppingToken;
             _logger.LogInformation(
-                $"Queued Hosted Service is running.{Environment.NewLine}" +
-                $"{Environment.NewLine}Tap W to add a work item to the " +
-                $"background queue.{Environment.NewLine}");
+                $"Queued Hosted Service is running");
 
-            await BackgroundProcessing(stoppingToken);
+            await BackgroundProcessing();
         }
 
-        private async Task BackgroundProcessing(CancellationToken stoppingToken)
+        private async Task BackgroundProcessing()
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var workItem =
-                    await TaskQueue.DequeueAsync(stoppingToken);
+                    await TaskQueue.DequeueAsync(cancellationToken);
 
                 try
                 {
-                    await workItem(stoppingToken);
+                    await workItem(cancellationToken);
                 }
                 catch (Exception ex)
                 {
