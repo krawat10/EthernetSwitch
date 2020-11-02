@@ -10,7 +10,7 @@ namespace EthernetSwitch.BackgroundWorkers
     {
         private readonly ILogger<QueuedHostedService> _logger;
         private CancellationToken cancellationToken;
-
+        public bool IsActive { get; private set; }
         public QueuedHostedService(IBackgroundTaskQueue taskQueue,
             ILogger<QueuedHostedService> logger)
         {
@@ -38,6 +38,7 @@ namespace EthernetSwitch.BackgroundWorkers
 
                 try
                 {
+                    IsActive = true;
                     await workItem(cancellationToken);
                 }
                 catch (Exception ex)
@@ -45,6 +46,7 @@ namespace EthernetSwitch.BackgroundWorkers
                     _logger.LogError(ex,
                         "Error occurred executing {WorkItem}.", nameof(workItem));
                 }
+                IsActive = false;
             }
         }
 

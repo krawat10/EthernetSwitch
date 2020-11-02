@@ -8,15 +8,15 @@
     <form asp-action="TrapSNMPv3" method="post">
         <div class="form-row">
             <div class="form-group col-md-6">
-                <label for="IpAddress">IP Address: </label>
-                <input class="form-control" asp-for="IpAddress" id="IpAddress" />
-            </div>
-            <div class="form-group col-md-6">
                 <label for="Port">Port:</label>
                 <input class="form-control" asp-for="Port" id="Port" />
             </div>
         </div>
         <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="EngineId">EngineId: </label>
+                <input class="form-control" asp-for="EngineId" id="EngineId" />
+            </div>
             <div class="form-group col-md-4">
                 <label for="UserName">Username: </label>
                 <input class="form-control" asp-for="UserName" id="UserName" />

@@ -147,7 +147,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             IList<Variable> result = new List<Variable>();
 
             await Messenger.WalkAsync(Lextm.SharpSnmpLib.VersionCode.V1,
-                new IPEndPoint((query.IpAddress), query.Port),
+                new IPEndPoint(query.IpAddress, query.Port),
                 new OctetString(query.Group),
                 query.StartObjectId,
                 result,
