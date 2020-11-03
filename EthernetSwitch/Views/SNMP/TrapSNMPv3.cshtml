@@ -26,7 +26,14 @@
                 <input class="form-control" asp-for="Password" id="Password" />
             </div>
             <div class="form-group col-md-4">
-                <label for="Encryption">Encryption (DES): </label>
+                <label for="EncryptionType">Encryption Type: </label>
+                <select class="form-control" asp-for="EncryptionType" id="EncryptionType">
+                    <option value="AES">AES</option>
+                    <option value="DES" selected>DES</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="Encryption">Encryption: </label>
                 <input class="form-control" asp-for="Encryption" id="Encryption" />
             </div>
         </div>

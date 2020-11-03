@@ -2,6 +2,11 @@
 
 namespace EthernetSwitch.Infrastructure.SNMP.Commands
 {
+    public enum EncryptionType
+    {
+        DES, AES
+    }
+
     public class InitializeTrapListenerV3Command
     {
         public InitializeTrapListenerV3Command(string userName, IPAddress ipAddress, int port, string password,
@@ -19,5 +24,6 @@ namespace EthernetSwitch.Infrastructure.SNMP.Commands
         public int Port { get; internal set; }
         public string Password { get; internal set; }
         public string Encryption { get; internal set; }
+        public EncryptionType EncryptionType { get; set; }
     }
 }

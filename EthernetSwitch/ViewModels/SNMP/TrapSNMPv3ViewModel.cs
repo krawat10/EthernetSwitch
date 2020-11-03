@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using EthernetSwitch.Infrastructure.SNMP.Commands;
 using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,5 +17,7 @@ namespace EthernetSwitch.Models.SNMP
         [DataType(DataType.Password)] public string Password { get; set; }
         [DataType(DataType.Password)] public string Encryption { get; set; }
         public ICollection<Data.Models.SNMPMessage> Messages { get; set; }
+        public EncryptionType EncryptionType { get; set; }
+
     }
 }
