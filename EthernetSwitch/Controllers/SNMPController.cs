@@ -47,7 +47,8 @@ namespace EthernetSwitch.Controllers
                     viewModel.IpAddress.IsEmpty() ? IPAddress.Any : IPAddress.Parse(viewModel.IpAddress),
                     viewModel.Port,
                     viewModel.Password,
-                    viewModel.Encryption));
+                    viewModel.Encryption,
+                    viewModel.EngineId));
             }
             catch (Exception e)
             {
