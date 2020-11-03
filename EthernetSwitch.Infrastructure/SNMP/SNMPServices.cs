@@ -56,7 +56,12 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 new OctetString(query.UserName),
                 new BouncyCastleDESPrivacyProvider(
                     new OctetString(query.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(query.Password))));
+                    new MD5AuthenticationProvider(new OctetString(query.Password)))
+                    {
+                        EngineIds = new List<OctetString> { 
+                            new OctetString(ByteTool.Convert(query.EngineId))
+                        }
+                    });
             }
 
             await serviceProvider.GetRequiredService<QueuedHostedService>().StopAsync(new CancellationToken());
@@ -95,8 +100,11 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 };
                 var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trapMessageHandler);
 
-                var informMessageHandler = new InformRequestMessageHandler();
-                informMessageHandler.MessageReceived += async (object sender, InformRequestMessageReceivedEventArgs e) =>
+//snmptrap -v3 -e 0x090807060504030201 -l authPriv -u krawat -a MD5 -A haslo1 -x DES -X haslo2 127.0.0.1:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
+
+
+                var inform = new InformRequestMessageHandler();
+                inform.MessageReceived += async (object sender, InformRequestMessageReceivedEventArgs e) =>
                 {
                     var scopedContext = serviceProvider.GetRequiredService<EthernetSwitchContext>();
                     logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
@@ -137,7 +145,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 using var engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
                 engine.Listener.AddBinding(new IPEndPoint(query.IpAddress, query.Port));
                 engine.Start();
-                while (!token.IsCancellationRequested) await Task.Delay(50000);
+                while (!token.IsCancellationRequested) await Task.Delay(5000);
                 engine.Stop();
             });
         }
