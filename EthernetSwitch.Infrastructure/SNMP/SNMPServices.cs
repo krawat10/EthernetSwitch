@@ -69,8 +69,8 @@ namespace EthernetSwitch.Infrastructure.SNMP
             
             taskQueue.QueueBackgroundWorkItem(async token =>
             {
-                var trapMessageHandler = new TrapV2MessageHandler();
-                trapMessageHandler.MessageReceived += async (object sender, TrapV2MessageReceivedEventArgs e) =>
+                var trap = new TrapV2MessageHandler();
+                trap.MessageReceived += async (object sender, TrapV2MessageReceivedEventArgs e) =>
                 {
                     var scopedContext = serviceProvider.GetRequiredService<EthernetSwitchContext>();
                     logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
@@ -98,7 +98,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     scopedContext.Add(message);
                     await scopedContext.SaveChangesAsync(token);
                 };
-                var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trapMessageHandler);
+                var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
 
 //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u krawat -a MD5 -A haslo1 -x DES -X haslo2 127.0.0.1:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
 
@@ -132,7 +132,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     scopedContext.Add(message);
                     await scopedContext.SaveChangesAsync(token);
                 };
-                var informMapping = new HandlerMapping("v2,v3", "INFORM", informMessageHandler);
+                var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
                 
                 var membership = new ComposedMembershipProvider(new IMembershipProvider[] {
                     new Version1MembershipProvider(new OctetString("public"), new OctetString("public")),
