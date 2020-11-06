@@ -34,10 +34,8 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
         public async Task<bool> HasNewUsers(ICollection<TrapUser> oldUsers, CancellationToken token = default)
         {
-            if (oldUsers.Count() != context.TrapUsers.Count()) return true;
-
-            var oldIDs = oldUsers.Select(x => x.Id).ToList();
-            return !await context.TrapUsers.AllAsync(usr => oldIDs.Contains(usr.Id));
+            return !(await context.TrapUsers.Select(x => x.Id).ToListAsync())
+                .SequenceEqual(oldUsers.Select(x => x.Id));
         }
 
         public async Task<ICollection<TrapUser>> GetTrapUsers()
