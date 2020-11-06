@@ -24,17 +24,15 @@ namespace EthernetSwitch.Infrastructure.SNMP
     public class TrapReceiverHostedService : BackgroundService
     {
         private readonly ILogger<TrapReceiverHostedService> _logger;
-        private readonly ITrapUsersRepository _trapUsersRepository;
         private readonly IServiceProvider _serviceProvider;
         private ICollection<SNMPTrapUser> _activeTrapUsers;
         private SnmpEngine _engine;
 
 
-        public TrapReceiverHostedService(ILogger<TrapReceiverHostedService> logger, ITrapUsersRepository trapUsersRepository,
+        public TrapReceiverHostedService(ILogger<TrapReceiverHostedService> logger, 
             IServiceProvider serviceProvider)
         {
             _logger = logger;
-            _trapUsersRepository = trapUsersRepository;
             _serviceProvider = serviceProvider;
             _activeTrapUsers = new List<SNMPTrapUser>();
         }
@@ -51,73 +49,77 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (await _trapUsersRepository.HasNewUsers(_activeTrapUsers, stoppingToken))
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    _activeTrapUsers = await _trapUsersRepository.GetUsers();
-                    var ports = _activeTrapUsers.Select(usr => usr.Port).Distinct();
-                    var users = new UserRegistry();
-                    users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
+                    var repository = scope.ServiceProvider.GetRequiredService<ITrapUsersRepository>();
 
-                    foreach (var trapUser in _activeTrapUsers)
+                    if (await repository.HasNewUsers(_activeTrapUsers, stoppingToken))
                     {
-                        IPrivacyProvider provider;
-                        if (trapUser.EncryptionType == EncryptionType.DES)
+                        _activeTrapUsers = await repository.GetUsers();
+                        var ports = _activeTrapUsers.Select(usr => usr.Port).Distinct();
+                        var users = new UserRegistry();
+                        users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
+
+                        foreach (var trapUser in _activeTrapUsers)
                         {
-                            provider = new BouncyCastleDESPrivacyProvider(
-                                new OctetString(trapUser.Encryption),
-                                new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
+                            IPrivacyProvider provider;
+                            if (trapUser.EncryptionType == EncryptionType.DES)
                             {
-                                EngineIds = new List<OctetString> {new OctetString(ByteTool.Convert(trapUser.EngineId))}
-                            };
+                                provider = new BouncyCastleDESPrivacyProvider(
+                                    new OctetString(trapUser.Encryption),
+                                    new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
+                                {
+                                    EngineIds = new List<OctetString> {new OctetString(ByteTool.Convert(trapUser.EngineId))}
+                                };
+                            }
+                            else
+                            {
+                                provider = new BouncyCastleAESPrivacyProvider(
+                                    new OctetString(trapUser.Encryption),
+                                    new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
+                                {
+                                    EngineIds = new List<OctetString> {new OctetString(ByteTool.Convert(trapUser.EngineId))}
+                                };
+                            }
+
+                            users.Add(new OctetString(trapUser.UserName), provider);
                         }
-                        else
+
+                        var trap = new TrapV2MessageHandler();
+                        trap.MessageReceived += TrapMessageReceived;
+                        var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
+
+                        //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u krawat -a MD5 -A haslo1 -x DES -X haslo2 127.0.0.1:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
+                        var inform = new InformRequestMessageHandler();
+                        inform.MessageReceived += InformMessageReceived;
+                        var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
+
+                        var membership = new ComposedMembershipProvider(new IMembershipProvider[]
                         {
-                            provider = new BouncyCastleAESPrivacyProvider(
-                                new OctetString(trapUser.Encryption),
-                                new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
-                            {
-                                EngineIds = new List<OctetString> {new OctetString(ByteTool.Convert(trapUser.EngineId))}
-                            };
+                            new Version1MembershipProvider(new OctetString("public"), new OctetString("public")),
+                            new Version2MembershipProvider(new OctetString("public"), new OctetString("public")),
+                            new Version3MembershipProvider()
+                        });
+
+                        var handlerFactory = new MessageHandlerFactory(new[] {trapv2Mapping, informMapping});
+                        var pipelineFactory = new SnmpApplicationFactory(new ObjectStore(), membership, handlerFactory);
+
+                        if (_engine?.Active ?? false)
+                        {
+                            _engine.Stop();
+                            _engine.Dispose();
                         }
 
-                        users.Add(new OctetString(trapUser.UserName), provider);
+                        _engine = new SnmpEngine(pipelineFactory, new Listener {Users = users}, new EngineGroup());
+
+                        foreach (var port in ports)
+                        {
+                            _engine.Listener.AddBinding(new IPEndPoint(IPAddress.Any, port));
+                        }
+
+                        _engine.Start();
                     }
-
-                    var trap = new TrapV2MessageHandler();
-                    trap.MessageReceived += TrapMessageReceived;
-                    var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
-
-                    //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u krawat -a MD5 -A haslo1 -x DES -X haslo2 127.0.0.1:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
-                    var inform = new InformRequestMessageHandler();
-                    inform.MessageReceived += InformMessageReceived;
-                    var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
-
-                    var membership = new ComposedMembershipProvider(new IMembershipProvider[]
-                    {
-                        new Version1MembershipProvider(new OctetString("public"), new OctetString("public")),
-                        new Version2MembershipProvider(new OctetString("public"), new OctetString("public")),
-                        new Version3MembershipProvider()
-                    });
-
-                    var handlerFactory = new MessageHandlerFactory(new[] {trapv2Mapping, informMapping});
-                    var pipelineFactory = new SnmpApplicationFactory(new ObjectStore(), membership, handlerFactory);
-
-                    if (_engine?.Active ?? false)
-                    {
-                        _engine.Stop();
-                        _engine.Dispose();
-                    }
-
-                    _engine = new SnmpEngine(pipelineFactory, new Listener {Users = users}, new EngineGroup());
-
-                    foreach (var port in ports)
-                    {
-                        _engine.Listener.AddBinding(new IPEndPoint(IPAddress.Any, port));
-                    }
-
-                    _engine.Start();
                 }
-
 
                 await Task.Delay(5000, stoppingToken);
             }

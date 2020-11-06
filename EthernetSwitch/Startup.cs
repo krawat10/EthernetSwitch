@@ -31,9 +31,9 @@ namespace EthernetSwitch
             services.AddControllersWithViews();
             services.AddSingleton<IBashCommand, BashCommand>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<SNMPServices>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ITrapUsersRepository, TrapUsersRepository>();
+            services.AddScoped<SNMPServices>();
             services.AddScoped<EthernetServices>();
             services.AddScoped<LLDPServices>();
             services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
