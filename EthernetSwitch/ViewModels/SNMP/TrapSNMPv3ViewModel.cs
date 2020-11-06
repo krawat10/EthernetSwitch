@@ -19,7 +19,6 @@ namespace EthernetSwitch.Models.SNMP
         public int Port { get; set; } = 162;
         [DataType(DataType.Password)] public string Password { get; set; }
         [DataType(DataType.Password)] public string Encryption { get; set; }
-        public ICollection<Data.Models.SNMPMessage> Messages { get; set; }
         public EncryptionType EncryptionType { get; set; }
 
     }

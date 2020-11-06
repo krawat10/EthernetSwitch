@@ -13,9 +13,10 @@ namespace EthernetSwitch.Infrastructure.SNMP
 {
     public interface ITrapUsersRepository
     {
-        Task<ICollection<TrapUser>> GetTrapUsers();
-        Task AddTrapUser(TrapUser user, CancellationToken token = default);
-        Task<bool> HasNewUsers(ICollection<TrapUser> oldUsers, CancellationToken token = default);
+        Task<ICollection<SNMPTrapUser>> GetTrapUsers();
+        Task AddTrapUser(SNMPTrapUser user, CancellationToken token = default);
+        Task<bool> HasNewUsers(ICollection<SNMPTrapUser> oldUsers, CancellationToken token = default);
+        Task Remove(long id);
     }
 
     public class TrapUsersRepository : ITrapUsersRepository
@@ -26,21 +27,27 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             this.context = context;
         }
-        public async Task AddTrapUser(TrapUser user, CancellationToken token = default)
+        public async Task AddTrapUser(SNMPTrapUser user, CancellationToken token = default)
         {
             await context.AddAsync(user);
             await context.SaveChangesAsync(token);
         }
 
-        public async Task<bool> HasNewUsers(ICollection<TrapUser> oldUsers, CancellationToken token = default)
+        public async Task<bool> HasNewUsers(ICollection<SNMPTrapUser> oldUsers, CancellationToken token = default)
         {
             return !(await context.TrapUsers.Select(x => x.Id).ToListAsync())
                 .SequenceEqual(oldUsers.Select(x => x.Id));
         }
 
-        public async Task<ICollection<TrapUser>> GetTrapUsers()
+        public async Task<ICollection<SNMPTrapUser>> GetTrapUsers()
         {
             return await context.TrapUsers.ToListAsync();
+        }
+
+        public async Task Remove(long id)
+        {
+            context.TrapUsers.Remove(await context.TrapUsers.FindAsync(id));
+            await context.SaveChangesAsync();
         }
     }
 }

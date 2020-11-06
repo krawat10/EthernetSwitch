@@ -48,6 +48,11 @@
         }
     </form>
 </div>
+<h3>Messages</h3>
+<a asp-action="ClearTrapMessages" class="btn btn-outline-secondary">
+    <i class="fas fa-trash"></i>
+    Clear Messages
+</a>
 <div class="row">
     <table class="table">
         <thead>
@@ -84,4 +89,33 @@
     </table>
 </div>
 
+<h3>Messages</h3>
+<div class="row">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Engine Id</th>
+                <th>Port</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in ViewData["ActiveUsers"] as IEnumerable<EthernetSwitch.Data.Models.SNMPTrapUser>)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.EngineId</td>
+                    <td>@user.Port</td>
+                    <td>
+                        <a asp-action="RemoveTrapUser" asp-route-id="@user.Id" class="btn btn-outline-secondary">
+                            <i class="fas fa-trash"></i>
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 

@@ -36,8 +36,24 @@ namespace EthernetSwitch.Controllers
         public async Task<IActionResult> TrapSNMPv3()
         {
             ViewData["Messages"] = await _context.TrapMessages.ToListAsync();
+            ViewData["ActiveUsers"] = await trapUsersRepository.GetTrapUsers();
 
             return View(new TrapSNMPv3ViewModel());
+        }
+
+        public async Task<IActionResult> ClearTrapMessages()
+        {
+            _context.TrapMessages.RemoveRange(_context.TrapMessages);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("TrapSNMPv3");
+        }
+
+        public async Task<IActionResult> RemoveTrapUser(long id)
+        {
+            await trapUsersRepository.Remove(id);
+
+            return RedirectToAction("TrapSNMPv3");
         }
 
         [HttpPost]
@@ -45,7 +61,7 @@ namespace EthernetSwitch.Controllers
         {
             try
             {
-                await trapUsersRepository.AddTrapUser(new TrapUser(viewModel.UserName, viewModel.Port, viewModel.Password, viewModel.Encryption, viewModel.EngineId));
+                await trapUsersRepository.AddTrapUser(new SNMPTrapUser(viewModel.UserName, viewModel.Port, viewModel.Password, viewModel.Encryption, viewModel.EngineId));
             }
             catch (Exception e)
             {
@@ -53,6 +69,7 @@ namespace EthernetSwitch.Controllers
             }
 
             ViewData["Messages"] = await _context.TrapMessages.ToListAsync();
+            ViewData["ActiveUsers"] = await trapUsersRepository.GetTrapUsers();
 
             return View("TrapSNMPv3", viewModel);
         }

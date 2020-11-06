@@ -10,9 +10,9 @@ namespace EthernetSwitch.Data.Models
         DES, AES
     }
 
-    public class TrapUser
+    public class SNMPTrapUser
     {
-        public TrapUser(string userName, int port, string password,
+        public SNMPTrapUser(string userName, int port, string password,
             string encryption, string engineId)
         {
             UserName = userName;

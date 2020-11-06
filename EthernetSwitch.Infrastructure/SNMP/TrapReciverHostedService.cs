@@ -25,7 +25,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
         private readonly ILogger<TrapReciverHostedService> _logger;
         private readonly EthernetSwitchContext context;
         private readonly ITrapUsersRepository _trapUsersRepository;
-        private ICollection<TrapUser> _activeTrapUsers;
+        private ICollection<SNMPTrapUser> _activeTrapUsers;
         private SnmpEngine _engine;
 
 
@@ -35,7 +35,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             _logger = logger;
             this.context = context;
             _trapUsersRepository = trapUsersRepository;
-            _activeTrapUsers = new List<TrapUser>();
+            _activeTrapUsers = new List<SNMPTrapUser>();
         }
 
         public IBackgroundTaskQueue TaskQueue { get; }
