@@ -13,8 +13,8 @@ namespace EthernetSwitch.Infrastructure.SNMP
 {
     public interface ITrapUsersRepository
     {
-        Task<ICollection<SNMPTrapUser>> GetTrapUsers();
-        Task AddTrapUser(SNMPTrapUser user, CancellationToken token = default);
+        Task<ICollection<SNMPTrapUser>> GetUsers();
+        Task AddUser(SNMPTrapUser user, CancellationToken token = default);
         Task<bool> HasNewUsers(ICollection<SNMPTrapUser> oldUsers, CancellationToken token = default);
         Task Remove(long id);
     }
@@ -27,7 +27,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             this.context = context;
         }
-        public async Task AddTrapUser(SNMPTrapUser user, CancellationToken token = default)
+        public async Task AddUser(SNMPTrapUser user, CancellationToken token = default)
         {
             await context.AddAsync(user);
             await context.SaveChangesAsync(token);
@@ -39,7 +39,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 .SequenceEqual(oldUsers.Select(x => x.Id));
         }
 
-        public async Task<ICollection<SNMPTrapUser>> GetTrapUsers()
+        public async Task<ICollection<SNMPTrapUser>> GetUsers()
         {
             return await context.TrapUsers.ToListAsync();
         }

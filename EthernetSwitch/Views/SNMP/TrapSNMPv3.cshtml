@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Recieve SNMP messages";
 }
+@using EthernetSwitch.Data.Models
 @model EthernetSwitch.Models.SNMP.TrapSNMPv3ViewModel
 
 <h2>SNMP v3</h2>
@@ -62,7 +63,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var message in ViewData["Messages"] as IEnumerable<EthernetSwitch.Data.Models.SNMPMessage>)
+            @foreach (var message in (IEnumerable<SNMPMessage>) ViewData["Messages"])
             {
                 <tr>
                     <td>@message.TimeStamp</td>
@@ -101,7 +102,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in ViewData["ActiveUsers"] as IEnumerable<EthernetSwitch.Data.Models.SNMPTrapUser>)
+            @foreach (var user in (IEnumerable<SNMPTrapUser>) ViewData["ActiveUsers"])
             {
                 <tr>
                     <td>@user.UserName</td>

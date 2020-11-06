@@ -38,7 +38,7 @@ namespace EthernetSwitch
             services.AddScoped<LLDPServices>();
             services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
             services.AddHostedService<QueuedHostedService>();
-            services.AddHostedService<TrapReciverHostedService>();
+            services.AddHostedService<TrapReceiverHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

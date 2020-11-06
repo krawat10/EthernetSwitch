@@ -14,31 +14,30 @@ using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
-    public class TrapReciverHostedService : BackgroundService
+    public class TrapReceiverHostedService : BackgroundService
     {
-        private readonly ILogger<TrapReciverHostedService> _logger;
-        private readonly EthernetSwitchContext context;
+        private readonly ILogger<TrapReceiverHostedService> _logger;
         private readonly ITrapUsersRepository _trapUsersRepository;
+        private readonly IServiceProvider _serviceProvider;
         private ICollection<SNMPTrapUser> _activeTrapUsers;
         private SnmpEngine _engine;
 
 
-        public bool IsActive { get; private set; }
-        public TrapReciverHostedService(ILogger<TrapReciverHostedService> logger, EthernetSwitchContext context, ITrapUsersRepository trapUsersRepository)
+        public TrapReceiverHostedService(ILogger<TrapReceiverHostedService> logger, ITrapUsersRepository trapUsersRepository,
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
-            this.context = context;
             _trapUsersRepository = trapUsersRepository;
+            _serviceProvider = serviceProvider;
             _activeTrapUsers = new List<SNMPTrapUser>();
         }
-
-        public IBackgroundTaskQueue TaskQueue { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -52,9 +51,9 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (await _trapUsersRepository.HasNewUsers(_activeTrapUsers))
+                if (await _trapUsersRepository.HasNewUsers(_activeTrapUsers, stoppingToken))
                 {
-                    _activeTrapUsers = await _trapUsersRepository.GetTrapUsers();
+                    _activeTrapUsers = await _trapUsersRepository.GetUsers();
                     var ports = _activeTrapUsers.Select(usr => usr.Port).Distinct();
                     var users = new UserRegistry();
                     users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
@@ -65,10 +64,10 @@ namespace EthernetSwitch.Infrastructure.SNMP
                         if (trapUser.EncryptionType == EncryptionType.DES)
                         {
                             provider = new BouncyCastleDESPrivacyProvider(
-                                  new OctetString(trapUser.Encryption),
-                                  new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
+                                new OctetString(trapUser.Encryption),
+                                new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
                             {
-                                EngineIds = new List<OctetString> { new OctetString(ByteTool.Convert(trapUser.EngineId)) }
+                                EngineIds = new List<OctetString> {new OctetString(ByteTool.Convert(trapUser.EngineId))}
                             };
                         }
                         else
@@ -77,11 +76,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
                                 new OctetString(trapUser.Encryption),
                                 new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
                             {
-                                EngineIds = new List<OctetString> { new OctetString(ByteTool.Convert(trapUser.EngineId)) }
+                                EngineIds = new List<OctetString> {new OctetString(ByteTool.Convert(trapUser.EngineId))}
                             };
                         }
+
                         users.Add(new OctetString(trapUser.UserName), provider);
                     }
+
                     var trap = new TrapV2MessageHandler();
                     trap.MessageReceived += TrapMessageReceived;
                     var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
@@ -91,13 +92,14 @@ namespace EthernetSwitch.Infrastructure.SNMP
                     inform.MessageReceived += InformMessageReceived;
                     var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
 
-                    var membership = new ComposedMembershipProvider(new IMembershipProvider[] {
+                    var membership = new ComposedMembershipProvider(new IMembershipProvider[]
+                    {
                         new Version1MembershipProvider(new OctetString("public"), new OctetString("public")),
                         new Version2MembershipProvider(new OctetString("public"), new OctetString("public")),
                         new Version3MembershipProvider()
                     });
 
-                    var handlerFactory = new MessageHandlerFactory(new[] { trapv2Mapping, informMapping });
+                    var handlerFactory = new MessageHandlerFactory(new[] {trapv2Mapping, informMapping});
                     var pipelineFactory = new SnmpApplicationFactory(new ObjectStore(), membership, handlerFactory);
 
                     if (_engine?.Active ?? false)
@@ -106,7 +108,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                         _engine.Dispose();
                     }
 
-                    _engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
+                    _engine = new SnmpEngine(pipelineFactory, new Listener {Users = users}, new EngineGroup());
 
                     foreach (var port in ports)
                     {
@@ -117,7 +119,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 }
 
 
-                await Task.Delay(5000);
+                await Task.Delay(5000, stoppingToken);
             }
         }
 
@@ -128,7 +130,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             var message = new SNMPMessage
             {
                 Type = SNMPMessageType.TRAP,
-                Version = (Data.Models.VersionCode)e.TrapV2Message.Version,
+                Version = (Data.Models.VersionCode) e.TrapV2Message.Version,
                 TimeStamp = e.TrapV2Message.TimeStamp,
                 ContextName = e.TrapV2Message.Scope.ContextName.ToString(),
                 MessageId = e.TrapV2Message.Header.MessageId,
@@ -145,19 +147,19 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 });
             }
 
+            var context = _serviceProvider.GetRequiredService<EthernetSwitchContext>();
             context.Add(message);
             await context.SaveChangesAsync();
-
         }
 
-        private void InformMessageReceived(object sender, InformRequestMessageReceivedEventArgs e)
+        private async void InformMessageReceived(object sender, InformRequestMessageReceivedEventArgs e)
         {
             _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
 
             var message = new SNMPMessage
             {
                 Type = SNMPMessageType.INFORM,
-                Version = (Data.Models.VersionCode)e.InformRequestMessage.Version,
+                Version = (Data.Models.VersionCode) e.InformRequestMessage.Version,
                 TimeStamp = e.InformRequestMessage.TimeStamp,
                 ContextName = e.InformRequestMessage.Scope.ContextName.ToString(),
                 MessageId = e.InformRequestMessage.Header.MessageId,
@@ -174,9 +176,9 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 });
             }
 
+            var context = _serviceProvider.GetRequiredService<EthernetSwitchContext>();
             context.Add(message);
-            context.SaveChanges();
-
+            await context.SaveChangesAsync();
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
