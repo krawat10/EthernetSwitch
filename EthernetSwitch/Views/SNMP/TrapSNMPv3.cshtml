@@ -49,11 +49,10 @@
         }
     </form>
 </div>
+
+<br />
+<br />
 <h3>Messages</h3>
-<a asp-action="ClearTrapMessages" class="btn btn-outline-secondary">
-    <i class="fas fa-trash"></i>
-    Clear Messages
-</a>
 <div class="row">
     <table class="table">
         <thead>
@@ -63,7 +62,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var message in (IEnumerable<SNMPMessage>) ViewData["Messages"])
+            @foreach (var message in (IEnumerable<SNMPMessage>)ViewData["Messages"])
             {
                 <tr>
                     <td>@message.TimeStamp</td>
@@ -89,8 +88,14 @@
         </tbody>
     </table>
 </div>
+<a asp-action="ClearTrapMessages" class="btn btn-outline-secondary">
+rfffftrmot    <i class="fas fa-trash"></i>
+    Clear Messages
+</a>
 
-<h3>Messages</h3>
+<br />
+<br />
+<h3>Active Users</h3>
 <div class="row">
     <table class="table">
         <thead>
@@ -102,7 +107,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in (IEnumerable<SNMPTrapUser>) ViewData["ActiveUsers"])
+            @foreach (var user in (IEnumerable<SNMPTrapUser>)ViewData["ActiveUsers"])
             {
                 <tr>
                     <td>@user.UserName</td>

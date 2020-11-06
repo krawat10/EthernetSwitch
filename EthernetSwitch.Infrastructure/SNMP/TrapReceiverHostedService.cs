@@ -127,6 +127,9 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
         private async void TrapMessageReceived(object sender, TrapV2MessageReceivedEventArgs e)
         {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<EthernetSwitchContext>();
+
             _logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
 
             var message = new SNMPMessage
@@ -149,13 +152,15 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 });
             }
 
-            var context = _serviceProvider.GetRequiredService<EthernetSwitchContext>();
             context.Add(message);
             await context.SaveChangesAsync();
         }
 
         private async void InformMessageReceived(object sender, InformRequestMessageReceivedEventArgs e)
         {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<EthernetSwitchContext>();
+
             _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
 
             var message = new SNMPMessage
@@ -178,7 +183,6 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 });
             }
 
-            var context = _serviceProvider.GetRequiredService<EthernetSwitchContext>();
             context.Add(message);
             await context.SaveChangesAsync();
         }
