@@ -4,10 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using EthernetSwitch.BackgroundWorkers;
 using EthernetSwitch.Data;
 using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.Settings;
-using EthernetSwitch.Infrastructure.SNMP;
 using EthernetSwitch.Seciurity;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
@@ -18,7 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
 
-namespace EthernetSwitch.BackgroundWorkers
+namespace EthernetSwitch.Infrastructure.SNMP
 {
     public class TrapReciverHostedService : BackgroundService
     {
@@ -127,7 +127,7 @@ namespace EthernetSwitch.BackgroundWorkers
         {
             _logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
 
-            var message = (new SNMPMessage
+            var message = new SNMPMessage
             {
                 Type = SNMPMessageType.TRAP,
                 Version = (Data.Models.VersionCode)e.TrapV2Message.Version,
@@ -136,7 +136,7 @@ namespace EthernetSwitch.BackgroundWorkers
                 MessageId = e.TrapV2Message.Header.MessageId,
                 Enterprise = e.TrapV2Message.Enterprise.ToString(),
                 UserName = e.TrapV2Message.Parameters.UserName.ToString()
-            });
+            };
 
             foreach (var variable in e.TrapV2Message.Variables())
             {
@@ -156,7 +156,7 @@ namespace EthernetSwitch.BackgroundWorkers
         {
             _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
 
-            var message = (new SNMPMessage
+            var message = new SNMPMessage
             {
                 Type = SNMPMessageType.INFORM,
                 Version = (Data.Models.VersionCode)e.InformRequestMessage.Version,
@@ -165,7 +165,7 @@ namespace EthernetSwitch.BackgroundWorkers
                 MessageId = e.InformRequestMessage.Header.MessageId,
                 Enterprise = e.InformRequestMessage.Enterprise.ToString(),
                 UserName = e.InformRequestMessage.Parameters.UserName.ToString()
-            });
+            };
 
             foreach (var variable in e.InformRequestMessage.Variables())
             {
