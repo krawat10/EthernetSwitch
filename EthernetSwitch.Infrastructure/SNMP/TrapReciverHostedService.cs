@@ -52,11 +52,9 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var trapUsers = await _trapUsersRepository.GetTrapUsers();
-
-                if (!_activeTrapUsers.SequenceEqual(trapUsers))
+                if (await _trapUsersRepository.HasNewUsers(_activeTrapUsers))
                 {
-                    _activeTrapUsers = trapUsers;
+                    _activeTrapUsers = await _trapUsersRepository.GetTrapUsers();
                     var ports = _activeTrapUsers.Select(usr => usr.Port).Distinct();
                     var users = new UserRegistry();
                     users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);

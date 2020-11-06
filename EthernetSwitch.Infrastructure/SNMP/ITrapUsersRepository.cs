@@ -1,8 +1,10 @@
 ﻿using EthernetSwitch.Data;
 using EthernetSwitch.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
     {
         Task<ICollection<TrapUser>> GetTrapUsers();
         Task AddTrapUser(TrapUser user, CancellationToken token = default);
+        Task<bool> HasNewUsers(ICollection<TrapUser> oldUsers, CancellationToken token = default);
     }
 
     public class TrapUsersRepository : ITrapUsersRepository
@@ -27,6 +30,14 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             await context.AddAsync(user);
             await context.SaveChangesAsync(token);
+        }
+
+        public async Task<bool> HasNewUsers(ICollection<TrapUser> oldUsers, CancellationToken token = default)
+        {
+            if (oldUsers.Count() != context.TrapUsers.Count()) return true;
+
+            var oldIDs = oldUsers.Select(x => x.Id).ToList();
+            return !await context.TrapUsers.AllAsync(usr => oldIDs.Contains(usr.Id));
         }
 
         public async Task<ICollection<TrapUser>> GetTrapUsers()
