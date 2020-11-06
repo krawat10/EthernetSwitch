@@ -57,8 +57,13 @@
     <table class="table">
         <thead>
             <tr>
-                <th>First</th>
-                <th>Last</th>
+                <th>TimeStamp</th>
+                <th>MessageId</th>
+                <th>UserName</th>
+                <th>Type</th>
+                <th>ContextName</th>
+                <th>Enterprise</th>
+                <th>Variables</th>
             </tr>
         </thead>
         <tbody>
@@ -72,15 +77,14 @@
                     <td>@message.ContextName</td>
                     <td>@message.Enterprise</td>
                     <td>
-                        <table class="table">
+                        <ul class="list-group">
                             @foreach (var variable in message.Variables)
-                            {
-                                <tr>
-                                    <td>@variable.VariableId</td>
-                                    <td>@variable.Value</td>
-                                </tr>
+                            { 
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @variable.VariableId - @variable.Value
+                            </li>
                             }
-                        </table>
+                        </ul>
                     </td>
 
                 </tr>

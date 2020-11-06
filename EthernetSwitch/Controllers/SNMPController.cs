@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EthernetSwitch.Infrastructure.Extensions;
 using EthernetSwitch.Data.Models;
+using System.Linq;
 
 namespace EthernetSwitch.Controllers
 {
@@ -35,7 +36,11 @@ namespace EthernetSwitch.Controllers
 
         public async Task<IActionResult> TrapSNMPv3()
         {
-            ViewData["Messages"] = await _context.TrapMessages.ToListAsync();
+            ViewData["Messages"] = await _context.TrapMessages
+                .OrderByDescending(x => x.TimeStamp)
+                .Include(x => x.Variables)
+                .ToListAsync();
+
             ViewData["ActiveUsers"] = await trapUsersRepository.GetUsers();
 
             return View(new TrapSNMPv3ViewModel());
@@ -68,7 +73,11 @@ namespace EthernetSwitch.Controllers
                 viewModel.Error = e.Message;
             }
 
-            ViewData["Messages"] = await _context.TrapMessages.ToListAsync();
+            ViewData["Messages"] = await _context.TrapMessages
+                .OrderByDescending(x => x.TimeStamp)
+                .Include(x => x.Variables)
+                .ToListAsync();
+
             ViewData["ActiveUsers"] = await trapUsersRepository.GetUsers();
 
             return View("TrapSNMPv3", viewModel);
