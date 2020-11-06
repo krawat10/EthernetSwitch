@@ -33,10 +33,12 @@ namespace EthernetSwitch
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<SNMPServices>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
+            services.AddScoped<ITrapUsersRepository, TrapUsersRepository>();
             services.AddScoped<EthernetServices>();
             services.AddScoped<LLDPServices>();
             services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
             services.AddHostedService<QueuedHostedService>();
+            services.AddHostedService<TrapReciverHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

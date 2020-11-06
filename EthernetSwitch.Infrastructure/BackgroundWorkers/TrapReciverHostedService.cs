@@ -1,0 +1,191 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using EthernetSwitch.Data;
+using EthernetSwitch.Data.Models;
+using EthernetSwitch.Infrastructure.Settings;
+using EthernetSwitch.Infrastructure.SNMP;
+using EthernetSwitch.Seciurity;
+using Lextm.SharpSnmpLib;
+using Lextm.SharpSnmpLib.Messaging;
+using Lextm.SharpSnmpLib.Security;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Samples.Pipeline;
+
+namespace EthernetSwitch.BackgroundWorkers
+{
+    public class TrapReciverHostedService : BackgroundService
+    {
+        private readonly ILogger<TrapReciverHostedService> _logger;
+        private readonly EthernetSwitchContext context;
+        private readonly ITrapUsersRepository _trapUsersRepository;
+        private ICollection<TrapUser> _activeTrapUsers;
+        private SnmpEngine _engine;
+
+
+        public bool IsActive { get; private set; }
+        public TrapReciverHostedService(ILogger<TrapReciverHostedService> logger, EthernetSwitchContext context, ITrapUsersRepository trapUsersRepository)
+        {
+            _logger = logger;
+            this.context = context;
+            _trapUsersRepository = trapUsersRepository;
+            _activeTrapUsers = new List<TrapUser>();
+        }
+
+        public IBackgroundTaskQueue TaskQueue { get; }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation(
+                $"Queued Hosted Service is running");
+
+            await BackgroundProcessing(stoppingToken);
+        }
+
+        private async Task BackgroundProcessing(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var trapUsers = await _trapUsersRepository.GetTrapUsers();
+
+                if (!_activeTrapUsers.SequenceEqual(trapUsers))
+                {
+                    _activeTrapUsers = trapUsers;
+                    var ports = _activeTrapUsers.Select(usr => usr.Port).Distinct();
+                    var users = new UserRegistry();
+                    users.Add(new OctetString("neither"), DefaultPrivacyProvider.DefaultPair);
+
+                    foreach (var trapUser in _activeTrapUsers)
+                    {
+                        IPrivacyProvider provider;
+                        if (trapUser.EncryptionType == EncryptionType.DES)
+                        {
+                            provider = new BouncyCastleDESPrivacyProvider(
+                                  new OctetString(trapUser.Encryption),
+                                  new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
+                            {
+                                EngineIds = new List<OctetString> { new OctetString(ByteTool.Convert(trapUser.EngineId)) }
+                            };
+                        }
+                        else
+                        {
+                            provider = new BouncyCastleAESPrivacyProvider(
+                                new OctetString(trapUser.Encryption),
+                                new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
+                            {
+                                EngineIds = new List<OctetString> { new OctetString(ByteTool.Convert(trapUser.EngineId)) }
+                            };
+                        }
+                        users.Add(new OctetString(trapUser.UserName), provider);
+                    }
+                    var trap = new TrapV2MessageHandler();
+                    trap.MessageReceived += TrapMessageReceived;
+                    var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
+
+                    //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u krawat -a MD5 -A haslo1 -x DES -X haslo2 127.0.0.1:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
+                    var inform = new InformRequestMessageHandler();
+                    inform.MessageReceived += InformMessageReceived;
+                    var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
+
+                    var membership = new ComposedMembershipProvider(new IMembershipProvider[] {
+                        new Version1MembershipProvider(new OctetString("public"), new OctetString("public")),
+                        new Version2MembershipProvider(new OctetString("public"), new OctetString("public")),
+                        new Version3MembershipProvider()
+                    });
+
+                    var handlerFactory = new MessageHandlerFactory(new[] { trapv2Mapping, informMapping });
+                    var pipelineFactory = new SnmpApplicationFactory(new ObjectStore(), membership, handlerFactory);
+
+                    if (_engine?.Active ?? false)
+                    {
+                        _engine.Stop();
+                        _engine.Dispose();
+                    }
+
+                    _engine = new SnmpEngine(pipelineFactory, new Listener { Users = users }, new EngineGroup());
+
+                    foreach (var port in ports)
+                    {
+                        _engine.Listener.AddBinding(new IPEndPoint(IPAddress.Any, port));
+                    }
+
+                    _engine.Start();
+                }
+
+
+                await Task.Delay(5000);
+            }
+        }
+
+        private async void TrapMessageReceived(object sender, TrapV2MessageReceivedEventArgs e)
+        {
+            _logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
+
+            var message = (new SNMPMessage
+            {
+                Type = SNMPMessageType.TRAP,
+                Version = (Data.Models.VersionCode)e.TrapV2Message.Version,
+                TimeStamp = e.TrapV2Message.TimeStamp,
+                ContextName = e.TrapV2Message.Scope.ContextName.ToString(),
+                MessageId = e.TrapV2Message.Header.MessageId,
+                Enterprise = e.TrapV2Message.Enterprise.ToString(),
+                UserName = e.TrapV2Message.Parameters.UserName.ToString()
+            });
+
+            foreach (var variable in e.TrapV2Message.Variables())
+            {
+                message.Variables.Add(new SNMPMessageVariable
+                {
+                    VariableId = variable.Id.ToString(),
+                    Value = variable.Data.ToString()
+                });
+            }
+
+            context.Add(message);
+            await context.SaveChangesAsync();
+
+        }
+
+        private void InformMessageReceived(object sender, InformRequestMessageReceivedEventArgs e)
+        {
+            _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
+
+            var message = (new SNMPMessage
+            {
+                Type = SNMPMessageType.INFORM,
+                Version = (Data.Models.VersionCode)e.InformRequestMessage.Version,
+                TimeStamp = e.InformRequestMessage.TimeStamp,
+                ContextName = e.InformRequestMessage.Scope.ContextName.ToString(),
+                MessageId = e.InformRequestMessage.Header.MessageId,
+                Enterprise = e.InformRequestMessage.Enterprise.ToString(),
+                UserName = e.InformRequestMessage.Parameters.UserName.ToString()
+            });
+
+            foreach (var variable in e.InformRequestMessage.Variables())
+            {
+                message.Variables.Add(new SNMPMessageVariable
+                {
+                    VariableId = variable.Id.ToString(),
+                    Value = variable.Data.ToString()
+                });
+            }
+
+            context.Add(message);
+            context.SaveChanges();
+
+        }
+
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("Queued Hosted Service is stopping.");
+
+            await base.StopAsync(stoppingToken);
+        }
+    }
+}

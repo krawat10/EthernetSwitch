@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
 using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
+using VersionCode = EthernetSwitch.Data.Models.VersionCode;
 
 namespace EthernetSwitch.Models.SNMP
 {

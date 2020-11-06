@@ -10,6 +10,7 @@ using Lextm.SharpSnmpLib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EthernetSwitch.Infrastructure.Extensions;
+using EthernetSwitch.Data.Models;
 
 namespace EthernetSwitch.Controllers
 {
@@ -17,11 +18,13 @@ namespace EthernetSwitch.Controllers
     {
         private readonly SNMPServices _services;
         private readonly EthernetSwitchContext _context;
+        private readonly ITrapUsersRepository trapUsersRepository;
 
-        public SNMPController(SNMPServices services, EthernetSwitchContext context)
+        public SNMPController(SNMPServices services, EthernetSwitchContext context, ITrapUsersRepository trapUsersRepository)
         {
             _services = services;
             _context = context;
+            this.trapUsersRepository = trapUsersRepository;
         }
 
         public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
@@ -42,13 +45,7 @@ namespace EthernetSwitch.Controllers
         {
             try
             {
-                await _services.Handle(new InitializeTrapListenerV3Command(
-                    viewModel.UserName,
-                    viewModel.IpAddress.IsEmpty() ? IPAddress.Any : IPAddress.Parse(viewModel.IpAddress),
-                    viewModel.Port,
-                    viewModel.Password,
-                    viewModel.Encryption,
-                    viewModel.EngineId));
+                await trapUsersRepository.AddTrapUser(new TrapUser(viewModel.UserName, viewModel.Port, viewModel.Password, viewModel.Encryption, viewModel.EngineId));
             }
             catch (Exception e)
             {

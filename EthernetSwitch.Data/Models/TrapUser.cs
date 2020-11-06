@@ -1,28 +1,28 @@
-﻿using System.Net;
-using Lextm.SharpSnmpLib;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
-namespace EthernetSwitch.Infrastructure.SNMP.Commands
+namespace EthernetSwitch.Data.Models
 {
     public enum EncryptionType
     {
         DES, AES
     }
 
-    public class InitializeTrapListenerV3Command
+    public class TrapUser
     {
-        public InitializeTrapListenerV3Command(string userName, IPAddress ipAddress, int port, string password,
+        public TrapUser(string userName, int port, string password,
             string encryption, string engineId)
         {
             UserName = userName;
-            IpAddress = ipAddress;
             Port = port;
             Password = password;
             Encryption = encryption;
             EngineId = engineId;
         }
-
+        [Key] public long Id { get; set; }
         public string UserName { get; internal set; }
-        public IPAddress IpAddress { get; internal set; }
         public int Port { get; internal set; }
         public string Password { get; internal set; }
         public string Encryption { get; internal set; }
