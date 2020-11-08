@@ -3,14 +3,14 @@ using Lextm.SharpSnmpLib;
 
 namespace EthernetSwitch.Infrastructure.SNMP.Queries
 {
-    public class WalkV1Query
+    public class WalkQuery
     {
-        public WalkV1Query(string @group, VersionCode versionCode, ObjectIdentifier startObjectId, IPAddress ipAddress,
-            int port)
+        public WalkQuery(string @group, string startObjectId, IPAddress ipAddress,
+            int port, VersionCode versionCode = VersionCode.V1)
         {
             Group = @group;
             VersionCode = versionCode;
-            StartObjectId = startObjectId;
+            StartObjectId = new ObjectIdentifier(startObjectId);
             IpAddress = ipAddress;
             Port = port;
         }

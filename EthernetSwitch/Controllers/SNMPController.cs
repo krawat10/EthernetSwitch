@@ -6,10 +6,8 @@ using EthernetSwitch.Infrastructure.SNMP;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
 using EthernetSwitch.Infrastructure.SNMP.Queries;
 using EthernetSwitch.Models.SNMP;
-using Lextm.SharpSnmpLib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EthernetSwitch.Infrastructure.Extensions;
 using EthernetSwitch.Data.Models;
 using System.Linq;
 
@@ -90,10 +88,9 @@ namespace EthernetSwitch.Controllers
 
             try
             {
-                viewModel.OIDs = await _services.Handle(new WalkV1Query(
+                viewModel.OIDs = await _services.Handle(new WalkQuery(
                     viewModel.Group,
-                    viewModel.VersionCode,
-                    new ObjectIdentifier(viewModel.StartObjectId),
+                    viewModel.StartObjectId,
                     IPAddress.Parse(viewModel.IpAddress),
                     viewModel.Port));
             }

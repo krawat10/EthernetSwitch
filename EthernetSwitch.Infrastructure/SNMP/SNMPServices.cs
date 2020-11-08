@@ -28,7 +28,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
     }
 
     public class SNMPServices :
-        IQueryHandler<WalkV1Query, OID[]>,
+        IQueryHandler<WalkQuery, OID[]>,
         IQueryHandler<GetV3Query, OID>,
         ICommandHandler<SetV3Command>
     {
@@ -39,7 +39,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             this.logger = loggerFactory.CreateLogger<SNMPServices>();
         }
 
-        public async Task<OID[]> Handle(WalkV1Query query)
+        public async Task<OID[]> Handle(WalkQuery query)
         {
             IList<Variable> result = new List<Variable>();
 
