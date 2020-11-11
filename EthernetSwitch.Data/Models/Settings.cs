@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace EthernetSwitch.Data.Models
 {
@@ -10,5 +11,6 @@ namespace EthernetSwitch.Data.Models
         public bool RequireConfirmation { get; set; }
         public bool AllowRegistration { get; set; }
         public string HiddenInterfaces { get; set; }
+        public SNMPConfiguration SNMPConfiguration { get; set; }
     }
 }

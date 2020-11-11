@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Get SNMP v3";
+}
+
+<h2>Setup SNMP</h2>
+@using Lextm.SharpSnmpLib
+
+@model EthernetSwitch.Data.Models.SNMPConfiguration
+<form asp-action="GetSNMPv3" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="AgentAddresses">IP Addresses: </label>
+            <input class="form-control" asp-for="AgentAddresses" id="AgentAddresses" />
+        </div>
+        <div class="form-group col-md-6">
+            <label for="SysContact">SysContact:</label>
+            <input class="form-control" asp-for="SysContact" id="SysContact" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="SysLocation">SysLocation: </label>
+            <input class="form-control" asp-for="SysLocation" id="SysLocation" />
+        </div>
+        <div class="form-group col-md-4">
+            <label for="TrapRecieverIpAddress">Trap Reciever Ip Address (MD5): </label>
+            <input class="form-control" asp-for="TrapRecieverIpAddress" id="TrapRecieverIpAddress" />
+        </div>
+        <div class="form-group col-md-4">
+            <label for="Encryption">Trap Reciever Port: </label>
+            <input class="form-control" asp-for="TrapRecieverPort" id="TrapRecieverPort" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Setup SNMP</button>
+</form>

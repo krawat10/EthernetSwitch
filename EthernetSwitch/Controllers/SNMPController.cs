@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EthernetSwitch.Data.Models;
 using System.Linq;
+using EthernetSwitch.Infrastructure.Settings;
 
 namespace EthernetSwitch.Controllers
 {
@@ -18,12 +19,19 @@ namespace EthernetSwitch.Controllers
         private readonly SNMPServices _services;
         private readonly EthernetSwitchContext _context;
         private readonly ITrapUsersRepository trapUsersRepository;
+        private readonly ISNMPUsersRepository snmpUsersRepository;
+        private readonly ISettingsRepository settingsRepository;
 
-        public SNMPController(SNMPServices services, EthernetSwitchContext context, ITrapUsersRepository trapUsersRepository)
+        public SNMPController(SNMPServices services, EthernetSwitchContext context, 
+            ITrapUsersRepository trapUsersRepository, 
+            ISNMPUsersRepository snmpUsersRepository,
+            ISettingsRepository settingsRepository)
         {
             _services = services;
             _context = context;
             this.trapUsersRepository = trapUsersRepository;
+            this.snmpUsersRepository = snmpUsersRepository;
+            this.settingsRepository = settingsRepository;
         }
 
         public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
@@ -57,6 +65,38 @@ namespace EthernetSwitch.Controllers
             await trapUsersRepository.Remove(id);
 
             return RedirectToAction("TrapSNMPv3");
+        }
+
+        public async Task<IActionResult> SetupSNMP()
+        {
+            var settings = await settingsRepository.GetSettings();
+
+            return View(settings.SNMPConfiguration);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetupSNMP(SNMPConfiguration configuration)
+        {
+            var settings = await settingsRepository.GetSettings();
+            settings.SNMPConfiguration = configuration ?? new SNMPConfiguration();
+            await settingsRepository.SaveSettings(settings);
+
+            return RedirectToAction("SetupSNMP");
+        }
+
+        public async Task<IActionResult> AddSNMPv3User()
+        {
+            ViewData["Users"] = await snmpUsersRepository.GetUsers();
+            
+            return View(new SNMPUser());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddSNMPv3User(SNMPUser user)
+        {
+            await snmpUsersRepository.Add(user);
+
+            return RedirectToAction("AddSNMPv3User");
         }
 
         [HttpPost]

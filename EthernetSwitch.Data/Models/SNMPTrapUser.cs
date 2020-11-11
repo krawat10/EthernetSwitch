@@ -29,4 +29,5 @@ namespace EthernetSwitch.Data.Models
         public string EngineId { get; internal set; }
         public EncryptionType EncryptionType { get; set; }
     }
+
 }

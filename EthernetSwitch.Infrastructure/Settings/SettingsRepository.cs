@@ -19,7 +19,8 @@ namespace EthernetSwitch.Infrastructure.Settings
                 {
                     AllowRegistration = false,
                     AllowTagging = false,
-                    RequireConfirmation = true
+                    RequireConfirmation = true,
+                    SNMPConfiguration = new Data.Models.SNMPConfiguration()
                 });
 
                 context.SaveChanges();

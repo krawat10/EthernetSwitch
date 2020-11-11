@@ -12,6 +12,7 @@ namespace EthernetSwitch.Data
         public DbSet<Settings> Settings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<SNMPTrapUser> TrapUsers { get; set; }
+        public DbSet<SNMPUser> SNMPUsers { get; set; }
         public DbSet<SNMPMessage> TrapMessages { get; set; }
 
         public EthernetSwitchContext()
@@ -22,6 +23,10 @@ namespace EthernetSwitch.Data
             }
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Settings>().OwnsOne(x => x.SNMPConfiguration);
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = "sqlitedemo.db"};

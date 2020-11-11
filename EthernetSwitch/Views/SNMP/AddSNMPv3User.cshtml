@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Add SNMP User";
+}
+
+<h2>Setup SNMP</h2>
+@model EthernetSwitch.Data.Models.SNMPUser
+<form asp-action="GetSNMPv3" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="UserName">UserName: </label>
+            <input class="form-control" asp-for="UserName" id="UserName" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="Password">Password: </label>
+            <input class="form-control" asp-for="Password" id="Password" />
+        </div>
+        <div class="form-group col-md-4">
+            <label for="EncryptionType">Encryption Type: </label>
+            <input class="form-control" asp-for="EncryptionType" id="EncryptionType" />
+        </div>
+        <div class="form-group col-md-4">
+            <label for="Encryption">Encryption: </label>
+            <input class="form-control" asp-for="Encryption" id="Encryption" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add User</button>
+</form>
+<br />
+<br />
+<h3>Users</h3>
+<div class="row">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in (IEnumerable<EthernetSwitch.Data.Models.SNMPUser>)ViewData["Users"])
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -7,6 +8,8 @@ using System.Threading.Tasks;
 using EthernetSwitch.BackgroundWorkers;
 using EthernetSwitch.Data;
 using EthernetSwitch.Data.Models;
+using EthernetSwitch.Infrastructure.Bash;
+using EthernetSwitch.Infrastructure.Extensions;
 using EthernetSwitch.Infrastructure.Patterns;
 using EthernetSwitch.Infrastructure.Settings;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
@@ -18,6 +21,7 @@ using Lextm.SharpSnmpLib.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
+using ServiceStack;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
@@ -33,10 +37,44 @@ namespace EthernetSwitch.Infrastructure.SNMP
         ICommandHandler<SetV3Command>
     {
         private readonly ILogger<SNMPServices> logger;
-        
-        public SNMPServices(ILoggerFactory loggerFactory)
+        private readonly IBashCommand bash;
+        private readonly ISettingsRepository settingsRepository;
+        private readonly ISNMPUsersRepository usersRepository;
+
+        public SNMPServices(ILoggerFactory loggerFactory, IBashCommand bash, ISettingsRepository settingsRepository, ISNMPUsersRepository usersRepository)
         {
             this.logger = loggerFactory.CreateLogger<SNMPServices>();
+            this.bash = bash;
+            this.settingsRepository = settingsRepository;
+            this.usersRepository = usersRepository;
+        }
+
+        public async Task Handle()
+        {
+            var settings = await settingsRepository.GetSettings();
+
+            bash.Execute("apt install snmpd snmp libsnmp-dev -y");
+
+            var snmpd = await File.ReadAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snmpd.conf"));
+            snmpd.FormatWith(settings.SNMPConfiguration);
+
+            var snmpdPath = "/etc/snmp/snmpd.conf";
+
+            bash.Execute("/etc/init.d/snmpd stop");
+
+            if (File.Exists(snmpdPath))
+                File.Copy(snmpdPath, $"/etc/snmp/snmpd_{DateTime.Now.Ticks}.bak");
+
+            using StreamWriter stream = File.CreateText(snmpdPath);
+            await stream.WriteAsync(snmpd);
+
+
+            foreach (var user in await usersRepository.GetUsers())
+            {
+                bash.Execute($"net-snmp-create-v3-user -ro -A {user.Password} -a SHA -X {user.Encryption} -x {user.EncryptionType} {user.UserName}");
+            }
+
+            bash.Execute("/etc/init.d/snmpd start");
         }
 
         public async Task<OID[]> Handle(WalkQuery query)

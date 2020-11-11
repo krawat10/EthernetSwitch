@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using System.Net;
+using EthernetSwitch.Infrastructure.Bash;
+using EthernetSwitch.Infrastructure.Settings;
+using Moq;
 
 namespace EthernetSwitch.Tests
 {
@@ -16,7 +19,7 @@ namespace EthernetSwitch.Tests
         [SetUp]
         public void Setup()
         {
-            _service = new SNMPServices(new LoggerFactory());
+            _service = new SNMPServices(new LoggerFactory(), new BashCommand(), new Mock<ISettingsRepository>().Object, new Mock<ISNMPUsersRepository>().Object);
         }
 
         [Test]

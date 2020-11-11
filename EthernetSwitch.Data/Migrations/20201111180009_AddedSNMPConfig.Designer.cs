@@ -2,14 +2,16 @@
 using EthernetSwitch.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EthernetSwitch.Data.Migrations
 {
     [DbContext(typeof(EthernetSwitchContext))]
-    partial class EthernetSwitchContextModelSnapshot : ModelSnapshot
+    [Migration("20201111180009_AddedSNMPConfig")]
+    partial class AddedSNMPConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
