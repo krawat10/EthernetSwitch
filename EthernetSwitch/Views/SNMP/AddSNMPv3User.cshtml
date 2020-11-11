@@ -26,6 +26,12 @@
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Add User</button>
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewData["Error"]
+        </div>
+    }
 </form>
 <br />
 <br />

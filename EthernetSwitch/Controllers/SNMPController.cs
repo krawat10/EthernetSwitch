@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using EthernetSwitch.Data.Models;
 using System.Linq;
 using EthernetSwitch.Infrastructure.Settings;
+using EthernetSwitch.Infrastructure.Bash.Exceptions;
 
 namespace EthernetSwitch.Controllers
 {
@@ -22,8 +23,8 @@ namespace EthernetSwitch.Controllers
         private readonly ISNMPUsersRepository snmpUsersRepository;
         private readonly ISettingsRepository settingsRepository;
 
-        public SNMPController(SNMPServices services, EthernetSwitchContext context, 
-            ITrapUsersRepository trapUsersRepository, 
+        public SNMPController(SNMPServices services, EthernetSwitchContext context,
+            ITrapUsersRepository trapUsersRepository,
             ISNMPUsersRepository snmpUsersRepository,
             ISettingsRepository settingsRepository)
         {
@@ -77,22 +78,42 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> SetupSNMP(SNMPConfiguration configuration)
         {
-            await _services.Handle(configuration);
-            return RedirectToAction("SetupSNMP");
+            try
+            {
+                await _services.Handle(configuration);
+            }
+            catch (ProcessException ex)
+            {
+                ViewData["Error"] = ex.Message;
+            }
+
+            var settings = await settingsRepository.GetSettings();
+
+            return View(settings.SNMPConfiguration);
         }
 
         public async Task<IActionResult> AddSNMPv3User()
         {
             ViewData["Users"] = await snmpUsersRepository.GetUsers();
-            
+
             return View(new SNMPUser());
         }
 
         [HttpPost]
         public async Task<IActionResult> AddSNMPv3User(SNMPUser user)
         {
-            await _services.Handle(user);
-            return RedirectToAction("AddSNMPv3User");
+            try
+            {
+                await _services.Handle(user);
+            }
+            catch (ProcessException ex)
+            {
+                ViewData["Error"] = ex.Message;
+            }
+
+            ViewData["Users"] = await snmpUsersRepository.GetUsers();
+
+            return View();
         }
 
         [HttpPost]

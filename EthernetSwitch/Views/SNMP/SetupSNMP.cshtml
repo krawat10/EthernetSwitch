@@ -32,4 +32,10 @@
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Setup SNMP</button>
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewData["Error"]
+        </div>
+    }
 </form>
