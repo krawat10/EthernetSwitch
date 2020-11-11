@@ -87,9 +87,7 @@ namespace EthernetSwitch.Controllers
                 ViewData["Error"] = ex.Message;
             }
 
-            var settings = await settingsRepository.GetSettings();
-
-            return View(settings.SNMPConfiguration);
+            return View(configuration);
         }
 
         public async Task<IActionResult> AddSNMPv3User()
@@ -113,7 +111,7 @@ namespace EthernetSwitch.Controllers
 
             ViewData["Users"] = await snmpUsersRepository.GetUsers();
 
-            return View();
+            return View(user);
         }
 
         [HttpPost]
