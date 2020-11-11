@@ -67,7 +67,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             bash.Install("libsnmp-dev");
 
             var snmpd = await File.ReadAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snmpd.conf"));
-            snmpd.FormatWith(configuration);
+            snmpd = snmpd.FormatWith(configuration);
 
             var snmpdPath = "/etc/snmp/snmpd.conf";
 
