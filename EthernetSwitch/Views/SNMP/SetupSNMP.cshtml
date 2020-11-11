@@ -32,7 +32,7 @@
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Setup SNMP</button>
-    @if (ViewData["Error"] != null)
+    @if (ViewData.ContainsKey("Error"))
     {
         <div class="alert alert-danger" role="alert">
             @ViewData["Error"]
