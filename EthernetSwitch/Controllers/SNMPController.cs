@@ -77,10 +77,7 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> SetupSNMP(SNMPConfiguration configuration)
         {
-            var settings = await settingsRepository.GetSettings();
-            settings.SNMPConfiguration = configuration ?? new SNMPConfiguration();
-            await settingsRepository.SaveSettings(settings);
-
+            await _services.Handle(configuration);
             return RedirectToAction("SetupSNMP");
         }
 
@@ -94,8 +91,7 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> AddSNMPv3User(SNMPUser user)
         {
-            await snmpUsersRepository.Add(user);
-
+            await _services.Handle(user);
             return RedirectToAction("AddSNMPv3User");
         }
 

@@ -49,14 +49,23 @@ namespace EthernetSwitch.Infrastructure.SNMP
             this.usersRepository = usersRepository;
         }
 
-        public async Task Handle()
+        public async Task Handle(SNMPUser user)
+        {
+            bash.Execute("/etc/init.d/snmpd stop");
+            bash.Execute($"net-snmp-create-v3-user -ro -A {user.Password} -a SHA -X {user.Encryption} -x {user.EncryptionType} {user.UserName}");
+            bash.Execute("/etc/init.d/snmpd start");
+
+            await usersRepository.Add(user);
+        }
+        public async Task Handle(SNMPConfiguration configuration)
         {
             var settings = await settingsRepository.GetSettings();
+            settings.SNMPConfiguration = configuration;
 
             bash.Execute("apt install snmpd snmp libsnmp-dev -y");
 
             var snmpd = await File.ReadAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snmpd.conf"));
-            snmpd.FormatWith(settings.SNMPConfiguration);
+            snmpd.FormatWith(configuration);
 
             var snmpdPath = "/etc/snmp/snmpd.conf";
 
@@ -68,13 +77,9 @@ namespace EthernetSwitch.Infrastructure.SNMP
             using StreamWriter stream = File.CreateText(snmpdPath);
             await stream.WriteAsync(snmpd);
 
-
-            foreach (var user in await usersRepository.GetUsers())
-            {
-                bash.Execute($"net-snmp-create-v3-user -ro -A {user.Password} -a SHA -X {user.Encryption} -x {user.EncryptionType} {user.UserName}");
-            }
-
             bash.Execute("/etc/init.d/snmpd start");
+
+            await settingsRepository.SaveSettings(settings);
         }
 
         public async Task<OID[]> Handle(WalkQuery query)
