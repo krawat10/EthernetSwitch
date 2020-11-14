@@ -69,7 +69,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
         public async Task<string[]> Handle(GetSNMPUsers query)
         {
-            var regex = new Regex(@"usmUser \S+ \S+ \S+ \""(\S +)\""");
+            var regex = new Regex(@"usmUser \S+ \S+ \S+ \""(\S+)\""");
             var configPath = "/var/lib/snmp/snmpd.conf";
 
             if (!File.Exists(configPath)) throw new FileNotFoundException("Configuration File doesn't exists", "/var/lib/snmp/snmpd.conf");

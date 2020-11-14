@@ -16,9 +16,12 @@
             <label for="Password">Password: </label>
             <input class="form-control" asp-for="Password" id="Password" />
         </div>
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-2">
             <label for="EncryptionType">Encryption Type: </label>
-            <input class="form-control" asp-for="EncryptionType" id="EncryptionType" />
+            <select class="form-control" asp-for="EncryptionType" id="EncryptionType">
+                <option value="AES">AES</option>
+                <option value="DES" selected>DES</option>
+            </select>
         </div>
         <div class="form-group col-md-4">
             <label for="Encryption">Encryption: </label>
@@ -37,22 +40,10 @@
 <br />
 <h3>Users</h3>
 <div class="row">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>User Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in (IEnumerable<EthernetSwitch.Data.Models.SNMPUser>)ViewData["Users"])
-            {
-                <tr>
-                    <td>@user.UserName</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ul class="list-group">
+        @foreach (var user in ViewData["Users"] as string[])
+        {
+            <li class="list-group-item">@user</li>
+        }
+    </ul>
 </div>
-
-
-
