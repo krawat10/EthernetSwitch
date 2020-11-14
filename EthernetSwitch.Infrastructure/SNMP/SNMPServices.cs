@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using EthernetSwitch.BackgroundWorkers;
@@ -62,35 +63,52 @@ namespace EthernetSwitch.Infrastructure.SNMP
             {
                 return ex.Message;
             }
-            
-            await usersRepository.Add(user);
 
             return null;
         }
+
+        public async Task<string[]> Handle(GetSNMPUsers query)
+        {
+            var regex = new Regex(@"usmUser \S+ \S+ \S+ \""(\S +)\""");
+            var configPath = "/var/lib/snmp/snmpd.conf";
+
+            if (!File.Exists(configPath)) throw new FileNotFoundException("Configuration File doesn't exists", "/var/lib/snmp/snmpd.conf");
+
+            var varSnmpd = await File.ReadAllLinesAsync(configPath);
+
+            var users = varSnmpd
+                .Where(line => regex.IsMatch(line))
+                .Select(line => regex.Match(line).Groups[1].Value)
+                .ToArray();
+
+            return users;
+        }
+
+
         public async Task<string> Handle(SNMPConfiguration configuration)
         {
             var settings = await settingsRepository.GetSettings();
             settings.SNMPConfiguration = configuration;
 
-            
-                bash.Install("snmpd");
-                bash.Install("snmp");
-                bash.Install("libsnmp-dev");
 
-                var snmpd = await File.ReadAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snmpd.conf"));
-                snmpd = snmpd.FormatWith(configuration);
+            bash.Install("snmpd");
+            bash.Install("snmp");
+            bash.Install("libsnmp-dev");
 
-                var snmpdPath = "/etc/snmp/snmpd.conf";
+            var snmpd = await File.ReadAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snmpd.conf"));
+            snmpd = snmpd.FormatWith(configuration);
 
-                bash.Execute("/etc/init.d/snmpd stop");
+            var snmpdPath = "/etc/snmp/snmpd.conf";
 
-                if (File.Exists(snmpdPath))
-                    File.Copy(snmpdPath, $"/etc/snmp/snmpd_{DateTime.Now.Ticks}.bak");
+            bash.Execute("/etc/init.d/snmpd stop");
 
-                using StreamWriter stream = File.CreateText(snmpdPath);
-                await stream.WriteAsync(snmpd);
+            if (File.Exists(snmpdPath))
+                File.Copy(snmpdPath, $"/etc/snmp/snmpd_{DateTime.Now.Ticks}.bak");
 
-                bash.Execute("/etc/init.d/snmpd start");
+            using StreamWriter stream = File.CreateText(snmpdPath);
+            await stream.WriteAsync(snmpd);
+
+            bash.Execute("/etc/init.d/snmpd start");
 
 
             await settingsRepository.SaveSettings(settings);

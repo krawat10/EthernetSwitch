@@ -12,6 +12,7 @@ using EthernetSwitch.Data.Models;
 using System.Linq;
 using EthernetSwitch.Infrastructure.Settings;
 using EthernetSwitch.Infrastructure.Bash.Exceptions;
+using System.IO;
 
 namespace EthernetSwitch.Controllers
 {
@@ -92,7 +93,15 @@ namespace EthernetSwitch.Controllers
 
         public async Task<IActionResult> AddSNMPv3User()
         {
-            ViewData["Users"] = await snmpUsersRepository.GetUsers();
+            try
+            {
+                ViewData["Users"] = await _services.Handle(new GetSNMPUsers());
+            }
+            catch (FileNotFoundException ex)
+            {
+                ViewData["Users"] = Array.Empty<string>();
+                ViewData["Error"] = ex.Message;
+            }
 
             return View(new SNMPUser());
         }
@@ -103,13 +112,19 @@ namespace EthernetSwitch.Controllers
             try
             {
                 await _services.Handle(user);
+
+                ViewData["Users"] = await _services.Handle(new GetSNMPUsers());
             }
             catch (ProcessException ex)
             {
                 ViewData["Error"] = ex.Message;
             }
+            catch (FileNotFoundException ex)
+            {
+                ViewData["Users"] = Array.Empty<string>();
+                ViewData["Error"] = ex.Message;
+            }
 
-            ViewData["Users"] = await snmpUsersRepository.GetUsers();
 
             return View(user);
         }
