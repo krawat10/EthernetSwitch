@@ -21,19 +21,19 @@ namespace EthernetSwitch.Controllers
         private readonly SNMPServices _services;
         private readonly EthernetSwitchContext _context;
         private readonly ITrapUsersRepository trapUsersRepository;
-        private readonly ISNMPUsersRepository snmpUsersRepository;
         private readonly ISettingsRepository settingsRepository;
+        private readonly ISNMPMessageStore messageStore;
 
         public SNMPController(SNMPServices services, EthernetSwitchContext context,
             ITrapUsersRepository trapUsersRepository,
-            ISNMPUsersRepository snmpUsersRepository,
-            ISettingsRepository settingsRepository)
+            ISettingsRepository settingsRepository,
+            ISNMPMessageStore messageStore)
         {
             _services = services;
             _context = context;
             this.trapUsersRepository = trapUsersRepository;
-            this.snmpUsersRepository = snmpUsersRepository;
             this.settingsRepository = settingsRepository;
+            this.messageStore = messageStore;
         }
 
         public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
@@ -44,11 +44,7 @@ namespace EthernetSwitch.Controllers
 
         public async Task<IActionResult> TrapSNMPv3()
         {
-            ViewData["Messages"] = await _context.TrapMessages
-                .OrderByDescending(x => x.TimeStamp)
-                .Include(x => x.Variables)
-                .ToListAsync();
-
+            ViewData["Messages"] = await messageStore.GetAll();
             ViewData["ActiveUsers"] = await trapUsersRepository.GetUsers();
 
             return View(new TrapSNMPv3ViewModel());
@@ -56,9 +52,7 @@ namespace EthernetSwitch.Controllers
 
         public async Task<IActionResult> ClearTrapMessages()
         {
-            _context.TrapMessages.RemoveRange(_context.TrapMessages);
-            await _context.SaveChangesAsync();
-
+            await messageStore.RemoveAll();
             return RedirectToAction("TrapSNMPv3");
         }
 

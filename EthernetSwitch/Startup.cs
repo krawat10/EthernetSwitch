@@ -33,7 +33,7 @@ namespace EthernetSwitch
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ITrapUsersRepository, TrapUsersRepository>();
-            services.AddScoped<ISNMPUsersRepository, SNMPUsersRepository>();
+            services.AddScoped<ISNMPMessageStore, SNMPMessageStore>();
             services.AddScoped<SNMPServices>();
             services.AddScoped<EthernetServices>();
             services.AddScoped<LLDPServices>();

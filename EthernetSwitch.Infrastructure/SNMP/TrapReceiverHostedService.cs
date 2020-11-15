@@ -128,7 +128,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
         private async void TrapMessageReceived(object sender, TrapV2MessageReceivedEventArgs e)
         {
             using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<EthernetSwitchContext>();
+            var store = scope.ServiceProvider.GetRequiredService<ISNMPMessageStore>();
 
             _logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
 
@@ -152,14 +152,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 });
             }
 
-            context.Add(message);
-            await context.SaveChangesAsync();
+            await store.Add(message);
         }
 
         private async void InformMessageReceived(object sender, InformRequestMessageReceivedEventArgs e)
         {
             using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<EthernetSwitchContext>();
+            var store = scope.ServiceProvider.GetRequiredService<ISNMPMessageStore>();
 
             _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
 
@@ -183,8 +182,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 });
             }
 
-            context.Add(message);
-            await context.SaveChangesAsync();
+            await store.Add(message);
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)

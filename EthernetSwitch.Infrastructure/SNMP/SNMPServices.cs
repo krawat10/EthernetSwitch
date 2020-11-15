@@ -41,14 +41,11 @@ namespace EthernetSwitch.Infrastructure.SNMP
         private readonly ILogger<SNMPServices> logger;
         private readonly IBashCommand bash;
         private readonly ISettingsRepository settingsRepository;
-        private readonly ISNMPUsersRepository usersRepository;
-
-        public SNMPServices(ILoggerFactory loggerFactory, IBashCommand bash, ISettingsRepository settingsRepository, ISNMPUsersRepository usersRepository)
+        public SNMPServices(ILoggerFactory loggerFactory, IBashCommand bash, ISettingsRepository settingsRepository)
         {
             this.logger = loggerFactory.CreateLogger<SNMPServices>();
             this.bash = bash;
             this.settingsRepository = settingsRepository;
-            this.usersRepository = usersRepository;
         }
 
         public async Task<string> Handle(SNMPUser user)
@@ -109,7 +106,6 @@ namespace EthernetSwitch.Infrastructure.SNMP
             await stream.WriteAsync(snmpd);
 
             bash.Execute("/etc/init.d/snmpd start");
-
 
             await settingsRepository.SaveSettings(settings);
 
