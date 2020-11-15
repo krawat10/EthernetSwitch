@@ -2,14 +2,16 @@
 using EthernetSwitch.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EthernetSwitch.Data.Migrations
 {
     [DbContext(typeof(EthernetSwitchContext))]
-    partial class EthernetSwitchContextModelSnapshot : ModelSnapshot
+    [Migration("20201115194529_Sync")]
+    partial class Sync
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +98,29 @@ namespace EthernetSwitch.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TrapUsers");
+                });
+
+            modelBuilder.Entity("EthernetSwitch.Data.Models.SNMPUser", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Encryption")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EncryptionType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SNMPUsers");
                 });
 
             modelBuilder.Entity("EthernetSwitch.Data.Models.Settings", b =>

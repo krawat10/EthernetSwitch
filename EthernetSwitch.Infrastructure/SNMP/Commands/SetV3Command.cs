@@ -1,12 +1,12 @@
-﻿using System.Net;
-using Lextm.SharpSnmpLib;
+﻿using EthernetSwitch.Data.Models;
+using System.Net;
 
 namespace EthernetSwitch.Infrastructure.SNMP.Commands
 { 
     public class SetV3Command
     {
         public SetV3Command(string userName, VersionCode versionCode, IPAddress ipAddress, int port, string password,
-            string encryption, OID oid)
+            string encryption, EncryptionType encryptionType, OID oid)
         {
             UserName = userName;
             VersionCode = versionCode;
@@ -14,6 +14,7 @@ namespace EthernetSwitch.Infrastructure.SNMP.Commands
             Port = port;
             Password = password;
             Encryption = encryption;
+            EncryptionType = encryptionType;
             OID = oid;
         }
 
@@ -24,5 +25,6 @@ namespace EthernetSwitch.Infrastructure.SNMP.Commands
         public string Password { get; internal set; }
         public string Encryption { get; internal set; }
         public OID OID { get; internal set; }
+        public EncryptionType EncryptionType { get; internal set; }
     }
 }

@@ -128,7 +128,13 @@ namespace EthernetSwitch.Controllers
         {
             try
             {
-                await trapUsersRepository.AddUser(new SNMPTrapUser(viewModel.UserName, viewModel.Port, viewModel.Password, viewModel.Encryption, viewModel.EngineId));
+                await trapUsersRepository.AddUser(new SNMPTrapUser(
+                    viewModel.UserName, 
+                    viewModel.Port, 
+                    viewModel.Password, 
+                    viewModel.Encryption,
+                    viewModel.EncryptionType, 
+                    viewModel.EngineId));
             }
             catch (Exception e)
             {
@@ -180,6 +186,7 @@ namespace EthernetSwitch.Controllers
                     viewModel.Port,
                     viewModel.Password,
                     viewModel.Encryption,
+                    viewModel.EncryptionType,
                     viewModel.OID.Id));
             }
             catch (Exception e)
@@ -204,6 +211,7 @@ namespace EthernetSwitch.Controllers
                     viewModel.Port,
                     viewModel.Password,
                     viewModel.Encryption,
+                    viewModel.EncryptionType,
                     viewModel.OID));
             }
             catch (Exception e)

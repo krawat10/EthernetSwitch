@@ -1,7 +1,6 @@
 
 using EthernetSwitch.Infrastructure.SNMP;
 using EthernetSwitch.Infrastructure.SNMP.Queries;
-using Lextm.SharpSnmpLib;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -67,10 +66,11 @@ namespace EthernetSwitch.Tests
         {
             var oid = await _service.Handle(new GetV3Query(
                 aesUser.UserName, 
-                Lextm.SharpSnmpLib.VersionCode.V3, 
+                VersionCode.V3, 
                 IPAddress.Loopback, 161,
                 aesUser.Password,
                 aesUser.Encryption,
+                aesUser.EncryptionType,
                 "1.3.6.1.2.1.1.6"));
 
             Assert.IsNotNull(oid);
@@ -85,20 +85,22 @@ namespace EthernetSwitch.Tests
             
             await _service.Handle(new SetV3Command(
                 desUser.UserName,
-                Lextm.SharpSnmpLib.VersionCode.V3,
+                VersionCode.V3,
                 IPAddress.Loopback, 
                 161,
                 desUser.Password,
                 desUser.Encryption,
+                desUser.EncryptionType,
                 new OID { Id = "1.3.6.1.2.1.1.6", Value = newSysLocation }));
 
             var oid = await _service.Handle(new GetV3Query(
                 desUser.UserName,
-                Lextm.SharpSnmpLib.VersionCode.V3,
+                VersionCode.V3,
                 IPAddress.Loopback,
                 161,
                 desUser.Password,
                 desUser.Encryption,
+                desUser.EncryptionType,
                 "1.3.6.1.2.1.1.6"));
 
             Assert.IsNotNull(oid);

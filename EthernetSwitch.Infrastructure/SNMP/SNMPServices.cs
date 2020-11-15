@@ -134,16 +134,27 @@ namespace EthernetSwitch.Infrastructure.SNMP
             var discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             var report = discovery.GetResponse(10000, new IPEndPoint(query.IpAddress, query.Port));
 
+            IPrivacyProvider provider;
+            if (query.EncryptionType == EncryptionType.DES)
+            {
+                provider = new BouncyCastleDESPrivacyProvider(
+                    new OctetString(query.Encryption),
+                    new MD5AuthenticationProvider(new OctetString(query.Password)));
+            }
+            else
+            {
+                provider = new BouncyCastleAESPrivacyProvider(
+                    new OctetString(query.Encryption),
+                    new MD5AuthenticationProvider(new OctetString(query.Password)));
+            }
+
             var request = new GetRequestMessage(
                 Lextm.SharpSnmpLib.VersionCode.V3,
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(query.UserName),
                 new List<Variable> { new Variable(new ObjectIdentifier(query.OID_Id)) },
-                new BouncyCastleDESPrivacyProvider(
-                    new OctetString(query.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(query.Password))
-                ),
+                provider,
                 Messenger.MaxMessageSize,
                 report);
 
@@ -171,16 +182,27 @@ namespace EthernetSwitch.Infrastructure.SNMP
             Discovery discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             ReportMessage report = discovery.GetResponse(10000, new IPEndPoint(command.IpAddress, command.Port));
 
+            IPrivacyProvider provider;
+            if (command.EncryptionType == EncryptionType.DES)
+            {
+                provider = new BouncyCastleDESPrivacyProvider(
+                    new OctetString(command.Encryption),
+                    new MD5AuthenticationProvider(new OctetString(command.Password)));
+            }
+            else
+            {
+                provider = new BouncyCastleAESPrivacyProvider(
+                    new OctetString(command.Encryption),
+                    new MD5AuthenticationProvider(new OctetString(command.Password)));
+            }
+
             SetRequestMessage request = new SetRequestMessage(
                 Lextm.SharpSnmpLib.VersionCode.V3,
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(command.UserName),
                 new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id)) },
-                new BouncyCastleDESPrivacyProvider(
-                    new OctetString(command.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(command.Password))
-                ),
+                provider,
                 report);
 
             ISnmpMessage reply = await request.GetResponseAsync(new IPEndPoint(command.IpAddress, command.Port));

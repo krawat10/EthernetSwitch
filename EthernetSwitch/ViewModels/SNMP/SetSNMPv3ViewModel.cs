@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.SNMP;
-using Lextm.SharpSnmpLib;
 
 namespace EthernetSwitch.Models.SNMP
 {
@@ -12,6 +12,7 @@ namespace EthernetSwitch.Models.SNMP
         public int Port { get; set; } = 161;
         [DataType(DataType.Password)] public string Password { get; set; }
         [DataType(DataType.Password)] public string Encryption { get; set; }
+        public EncryptionType EncryptionType { get; set; }
         public OID OID { get; set; }
         public string Error { get; set; }
     }

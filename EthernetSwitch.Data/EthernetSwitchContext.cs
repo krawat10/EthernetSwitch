@@ -12,7 +12,6 @@ namespace EthernetSwitch.Data
         public DbSet<Settings> Settings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<SNMPTrapUser> TrapUsers { get; set; }
-        public DbSet<SNMPUser> SNMPUsers { get; set; }
         public DbSet<SNMPMessage> TrapMessages { get; set; }
 
         public EthernetSwitchContext()

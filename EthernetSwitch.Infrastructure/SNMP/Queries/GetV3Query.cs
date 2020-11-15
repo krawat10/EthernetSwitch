@@ -1,12 +1,12 @@
 ﻿using System.Net;
-using Lextm.SharpSnmpLib;
+using EthernetSwitch.Data.Models;
 
 namespace EthernetSwitch.Infrastructure.SNMP.Queries
 {
     public class GetV3Query
     {
         public GetV3Query(string userName, VersionCode versionCode, IPAddress ipAddress, int port, string password,
-            string encryption, string oidId)
+            string encryption, EncryptionType encryptionType, string oidId)
         {
             UserName = userName;
             VersionCode = versionCode;
@@ -14,6 +14,7 @@ namespace EthernetSwitch.Infrastructure.SNMP.Queries
             Port = port;
             Password = password;
             Encryption = encryption;
+            EncryptionType = encryptionType;
             OID_Id = oidId;
         }
 
@@ -24,5 +25,6 @@ namespace EthernetSwitch.Infrastructure.SNMP.Queries
         public string Password { get; internal set; }
         public string Encryption { get; internal set; }
         public string OID_Id { get; internal set; }
+        public EncryptionType EncryptionType { get; internal set; }
     }
 }

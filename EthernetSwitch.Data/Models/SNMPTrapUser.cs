@@ -13,7 +13,7 @@ namespace EthernetSwitch.Data.Models
     public class SNMPTrapUser
     {
         public SNMPTrapUser(string userName, int port, string password,
-            string encryption, string engineId)
+            string encryption, EncryptionType encryptionType, string engineId)
         {
             UserName = userName;
             Port = port;
