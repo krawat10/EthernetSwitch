@@ -18,6 +18,8 @@ namespace EthernetSwitch.Tests
     public class SNMPTests
     {
         public SNMPServices _service;
+        public Mock<ISettingsRepository> _settingsRepositoryMock;
+
         private readonly SNMPConfiguration configuration = new SNMPConfiguration
         {
             AgentAddresses = "udp:161",
@@ -46,6 +48,9 @@ namespace EthernetSwitch.Tests
         [SetUp]
         public async Task SetupAsync()
         {
+            _settingsRepositoryMock = new Mock<ISettingsRepository>();
+            _settingsRepositoryMock.Setup(x => x.GetSettings()).ReturnsAsync(new Settings());
+
             _service = new SNMPServices(new LoggerFactory(), new BashCommand(), new Mock<ISettingsRepository>().Object);
 
             await _service.Handle(configuration);
@@ -59,6 +64,7 @@ namespace EthernetSwitch.Tests
 
             var oids = await _service.Handle(new WalkQuery("public", "1.3.6.1.2.1.1.6", IPAddress.Loopback, 161));
             CollectionAssert.IsNotEmpty(oids);
+            Assert.AreEqual(oids[0].Id, "1.3.6.1.2.1.1.6");
         }
 
         [Test]
@@ -75,6 +81,7 @@ namespace EthernetSwitch.Tests
 
             Assert.IsNotNull(oid);
             Assert.AreEqual(oid.Value, configuration.SysLocation);
+            Assert.AreEqual(oid.Id, "1.3.6.1.2.1.1.6");
         }
 
 

@@ -53,7 +53,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             try
             {
                 bash.Execute("/etc/init.d/snmpd stop");
-                bash.Execute($"net-snmp-config --create-snmpv3-user -ro -A {user.Password} -X {user.Encryption} -a MD5 -x {user.EncryptionType} {user.UserName}");
+                bash.Execute($"net-snmp-config --create-snmpv3-user -A {user.Password} -X {user.Encryption} -a MD5 -x {user.EncryptionType} {user.UserName}");
                 bash.Execute("/etc/init.d/snmpd start");
             }
             catch (ProcessException ex)
