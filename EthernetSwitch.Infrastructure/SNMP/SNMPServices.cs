@@ -201,7 +201,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(command.UserName),
-                new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id)) },
+                new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id), new OctetString(command.OID.Value)) },
                 provider,
                 report);
 
