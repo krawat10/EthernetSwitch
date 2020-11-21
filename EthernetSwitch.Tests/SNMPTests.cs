@@ -51,7 +51,7 @@ namespace EthernetSwitch.Tests
             _settingsRepositoryMock = new Mock<ISettingsRepository>();
             _settingsRepositoryMock.Setup(x => x.GetSettings()).ReturnsAsync(new Settings());
 
-            _service = new SNMPServices(new LoggerFactory(), new BashCommand(), new Mock<ISettingsRepository>().Object);
+            _service = new SNMPServices(new LoggerFactory(), new BashCommand(), _settingsRepositoryMock.Object);
 
             await _service.Handle(configuration);
             await _service.Handle(aesUser);
