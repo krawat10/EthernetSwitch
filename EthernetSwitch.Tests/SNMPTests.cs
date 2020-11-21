@@ -89,7 +89,7 @@ namespace EthernetSwitch.Tests
         [Test, MaxTime(30000)]
         public async Task ShouldExecuteSNMPGetAndSetSysLocationOID()
         {
-            var newSysLocation = StringExtensions.RandomString(10);
+            var newSysName = StringExtensions.RandomString(10);
             
             var old_oid = await _service.Handle(new GetV3Query(
                 desUser.UserName,
@@ -110,7 +110,7 @@ namespace EthernetSwitch.Tests
                 desUser.Password,
                 desUser.Encryption,
                 desUser.EncryptionType,
-                new OID { Id = "1.3.6.1.2.1.1.5.0", Value = newSysLocation }));
+                new OID { Id = "1.3.6.1.2.1.1.5.0", Value = newSysName }));
 
             var oid = await _service.Handle(new GetV3Query(
                 desUser.UserName,
@@ -123,7 +123,7 @@ namespace EthernetSwitch.Tests
                 "1.3.6.1.2.1.1.5.0"));
 
             Assert.IsNotNull(oid);
-            Assert.AreEqual(oid.Value, newSysLocation);
+            Assert.AreEqual(oid.Value, newSysName);
             Assert.AreNotSame(oid.Value, old_oid.Value);
         }
     }
