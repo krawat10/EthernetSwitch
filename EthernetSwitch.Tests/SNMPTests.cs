@@ -86,7 +86,7 @@ namespace EthernetSwitch.Tests
         }
 
 
-        [Test, MaxTime(30000)]
+        [Test]
         public async Task ShouldExecuteSNMPGetAndSetSysLocationOID()
         {
             var newSysName = StringExtensions.RandomString(10);
@@ -100,7 +100,6 @@ namespace EthernetSwitch.Tests
                 desUser.Encryption,
                 desUser.EncryptionType,
                 "1.3.6.1.2.1.1.5.0"));
-
 
             await _service.Handle(new SetV3Command(
                 desUser.UserName,

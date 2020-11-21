@@ -39,8 +39,9 @@
         <div class="custom-control custom-switch">
             <input form="@Model.Guid" type="checkbox" class="custom-control-input"
             name="@nameof(InterfaceViewModel.Tagged)" value="true"
-            data-allowed="@Model.AllowTagging.ToString().ToLower()" id="Tagged-@Model.Guid" @(Model.AllowTagging ?
-                    "enabled" : "disabled") @(Model.Tagged ? "checked" : "")>
+            data-allowed="@Model.AllowTagging.ToString().ToLower()" id="Tagged-@Model.Guid" 
+            @(Model.AllowTagging ? "enabled" : "disabled") 
+            @(Model.Tagged ? "checked" : "")>
             <label class="custom-control-label" for="Tagged-@Model.Guid" data-toggle="tooltip" data-placement="bottom"
             title="@(Model.AllowTagging ? "This change removes all VLANs from this interface!" : "Tagging is disabled by admin.") ">
             </label>
