@@ -70,5 +70,5 @@ After login you should see the following dashboard (rows can be different based 
 ![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/Home.jpg?raw=true)
 
 ##### **Now you can modify your interfaces!**
-***School project for Gdansk University of Technology (Group project) - 2020***
+***School project for Gdansk University of Technology (Engineering thesis) - 2020***
 ***Przelacznik Ethernet wykorzystujacy system Linux – PEWSL***
