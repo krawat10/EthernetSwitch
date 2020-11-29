@@ -8,7 +8,10 @@ Features:
 - Turning on/off-network interfaces 
 - Adding Virtual LANs
 - Creating tagged VLANs
-- Private VLANs
+- Private VLANs with Promiscous/Isolation mode
+- SET/GET/TRAP v3 and WALK v1 SNMP Protocol
+- LLDP Protocol
+- GVRP protocol (under development)
 
 ## Installation
 #### 1. (**Vagrant**) Self-deployment VM enviroment
@@ -68,4 +71,4 @@ After login you should see the following dashboard (rows can be different based 
 
 ##### **Now you can modify your interfaces!**
 ***School project for Gdansk University of Technology (Group project) - 2020***
-***Przelacznik Ethernet wykorzystujacy system Linux – PEWSL***
+***Przelacznik Ethernet wykorzystujacy system Linux â€“ PEWSL***
