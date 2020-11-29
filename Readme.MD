@@ -63,11 +63,11 @@ Now the application is hosted on 80 port (http://localhost).
 
 Go to http://localhost using your browser (if you are using a machine where the application is hosted). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
 
-![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/LoginPanel.png?raw=true)
+![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/LoginPanel.png?raw=true)
 
 After login you should see the following dashboard (rows can be different based on connected interfaces):
 
-![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/Home.png?raw=true)
+![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/Home.png?raw=true)
 
 ##### **Now you can modify your interfaces!**
 ***School project for Gdansk University of Technology (Engineering thesis) - 2020***
