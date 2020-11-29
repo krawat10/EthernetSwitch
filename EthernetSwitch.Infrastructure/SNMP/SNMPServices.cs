@@ -53,7 +53,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             try
             {
                 bash.Execute("/etc/init.d/snmpd stop");
-                bash.Execute($"net-snmp-config --create-snmpv3-user -ro -A {user.Password} -X {user.Encryption} -a MD5 -x {user.EncryptionType} {user.UserName}");
+                bash.Execute($"net-snmp-config --create-snmpv3-user -A {user.Password} -X {user.Encryption} -a MD5 -x {user.EncryptionType} {user.UserName}");
                 bash.Execute("/etc/init.d/snmpd start");
             }
             catch (ProcessException ex)
@@ -201,7 +201,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(command.UserName),
-                new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id)) },
+                new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id), new OctetString(command.OID.Value)) },
                 provider,
                 report);
 

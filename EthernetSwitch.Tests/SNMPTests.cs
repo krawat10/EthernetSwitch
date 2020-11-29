@@ -18,6 +18,8 @@ namespace EthernetSwitch.Tests
     public class SNMPTests
     {
         public SNMPServices _service;
+        public Mock<ISettingsRepository> _settingsRepositoryMock;
+
         private readonly SNMPConfiguration configuration = new SNMPConfiguration
         {
             AgentAddresses = "udp:161",
@@ -29,10 +31,10 @@ namespace EthernetSwitch.Tests
 
         private readonly SNMPUser desUser = new SNMPUser
         {
-            Encryption = StringExtensions.RandomString(10),
+            Encryption = StringExtensions.RandomString(12),
             EncryptionType = EncryptionType.DES,
-            Password = StringExtensions.RandomString(10),
-            UserName = StringExtensions.RandomString(10)
+            Password = StringExtensions.RandomString(12),
+            UserName = StringExtensions.RandomString(12),
         };
 
         private readonly SNMPUser aesUser = new SNMPUser
@@ -46,19 +48,24 @@ namespace EthernetSwitch.Tests
         [SetUp]
         public async Task SetupAsync()
         {
-            _service = new SNMPServices(new LoggerFactory(), new BashCommand(), new Mock<ISettingsRepository>().Object);
+            _settingsRepositoryMock = new Mock<ISettingsRepository>();
+            _settingsRepositoryMock.Setup(x => x.GetSettings()).ReturnsAsync(new Settings());
+
+            _service = new SNMPServices(new LoggerFactory(), new BashCommand(), _settingsRepositoryMock.Object);
 
             await _service.Handle(configuration);
             await _service.Handle(aesUser);
             await _service.Handle(desUser);
+            await Task.Delay(5000);
         }
 
         [Test]
         public async Task ShouldExecuteSNMPWalkResultAndGetOIDs()
         {
 
-            var oids = await _service.Handle(new WalkQuery("public", "1.3.6.1.2.1.1.6", IPAddress.Loopback, 161));
+            var oids = await _service.Handle(new WalkQuery("public", "1.3.6.1.2.1.1", IPAddress.Loopback, 161));
             CollectionAssert.IsNotEmpty(oids);
+            Assert.That(oids, Has.One.With.Property("Id").EqualTo("1.3.6.1.2.1.1.6.0"));
         }
 
         [Test]
@@ -71,18 +78,29 @@ namespace EthernetSwitch.Tests
                 aesUser.Password,
                 aesUser.Encryption,
                 aesUser.EncryptionType,
-                "1.3.6.1.2.1.1.6"));
+                "1.3.6.1.2.1.1.6.0"));
 
             Assert.IsNotNull(oid);
             Assert.AreEqual(oid.Value, configuration.SysLocation);
+            Assert.AreEqual(oid.Id, "1.3.6.1.2.1.1.6.0");
         }
 
 
         [Test]
         public async Task ShouldExecuteSNMPGetAndSetSysLocationOID()
         {
-            var newSysLocation = StringExtensions.RandomString(10);
+            var newSysName = StringExtensions.RandomString(10);
             
+            var old_oid = await _service.Handle(new GetV3Query(
+                desUser.UserName,
+                VersionCode.V3,
+                IPAddress.Loopback,
+                161,
+                desUser.Password,
+                desUser.Encryption,
+                desUser.EncryptionType,
+                "1.3.6.1.2.1.1.5.0"));
+
             await _service.Handle(new SetV3Command(
                 desUser.UserName,
                 VersionCode.V3,
@@ -91,7 +109,7 @@ namespace EthernetSwitch.Tests
                 desUser.Password,
                 desUser.Encryption,
                 desUser.EncryptionType,
-                new OID { Id = "1.3.6.1.2.1.1.6", Value = newSysLocation }));
+                new OID { Id = "1.3.6.1.2.1.1.5.0", Value = newSysName }));
 
             var oid = await _service.Handle(new GetV3Query(
                 desUser.UserName,
@@ -101,10 +119,11 @@ namespace EthernetSwitch.Tests
                 desUser.Password,
                 desUser.Encryption,
                 desUser.EncryptionType,
-                "1.3.6.1.2.1.1.6"));
+                "1.3.6.1.2.1.1.5.0"));
 
             Assert.IsNotNull(oid);
-            Assert.AreEqual(oid.Value, newSysLocation);
+            Assert.AreEqual(oid.Value, newSysName);
+            Assert.AreNotSame(oid.Value, old_oid.Value);
         }
     }
 }

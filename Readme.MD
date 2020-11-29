@@ -8,7 +8,10 @@ Features:
 - Turning on/off-network interfaces 
 - Adding Virtual LANs
 - Creating tagged VLANs
-- Private VLANs
+- Private VLANs with Promiscous/Isolation mode
+- SET/GET/TRAP v3 and WALK v1 SNMP Protocol
+- LLDP Protocol
+- GVRP protocol (under development)
 
 ## Installation
 #### 1. (**Vagrant**) Self-deployment VM enviroment
@@ -60,12 +63,12 @@ Now the application is hosted on 80 port (http://localhost).
 
 Go to http://localhost using your browser (if you are using a machine where the application is hosted). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
 
-![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/LoginPanel.jpg?raw=true)
+![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/LoginPanel.png?raw=true)
 
 After login you should see the following dashboard (rows can be different based on connected interfaces):
 
-![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/Home.jpg?raw=true)
+![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/img/Home.png?raw=true)
 
 ##### **Now you can modify your interfaces!**
-***School project for Gdansk University of Technology (Group project) - 2020***
-***Przelacznik Ethernet wykorzystujacy system Linux – PEWSL***
+***School project for Gdansk University of Technology (Engineering thesis) - 2020***
+***Przelacznik Ethernet wykorzystujacy system Linux â€“ PEWSL***
