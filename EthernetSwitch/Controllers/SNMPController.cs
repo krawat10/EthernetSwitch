@@ -200,23 +200,26 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> SetSNMPv3(SetSNMPv3ViewModel viewModel)
         {
-            viewModel.Error = "";
+            if(viewModel.Validate(ModelState))
+            {
+                try
+                {
+                    await _services.Handle(new SetV3Command(
+                        viewModel.UserName,
+                        viewModel.VersionCode,
+                        IPAddress.Parse(viewModel.IpAddress),
+                        viewModel.Port,
+                        viewModel.Password,
+                        viewModel.Encryption,
+                        viewModel.EncryptionType,
+                        viewModel.OID));
 
-            try
-            {
-                await _services.Handle(new SetV3Command(
-                    viewModel.UserName,
-                    viewModel.VersionCode,
-                    IPAddress.Parse(viewModel.IpAddress),
-                    viewModel.Port,
-                    viewModel.Password,
-                    viewModel.Encryption,
-                    viewModel.EncryptionType,
-                    viewModel.OID));
-            }
-            catch (Exception e)
-            {
-                viewModel.Error = e.Message;
+                    viewModel.Success = true;
+                }
+                catch (Exception e)
+                {
+                    viewModel.AddError(e.Message);
+                }
             }
 
             return View("SetSNMPv3", viewModel);

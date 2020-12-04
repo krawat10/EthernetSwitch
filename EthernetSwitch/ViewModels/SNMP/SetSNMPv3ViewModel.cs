@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.SNMP;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace EthernetSwitch.Models.SNMP
 {
-    public class SetSNMPv3ViewModel
+    public class SetSNMPv3ViewModel : BaseViewModel
     {
         [Required]
         public string UserName { get; set; }
@@ -17,7 +19,6 @@ namespace EthernetSwitch.Models.SNMP
         [DataType(DataType.Password)][Required] public string Encryption { get; set; }
         [Required] public EncryptionType EncryptionType { get; set; }
         [Required]public OID OID { get; set; }
-        public string Error { get; set; }
-        public bool Success { get; set; }
+
     }
 }
