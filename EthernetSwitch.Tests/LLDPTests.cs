@@ -28,7 +28,7 @@ namespace EthernetSwitch.Tests
             Assert.That(neighbour.MAC, Is.Not.Null);
             Assert.That(neighbour.SystemDescription, Is.Not.Null);
             Assert.That(neighbour.SystemName, Is.Not.Null);
-            Assert.That(neighbour.Updated, Is.Not.Null);
+            Assert.That(neighbour.Age, Is.Not.Null);
         }
     }
 }
