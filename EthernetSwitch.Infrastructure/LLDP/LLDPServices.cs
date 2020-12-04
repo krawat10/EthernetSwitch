@@ -10,12 +10,12 @@ using EthernetSwitch.Infrastructure.LLDP;
 public class EthernetNeighbor
 {
     public string EthernetInterfaceName { get; set; }
-    public string Updated { get; set; }
     public string MAC { get; set; }
     public string SystemName { get; set; }
     public string SystemDescription { get; set; }
     public IPAddress IPAddress { get; set; }
     public string Capability { get; internal set; }
+    public string Age { get; set; }
 }
 
 public class LLDPServices
@@ -59,7 +59,8 @@ public class LLDPServices
                     MAC = neighbor.Chassis.FirstOrDefault()?.Id.FirstOrDefault(id => id.Type == "mac")?.Value,
                     SystemDescription = neighbor.Chassis.FirstOrDefault()?.Descr.FirstOrDefault()?.Value,
                     SystemName = neighbor.Chassis.FirstOrDefault()?.Name.FirstOrDefault()?.Value,
-                    Capability = neighbor.Chassis.FirstOrDefault()?.Capability.FirstOrDefault(cap => cap.Enabled)?.Type
+                    Capability = neighbor.Chassis.FirstOrDefault()?.Capability.FirstOrDefault(cap => cap.Enabled)?.Type,
+                    Age = neighbor.Age
                 });
             }
         }
