@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using EthernetSwitch.Infrastructure.Bash;
+using EthernetSwitch.Infrastructure.Bash.Exceptions;
 using EthernetSwitch.Infrastructure.LLDP;
 
 public class EthernetNeighbor
@@ -30,7 +31,14 @@ public class LLDPServices
 
     public void ActivateLLDPAgent()
     {
-        _bash.Execute("lldpd -d");
+        try
+        {
+            _bash.Execute("lldpd -d");
+        }
+        catch (ProcessException processException)
+        {
+            if (processException.ExitCode != 1) throw;
+        }
     }
 
     public List<EthernetNeighbor> GetNeighbours()
