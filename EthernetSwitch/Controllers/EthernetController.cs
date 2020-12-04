@@ -37,6 +37,7 @@ namespace EthernetSwitch.Controllers {
 
             try
             {
+                _lldpSercives.ActivateLLDPAgent();
                 neighbours = _lldpSercives.GetNeighbours();
             }
             catch(Exception e)

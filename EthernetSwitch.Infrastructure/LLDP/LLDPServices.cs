@@ -25,7 +25,7 @@ public class LLDPServices
     {
         this._bash = bash;
 
-        //_bash.Install("lldpd");
+        _bash.Install("lldpd");
     }
 
     public void ActivateLLDPAgent()
