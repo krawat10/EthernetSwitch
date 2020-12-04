@@ -4,20 +4,15 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using EthernetSwitch.BackgroundWorkers;
-using EthernetSwitch.Data;
 using EthernetSwitch.Data.Models;
-using EthernetSwitch.Infrastructure.Settings;
-using EthernetSwitch.Seciurity;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
+using DESPrivacyProvider = EthernetSwitch.Security.DESPrivacyProvider;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
@@ -65,7 +60,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                             IPrivacyProvider provider;
                             if (trapUser.EncryptionType == EncryptionType.DES)
                             {
-                                provider = new BouncyCastleDESPrivacyProvider(
+                                provider = new DESPrivacyProvider(
                                     new OctetString(trapUser.Encryption),
                                     new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
                                 {
@@ -74,7 +69,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                             }
                             else
                             {
-                                provider = new BouncyCastleAESPrivacyProvider(
+                                provider = new AESPrivacyProvider(
                                     new OctetString(trapUser.Encryption),
                                     new MD5AuthenticationProvider(new OctetString(trapUser.Password)))
                                 {

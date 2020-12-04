@@ -18,29 +18,32 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System.Diagnostics.CodeAnalysis;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Security;
 
-namespace EthernetSwitch.Seciurity
+namespace EthernetSwitch.Security
 {
     /// <summary>
-    /// Privacy provider for AES 256.
+    ///     Privacy provider for AES 128.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "AES", Justification = "definition")]
-    public sealed class BouncyCastleAES256PrivacyProvider : BouncyCastleAESPrivacyProviderBase
+    [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "AES",
+        Justification = "definition")]
+    public sealed class AESPrivacyProvider : AESPrivacyProviderBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BouncyCastleAES256PrivacyProvider"/> class.
+        ///     Initializes a new instance of the <see cref="AESPrivacyProvider" /> class.
         /// </summary>
         /// <param name="phrase">The phrase.</param>
         /// <param name="auth">The authentication provider.</param>
-        public BouncyCastleAES256PrivacyProvider(OctetString phrase, IAuthenticationProvider auth)
-            : base(32, phrase, auth)
-        { }
+        public AESPrivacyProvider(OctetString phrase, IAuthenticationProvider auth)
+            : base(16, phrase, auth)
+        {
+        }
 
         /// <summary>
-        /// Returns a string that represents this object.
+        ///     Returns a string that represents this object.
         /// </summary>
-        public override string ToString() => "AES 256 (BouncyCastle) privacy provider";
+        public override string ToString() => "AES 128 privacy provider";
     }
 }

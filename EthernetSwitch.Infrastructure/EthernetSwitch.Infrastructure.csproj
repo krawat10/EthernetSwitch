@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EthernetSwitch.Data\EthernetSwitch.Data.csproj" />
-    <ProjectReference Include="..\EthernetSwitch.Seciurity\EthernetSwitch.Seciurity.csproj" />
+    <ProjectReference Include="..\EthernetSwitch.Seciurity\EthernetSwitch.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>

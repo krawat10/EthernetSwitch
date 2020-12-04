@@ -16,7 +16,6 @@ using EthernetSwitch.Infrastructure.Patterns;
 using EthernetSwitch.Infrastructure.Settings;
 using EthernetSwitch.Infrastructure.SNMP.Commands;
 using EthernetSwitch.Infrastructure.SNMP.Queries;
-using EthernetSwitch.Seciurity;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
@@ -24,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
 using ServiceStack;
+using DESPrivacyProvider = EthernetSwitch.Security.DESPrivacyProvider;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
@@ -137,13 +137,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
             IPrivacyProvider provider;
             if (query.EncryptionType == EncryptionType.DES)
             {
-                provider = new BouncyCastleDESPrivacyProvider(
+                provider = new DESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password)));
             }
             else
             {
-                provider = new BouncyCastleAESPrivacyProvider(
+                provider = new AESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password)));
             }
@@ -185,13 +185,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
             IPrivacyProvider provider;
             if (command.EncryptionType == EncryptionType.DES)
             {
-                provider = new BouncyCastleDESPrivacyProvider(
+                provider = new DESPrivacyProvider(
                     new OctetString(command.Encryption),
                     new MD5AuthenticationProvider(new OctetString(command.Password)));
             }
             else
             {
-                provider = new BouncyCastleAESPrivacyProvider(
+                provider = new AESPrivacyProvider(
                     new OctetString(command.Encryption),
                     new MD5AuthenticationProvider(new OctetString(command.Password)));
             }
