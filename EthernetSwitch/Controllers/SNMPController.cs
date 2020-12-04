@@ -36,11 +36,14 @@ namespace EthernetSwitch.Controllers
             this.messageStore = messageStore;
         }
 
-        public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
+        public IActionResult GetSNMPv3() => View(new GetSNMPv3ViewModel
+            {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
 
-        public IActionResult SetSNMPv3() => View(new SetSNMPv3ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
+        public IActionResult SetSNMPv3() => View(new SetSNMPv3ViewModel
+            {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
 
-        public IActionResult WalkSNMPv1() => View(new WalkSNMPv1ViewModel { IpAddress = HttpContext.Connection.LocalIpAddress.ToString() });
+        public IActionResult WalkSNMPv1() => View(new WalkSNMPv1ViewModel
+            {IpAddress = HttpContext.Connection.LocalIpAddress.ToString()});
 
         public async Task<IActionResult> TrapSNMPv3()
         {
@@ -126,19 +129,24 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> TrapSNMPv3(TrapSNMPv3ViewModel viewModel)
         {
-            try
+            if (viewModel.Validate(ModelState))
             {
-                await trapUsersRepository.AddUser(new SNMPTrapUser(
-                    viewModel.UserName, 
-                    viewModel.Port, 
-                    viewModel.Password, 
-                    viewModel.Encryption,
-                    viewModel.EncryptionType, 
-                    viewModel.EngineId));
-            }
-            catch (Exception e)
-            {
-                viewModel.Error = e.Message;
+                try
+                {
+                    await trapUsersRepository.AddUser(new SNMPTrapUser(
+                        viewModel.UserName,
+                        viewModel.Port,
+                        viewModel.Password,
+                        viewModel.Encryption,
+                        viewModel.EncryptionType,
+                        viewModel.EngineId));
+
+                    viewModel.Success = true;
+                }
+                catch (Exception e)
+                {
+                    viewModel.AddError(e.Message);
+                }
             }
 
             ViewData["Messages"] = await _context.TrapMessages
@@ -154,19 +162,22 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> GetSNMPv1(WalkSNMPv1ViewModel viewModel)
         {
-            viewModel.Error = "";
+            if (viewModel.Validate(ModelState))
+            {
+                try
+                {
+                    viewModel.OIDs = await _services.Handle(new WalkQuery(
+                        viewModel.Group,
+                        viewModel.StartObjectId,
+                        IPAddress.Parse(viewModel.IpAddress),
+                        viewModel.Port));
 
-            try
-            {
-                viewModel.OIDs = await _services.Handle(new WalkQuery(
-                    viewModel.Group,
-                    viewModel.StartObjectId,
-                    IPAddress.Parse(viewModel.IpAddress),
-                    viewModel.Port));
-            }
-            catch (Exception e)
-            {
-                viewModel.Error = e.Message;
+                    viewModel.Success = true;
+                }
+                catch (Exception e)
+                {
+                    viewModel.AddError(e.Message);
+                }
             }
 
             return View("WalkSNMPv1", viewModel);
@@ -175,23 +186,26 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> GetSNMPv3(GetSNMPv3ViewModel viewModel)
         {
-            viewModel.Error = "";
+            if (viewModel.Validate(ModelState))
+            {
+                try
+                {
+                    viewModel.OID = await _services.Handle(new GetV3Query(
+                        viewModel.UserName,
+                        viewModel.VersionCode,
+                        IPAddress.Parse(viewModel.IpAddress),
+                        viewModel.Port,
+                        viewModel.Password,
+                        viewModel.Encryption,
+                        viewModel.EncryptionType,
+                        viewModel.OID.Id));
 
-            try
-            {
-                viewModel.OID = await _services.Handle(new GetV3Query(
-                    viewModel.UserName,
-                    viewModel.VersionCode,
-                    IPAddress.Parse(viewModel.IpAddress),
-                    viewModel.Port,
-                    viewModel.Password,
-                    viewModel.Encryption,
-                    viewModel.EncryptionType,
-                    viewModel.OID.Id));
-            }
-            catch (Exception e)
-            {
-                viewModel.Error = e.Message;
+                    viewModel.Success = true;
+                }
+                catch (Exception e)
+                {
+                    viewModel.AddError(e.Message);
+                }
             }
 
             return View("GetSNMPv3", viewModel);
@@ -200,7 +214,7 @@ namespace EthernetSwitch.Controllers
         [HttpPost]
         public async Task<IActionResult> SetSNMPv3(SetSNMPv3ViewModel viewModel)
         {
-            if(viewModel.Validate(ModelState))
+            if (viewModel.Validate(ModelState))
             {
                 try
                 {
