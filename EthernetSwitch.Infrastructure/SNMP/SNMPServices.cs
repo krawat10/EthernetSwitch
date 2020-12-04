@@ -4,10 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
-using EthernetSwitch.BackgroundWorkers;
-using EthernetSwitch.Data;
 using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Bash.Exceptions;
@@ -19,11 +16,8 @@ using EthernetSwitch.Infrastructure.SNMP.Queries;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Samples.Pipeline;
-using ServiceStack;
-using DESPrivacyProvider = EthernetSwitch.Security.DESPrivacyProvider;
+using EthernetSwitch.Security;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
@@ -137,13 +131,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
             IPrivacyProvider provider;
             if (query.EncryptionType == EncryptionType.DES)
             {
-                provider = new DESPrivacyProvider(
+                provider = new Security.DESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password)));
             }
             else
             {
-                provider = new AESPrivacyProvider(
+                provider = new Security.AESPrivacyProvider(
                     new OctetString(query.Encryption),
                     new MD5AuthenticationProvider(new OctetString(query.Password)));
             }
@@ -185,13 +179,13 @@ namespace EthernetSwitch.Infrastructure.SNMP
             IPrivacyProvider provider;
             if (command.EncryptionType == EncryptionType.DES)
             {
-                provider = new DESPrivacyProvider(
+                provider = new Security.DESPrivacyProvider(
                     new OctetString(command.Encryption),
                     new MD5AuthenticationProvider(new OctetString(command.Password)));
             }
             else
             {
-                provider = new AESPrivacyProvider(
+                provider = new Security.AESPrivacyProvider(
                     new OctetString(command.Encryption),
                     new MD5AuthenticationProvider(new OctetString(command.Password)));
             }
