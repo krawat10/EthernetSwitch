@@ -59,4 +59,10 @@
             @Model.Error
         </div>
     }
+    @if (Model.Success)
+    {
+        <div class="alert alert-success" role="alert">
+            Success!
+        </div>
+    }
 </form>
