@@ -13,8 +13,6 @@ namespace EthernetSwitch.Models.SNMP
     {
         [Required] public string UserName { get; set; }
         public VersionCode VersionCode { get; set; } = VersionCode.V3;
-        [Required] public string IpAddress { get; set; } = "";
-
         [Required] public string EngineId { get; set; } = "0x090807060504030201";
         [Required] public int Port { get; set; } = 162;
 
