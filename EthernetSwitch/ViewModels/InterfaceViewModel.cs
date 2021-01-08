@@ -12,6 +12,7 @@ namespace EthernetSwitch.ViewModels
         public string Name { get; set; }
         public IEnumerable<string> VirtualLANs { get; set; } = new List<string>();
         public bool Tagged { get; set; } = false;
+        public bool IsGVRP { get; set; } = false;
         public OperationalStatus Status { get; set; }
         public bool IsActive { get; set; }
         public bool Hidden { get; set; } = false;

@@ -18,6 +18,7 @@
                 <th> Status</th>
                 <th> Private VLAN</th>
                 <th> Tagged</th>
+                <th> GVRP</th>
                 <th> Virtual VLANs</th>
                 <th> Neighbor (LLDP)</th>
                 <th> Action</th>
@@ -130,7 +131,7 @@
         function addVLAN(interface, vlan) {
             const interfaceVLANs = $(`.vlan-inputs-${interface}`);
 
-            let el = `
+            const el = `
                     <input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>
                         <span class="vlan-span badge badge-primary">
                         ${vlan}

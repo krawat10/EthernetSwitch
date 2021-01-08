@@ -30,10 +30,10 @@ namespace EthernetSwitch.Controllers {
             _settingsRepository = settingsRepository;
         }
 
-        public async Task<IActionResult> Index () {
+        public async Task<IActionResult> Index (IndexViewModel viewModel) {
             var settings = await _settingsRepository.GetSettings ();
             var neighbours = new List<EthernetNeighbor>();
-            var viewModel = new IndexViewModel();
+            viewModel ??= new IndexViewModel();
 
             try
             {
@@ -69,8 +69,18 @@ namespace EthernetSwitch.Controllers {
         /// </summary>
         /// <param name="viewModel">Interface options from form.</param>
         /// <returns>Redirect to home page</returns>
-        public IActionResult Edit (InterfaceViewModel viewModel) {
-                
+        public async Task<IActionResult> Edit (InterfaceViewModel viewModel)
+        {
+            var viewModelIsGvrp = viewModel.IsGVRP;
+
+            switch (viewModel.Type)
+            {
+                case InterfaceType.Promiscuous when viewModel.VirtualLANs.Count() > 1:
+                    return  RedirectToAction("Index", new IndexViewModel { Error = "Promiscuous Interface cannot have more than 1 VLAN." });
+                case InterfaceType.Isolated when viewModel.VirtualLANs.Count() > 1:
+                    return RedirectToAction("Index", new IndexViewModel { Error = "Isolated Interface cannot have more than 1 VLAN." });
+            }
+
             _ethernetServices.SetEthernetInterfaceState(viewModel.Name, viewModel.IsActive);
             _ethernetServices.ClearEthernetInterfaceVLANs(viewModel.Name);
             _ethernetServices.ApplyEthernetInterfaceVLANs(viewModel.Name, viewModel.Tagged, viewModel.VirtualLANs);
