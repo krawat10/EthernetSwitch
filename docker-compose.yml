@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  ethernetswitch:
+    image: ${DOCKER_REGISTRY-}ethernetswitch
+    build:
+      context: .
+      dockerfile: EthernetSwitch/Dockerfile
