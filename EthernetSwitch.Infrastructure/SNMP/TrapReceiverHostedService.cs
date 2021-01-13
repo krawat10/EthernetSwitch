@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Samples.Pipeline;
 using DESPrivacyProvider = EthernetSwitch.Security.DESPrivacyProvider;
+using VersionCode = EthernetSwitch.Data.Models.VersionCode;
 
 namespace EthernetSwitch.Infrastructure.SNMP
 {
@@ -84,7 +85,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                         trap.MessageReceived += TrapMessageReceived;
                         var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
 
-                        //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u krawat -a MD5 -A haslo1 -x DES -X haslo2 127.0.0.1:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
+                        //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u snmpro -a MD5 -A STrP@SSWRD -x DES -X STr0ngP@SSWRD 192.168.0.10:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
                         var inform = new InformRequestMessageHandler();
                         inform.MessageReceived += InformMessageReceived;
                         var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);
@@ -122,62 +123,76 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
         private async void TrapMessageReceived(object sender, TrapV2MessageReceivedEventArgs e)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var store = scope.ServiceProvider.GetRequiredService<ISNMPMessageStore>();
-
-            _logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
-
-            var message = new SNMPMessage
+            try
             {
-                Type = SNMPMessageType.TRAP,
-                Version = (Data.Models.VersionCode) e.TrapV2Message.Version,
-                TimeStamp = e.TrapV2Message.TimeStamp,
-                ContextName = e.TrapV2Message.Scope.ContextName.ToString(),
-                MessageId = e.TrapV2Message.Header.MessageId,
-                Enterprise = e.TrapV2Message.Enterprise.ToString(),
-                UserName = e.TrapV2Message.Parameters.UserName.ToString()
-            };
+                using var scope = _serviceProvider.CreateScope();
+                var store = scope.ServiceProvider.GetRequiredService<ISNMPMessageStore>();
 
-            foreach (var variable in e.TrapV2Message.Variables())
-            {
-                message.Variables.Add(new SNMPMessageVariable
+                _logger.LogInformation("TRAP version {0}: {1}", e.TrapV2Message.Version, e.TrapV2Message);
+
+                var message = new SNMPMessage
                 {
-                    VariableId = variable.Id.ToString(),
-                    Value = variable.Data.ToString()
-                });
-            }
+                    Type = SNMPMessageType.TRAP,
+                    Version = (VersionCode) e.TrapV2Message.Version,
+                    TimeStamp = e.TrapV2Message.TimeStamp,
+                    ContextName = e.TrapV2Message.Scope?.ContextName?.ToString() ?? "",
+                    MessageId = e.TrapV2Message.Header?.MessageId ?? 0,
+                    Enterprise = e.TrapV2Message.Enterprise?.ToString() ?? "",
+                    UserName = e.TrapV2Message.Parameters?.UserName?.ToString() ?? ""
+                };
 
-            await store.Add(message);
+                foreach (var variable in e.TrapV2Message.Variables())
+                {
+                    message.Variables.Add(new SNMPMessageVariable
+                    {
+                        VariableId = variable.Id?.ToString() ?? "",
+                        Value = variable.Data?.ToString() ?? ""
+                    });
+                }
+
+                await store.Add(message);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message);
+            }
         }
 
         private async void InformMessageReceived(object sender, InformRequestMessageReceivedEventArgs e)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var store = scope.ServiceProvider.GetRequiredService<ISNMPMessageStore>();
-
-            _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
-
-            var message = new SNMPMessage
+            try
             {
-                Type = SNMPMessageType.INFORM,
-                Version = (Data.Models.VersionCode) e.InformRequestMessage.Version,
-                TimeStamp = e.InformRequestMessage.TimeStamp,
-                ContextName = e.InformRequestMessage.Scope.ContextName.ToString(),
-                MessageId = e.InformRequestMessage.Header.MessageId,
-                Enterprise = e.InformRequestMessage.Enterprise.ToString(),
-                UserName = e.InformRequestMessage.Parameters.UserName.ToString()
-            };
+                using var scope = _serviceProvider.CreateScope();
+                var store = scope.ServiceProvider.GetRequiredService<ISNMPMessageStore>();
 
-            foreach (var variable in e.InformRequestMessage.Variables())
-            {
-                message.Variables.Add(new SNMPMessageVariable
+                _logger.LogWarning("Inform version {0}: {1}", e.InformRequestMessage.Version, e.InformRequestMessage);
+
+                var message = new SNMPMessage
                 {
-                    VariableId = variable.Id.ToString(),
-                    Value = variable.Data.ToString()
-                });
-            }
+                    Type = SNMPMessageType.INFORM,
+                    Version = (VersionCode) e.InformRequestMessage.Version,
+                    TimeStamp = e.InformRequestMessage.TimeStamp,
+                    ContextName = e.InformRequestMessage.Scope?.ContextName?.ToString() ?? "",
+                    MessageId = e.InformRequestMessage.Header?.MessageId ?? 0,
+                    Enterprise = e.InformRequestMessage.Enterprise?.ToString() ?? "",
+                    UserName = e.InformRequestMessage.Parameters?.UserName?.ToString() ?? ""
+                };
 
-            await store.Add(message);
+                foreach (var variable in e.InformRequestMessage.Variables())
+                {
+                    message.Variables.Add(new SNMPMessageVariable
+                    {
+                        VariableId = variable.Id?.ToString() ?? "",
+                        Value = variable.Data?.ToString() ?? ""
+                    });
+                }
+
+                await store.Add(message);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message);
+            }
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
