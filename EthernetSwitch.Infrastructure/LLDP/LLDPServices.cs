@@ -25,12 +25,19 @@ public class LLDPServices
     public LLDPServices(IBashCommand bash)
     {
         this._bash = bash;
-
-        _bash.Install("lldpd");
     }
 
     public void ActivateLLDPAgent()
     {
+        try
+        {
+            _bash.Install("lldpd");
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
         try
         {
             _bash.Execute("lldpd -d");
