@@ -9,6 +9,10 @@ namespace EthernetSwitch.Data.Models
     {
         DES, AES
     }
+    public enum PasswordType
+    {
+        SHA, MD5
+    }
 
     public class SNMPTrapUser
     {

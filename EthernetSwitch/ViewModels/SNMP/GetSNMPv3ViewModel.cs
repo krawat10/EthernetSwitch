@@ -21,5 +21,6 @@ namespace EthernetSwitch.Models.SNMP
 
         [Required] public OID OID { get; set; }
         public EncryptionType EncryptionType { get; set; }
+        [Required] public PasswordType PasswordType { get; set; }
     }
 }

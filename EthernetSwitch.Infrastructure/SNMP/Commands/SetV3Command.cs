@@ -5,7 +5,7 @@ namespace EthernetSwitch.Infrastructure.SNMP.Commands
 { 
     public class SetV3Command
     {
-        public SetV3Command(string userName, VersionCode versionCode, IPAddress ipAddress, int port, string password,
+        public SetV3Command(string userName, VersionCode versionCode, IPAddress ipAddress, int port, string password, PasswordType passwordType,
             string encryption, EncryptionType encryptionType, OID oid)
         {
             UserName = userName;
@@ -13,6 +13,7 @@ namespace EthernetSwitch.Infrastructure.SNMP.Commands
             IpAddress = ipAddress;
             Port = port;
             Password = password;
+            PasswordType = passwordType;
             Encryption = encryption;
             EncryptionType = encryptionType;
             OID = oid;
@@ -26,5 +27,6 @@ namespace EthernetSwitch.Infrastructure.SNMP.Commands
         public string Encryption { get; internal set; }
         public OID OID { get; internal set; }
         public EncryptionType EncryptionType { get; internal set; }
+        public PasswordType PasswordType { get; set; }
     }
 }

@@ -6,13 +6,14 @@ namespace EthernetSwitch.Infrastructure.SNMP.Queries
     public class GetV3Query
     {
         public GetV3Query(string userName, VersionCode versionCode, IPAddress ipAddress, int port, string password,
-            string encryption, EncryptionType encryptionType, string oidId)
+            PasswordType passwordType, string encryption, EncryptionType encryptionType, string oidId)
         {
             UserName = userName;
             VersionCode = versionCode;
             IpAddress = ipAddress;
             Port = port;
             Password = password;
+            PasswordType = passwordType;
             Encryption = encryption;
             EncryptionType = encryptionType;
             OID_Id = oidId;
@@ -23,6 +24,7 @@ namespace EthernetSwitch.Infrastructure.SNMP.Queries
         public IPAddress IpAddress { get; internal set; }
         public int Port { get; internal set; }
         public string Password { get; internal set; }
+        public PasswordType PasswordType { get; internal set; }
         public string Encryption { get; internal set; }
         public string OID_Id { get; internal set; }
         public EncryptionType EncryptionType { get; internal set; }

@@ -35,6 +35,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
         private readonly ILogger<SNMPServices> logger;
         private readonly IBashCommand bash;
         private readonly ISettingsRepository settingsRepository;
+
         public SNMPServices(ILoggerFactory loggerFactory, IBashCommand bash, ISettingsRepository settingsRepository)
         {
             this.logger = loggerFactory.CreateLogger<SNMPServices>();
@@ -63,7 +64,8 @@ namespace EthernetSwitch.Infrastructure.SNMP
             var regex = new Regex(@"usmUser \S+ \S+ \S+ \""(\S+)\""");
             var configPath = "/var/lib/snmp/snmpd.conf";
 
-            if (!File.Exists(configPath)) throw new FileNotFoundException("Configuration File doesn't exists", "/var/lib/snmp/snmpd.conf");
+            if (!File.Exists(configPath))
+                throw new FileNotFoundException("Configuration File doesn't exists", "/var/lib/snmp/snmpd.conf");
 
             var varSnmpd = await File.ReadAllLinesAsync(configPath);
 
@@ -119,7 +121,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
 
             return result
-                .Select(variable => new OID { Id = variable.Id.ToString(), Value = variable.Data.ToString() })
+                .Select(variable => new OID {Id = variable.Id.ToString(), Value = variable.Data.ToString()})
                 .ToArray();
         }
 
@@ -128,26 +130,14 @@ namespace EthernetSwitch.Infrastructure.SNMP
             var discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             var report = discovery.GetResponse(10000, new IPEndPoint(query.IpAddress, query.Port));
 
-            IPrivacyProvider provider;
-            if (query.EncryptionType == EncryptionType.DES)
-            {
-                provider = new Security.DESPrivacyProvider(
-                    new OctetString(query.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(query.Password)));
-            }
-            else
-            {
-                provider = new Security.AESPrivacyProvider(
-                    new OctetString(query.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(query.Password)));
-            }
+            var provider = GetPrivacyProvider(query.Password, query.PasswordType, query.Encryption, query.EncryptionType);
 
             var request = new GetRequestMessage(
                 Lextm.SharpSnmpLib.VersionCode.V3,
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(query.UserName),
-                new List<Variable> { new Variable(new ObjectIdentifier(query.OID_Id)) },
+                new List<Variable> {new Variable(new ObjectIdentifier(query.OID_Id))},
                 provider,
                 Messenger.MaxMessageSize,
                 report);
@@ -156,12 +146,12 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
             foreach (var variable in reply.Pdu().Variables)
             {
-                logger.LogDebug($"{variable.Id} {variable.Data}");
+                logger.LogInformation($"{variable.Id} {variable.Data}");
             }
 
             var oid = reply
                           .Pdu().Variables
-                          .FirstOrDefault(variable => variable.Id.ToString() == query.OID_Id) 
+                          .FirstOrDefault(variable => variable.Id.ToString() == query.OID_Id)
                       ?? reply.Pdu().Variables.FirstOrDefault();
 
             if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
@@ -174,7 +164,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 throw new KeyNotFoundException($"Cannot find variable with ID {query.OID_Id}");
             }
 
-            return new OID { Id = oid?.Id.ToString(), Value = oid?.Data.ToString() };
+            return new OID {Id = oid?.Id.ToString(), Value = oid?.Data.ToString()};
         }
 
         public async Task Handle(SetV3Command command)
@@ -182,36 +172,49 @@ namespace EthernetSwitch.Infrastructure.SNMP
             Discovery discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             ReportMessage report = discovery.GetResponse(10000, new IPEndPoint(command.IpAddress, command.Port));
 
-            IPrivacyProvider provider;
-            if (command.EncryptionType == EncryptionType.DES)
-            {
-                provider = new Security.DESPrivacyProvider(
-                    new OctetString(command.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(command.Password)));
-            }
-            else
-            {
-                provider = new Security.AESPrivacyProvider(
-                    new OctetString(command.Encryption),
-                    new MD5AuthenticationProvider(new OctetString(command.Password)));
-            }
+            var provider = GetPrivacyProvider(command.Password, command.PasswordType, command.Encryption, command.EncryptionType);
 
             SetRequestMessage request = new SetRequestMessage(
                 Lextm.SharpSnmpLib.VersionCode.V3,
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
                 new OctetString(command.UserName),
-                new List<Variable> { new Variable(new ObjectIdentifier(command.OID.Id), new OctetString(command.OID.Value)) },
-                provider,
-                report);
+                new List<Variable>
+                    {new Variable(new ObjectIdentifier(command.OID.Id), new OctetString(command.OID.Value))},
+                provider, report);
 
             ISnmpMessage reply = await request.GetResponseAsync(new IPEndPoint(command.IpAddress, command.Port));
-            
+
             if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
             {
                 throw ErrorException.Create("error in response", command.IpAddress, reply);
             }
+        }
 
+        private static IPrivacyProvider GetPrivacyProvider(string password, PasswordType passwordType,
+            string encryption, EncryptionType encryptionType)
+        {
+            IPrivacyProvider provider;
+            IAuthenticationProvider auth;
+            if (passwordType == PasswordType.SHA)
+            {
+                auth = new SHA1AuthenticationProvider(new OctetString(password));
+            }
+            else
+            {
+                auth = new MD5AuthenticationProvider(new OctetString(password));
+            }
+
+            if (encryptionType == EncryptionType.DES)
+            {
+                provider = new Security.DESPrivacyProvider(new OctetString(encryption), auth);
+            }
+            else
+            {
+                provider = new Security.AESPrivacyProvider(new OctetString(encryption), auth);
+            }
+
+            return provider;
         }
     }
 }

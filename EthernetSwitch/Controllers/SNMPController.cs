@@ -196,6 +196,7 @@ namespace EthernetSwitch.Controllers
                         IPAddress.Parse(viewModel.IpAddress),
                         viewModel.Port,
                         viewModel.Password,
+                        viewModel.PasswordType,
                         viewModel.Encryption,
                         viewModel.EncryptionType,
                         viewModel.OID.Id));
@@ -224,6 +225,7 @@ namespace EthernetSwitch.Controllers
                         IPAddress.Parse(viewModel.IpAddress),
                         viewModel.Port,
                         viewModel.Password,
+                        viewModel.PasswordType,
                         viewModel.Encryption,
                         viewModel.EncryptionType,
                         viewModel.OID));

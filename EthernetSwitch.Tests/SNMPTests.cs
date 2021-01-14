@@ -76,6 +76,7 @@ namespace EthernetSwitch.Tests
                 VersionCode.V3, 
                 IPAddress.Loopback, 161,
                 aesUser.Password,
+                PasswordType.MD5,
                 aesUser.Encryption,
                 aesUser.EncryptionType,
                 "1.3.6.1.2.1.1.6.0"));
@@ -97,6 +98,7 @@ namespace EthernetSwitch.Tests
                 IPAddress.Loopback,
                 161,
                 desUser.Password,
+                PasswordType.MD5,
                 desUser.Encryption,
                 desUser.EncryptionType,
                 "1.3.6.1.2.1.1.5.0"));
@@ -107,6 +109,7 @@ namespace EthernetSwitch.Tests
                 IPAddress.Loopback, 
                 161,
                 desUser.Password,
+                PasswordType.MD5,
                 desUser.Encryption,
                 desUser.EncryptionType,
                 new OID { Id = "1.3.6.1.2.1.1.5.0", Value = newSysName }));
@@ -117,6 +120,7 @@ namespace EthernetSwitch.Tests
                 IPAddress.Loopback,
                 161,
                 desUser.Password,
+                PasswordType.MD5,
                 desUser.Encryption,
                 desUser.EncryptionType,
                 "1.3.6.1.2.1.1.5.0"));
