@@ -21,7 +21,7 @@ namespace EthernetSwitch.Tests
             _settingsRepositoryMock = new Mock<ISettingsRepository>();
             _settingsRepositoryMock.Setup(x => x.GetSettings()).ReturnsAsync(new Settings());
 
-            _service = new EthernetServices(_settingsRepositoryMock.Object, new BashCommand());
+            _service = new EthernetServices(new BashCommand());
         }
 
         [Test]

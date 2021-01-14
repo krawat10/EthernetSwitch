@@ -9,7 +9,7 @@ namespace EthernetSwitch.Infrastructure.Users
         Task<User> Login(string username, string password);
         Task<User> Register(string username, string password, UserRole role = UserRole.NotConfirmed);
         Task<IEnumerable<User>> GetUsers();
-        Task<User> ChangePassword(string username, string password);
+        Task<User> ChangePassword(string username, string oldPassword, string newPassword);
         Task RegisterUsers(IEnumerable<string> userNames);
         Task RemoveUsers(IEnumerable<string> userNames);
     }

@@ -35,15 +35,13 @@ namespace EthernetSwitch.ViewModels
         {
             get
             {
-                switch (Status)
+                return Status switch
                 {
-                    case OperationalStatus.Up:
-                        return "success";
-                    case OperationalStatus.Down:
-                        return "danger";
-                    default: 
-                        return "warning";
+                    OperationalStatus.Up => "success",
+                    OperationalStatus.Down => "danger",
+                    _ => "warning"
                 };
+                ;
             }
         }
 

@@ -57,11 +57,9 @@ namespace EthernetSwitch.Controllers
                 settings.RequireConfirmation = model.RequireConfirmation;
 
                 await _settingsRepository.SaveSettings(settings);
-
-                return RedirectToAction("Index", settings);
             }
 
-            return View(model);
+            return RedirectToAction("Index", settings);
         }
     }
 }

@@ -85,7 +85,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                         trap.MessageReceived += TrapMessageReceived;
                         var trapv2Mapping = new HandlerMapping("v2,v3", "TRAPV2", trap);
 
-                        //snmptrap -v3 -e 0x090807060504030201 -l authPriv -u snmpro -a MD5 -A STrP@SSWRD -x DES -X STr0ngP@SSWRD 192.168.0.10:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 i 60
+                        //sudo snmptrap -v3 -e 0x090807060504030201 -l authPriv -u snmpro -a MD5 -A STrP@SSWRD -x DES -X STr0ngP@SSWRD 192.168.0.110:162 ''  1.3.6.1.4.1.8072.2.3.0.1 1.3.6.1.4.1.8072.2.3.2.1 s "Example Message"
                         var inform = new InformRequestMessageHandler();
                         inform.MessageReceived += InformMessageReceived;
                         var informMapping = new HandlerMapping("v2,v3", "INFORM", inform);

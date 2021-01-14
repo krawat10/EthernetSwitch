@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Bash.Exceptions;
 using EthernetSwitch.Infrastructure.Extensions;
-using EthernetSwitch.Infrastructure.Settings;
 
 namespace EthernetSwitch.Infrastructure.Ethernet
 {
@@ -28,12 +27,10 @@ namespace EthernetSwitch.Infrastructure.Ethernet
 
     public class EthernetServices
     {
-        private readonly ISettingsRepository _settingsRepository;
         private readonly IBashCommand _bash;
 
-        public EthernetServices(ISettingsRepository settingsRepository, IBashCommand bash)
+        public EthernetServices(IBashCommand bash)
         {
-            _settingsRepository = settingsRepository;
             _bash = bash;
         }
 

@@ -64,19 +64,19 @@ namespace EthernetSwitch.Infrastructure.Users
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> ChangePassword(string username, string password)
+        public async Task<User> ChangePassword(string username, string oldPassword, string newPassword)
         {
             var user = await _context.Users.FirstOrDefaultAsync(usr => usr.UserName == username);
 
-            if (user == null) throw new ArgumentException($"User {user} does not exists");
+            if (user == null) throw new ArgumentException($"User {username} does not exists");
 
-            if (_passwordHasher.VerifyHashedPassword(username, user.PasswordEncrypted, password) ==
+            if (_passwordHasher.VerifyHashedPassword(username, user.PasswordEncrypted, oldPassword) ==
                 PasswordVerificationResult.Failed)
             {
                 throw new ArgumentException("Old password is incorrect");
             }
 
-            user.PasswordEncrypted = _passwordHasher.HashPassword(username, password);
+            user.PasswordEncrypted = _passwordHasher.HashPassword(username, newPassword);
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();

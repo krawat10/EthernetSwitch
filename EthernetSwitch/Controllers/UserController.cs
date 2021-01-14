@@ -115,7 +115,7 @@ namespace EthernetSwitch.Controllers
             {
                 try
                 {
-                    _userService.ChangePassword(username, model.NewPassword);
+                    _userService.ChangePassword(username, model.OldPassword, model.NewPassword);
 
                     return RedirectToAction("Index","Ethernet");
                 }
@@ -145,7 +145,7 @@ namespace EthernetSwitch.Controllers
         {
             _userService.RegisterUsers(userNames);
 
-            return RedirectToAction("Settings", "Ethernet");
+            return RedirectToAction("Index", "Settings");
         }
 
         [HttpPost]
@@ -156,7 +156,7 @@ namespace EthernetSwitch.Controllers
             _userService.RemoveUsers(userNames);
 
 
-            return RedirectToAction("Settings", "Ethernet");
+            return RedirectToAction("Index", "Settings");
         }
     }
 }
