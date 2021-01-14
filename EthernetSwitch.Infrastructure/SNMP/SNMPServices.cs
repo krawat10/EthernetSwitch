@@ -154,21 +154,27 @@ namespace EthernetSwitch.Infrastructure.SNMP
 
             var reply = await request.GetResponseAsync(new IPEndPoint(query.IpAddress, query.Port));
 
-            var oid = reply
-                .Pdu().Variables
-                .FirstOrDefault(variable => variable.Id.ToString() == query.OID_Id);
-
-            if (oid == null)
+            foreach (var variable in reply.Pdu().Variables)
             {
-                throw new KeyNotFoundException($"Cannot find variable with ID {query.OID_Id}");
+                logger.LogDebug($"{variable.Id} {variable.Data}");
             }
+
+            var oid = reply
+                          .Pdu().Variables
+                          .FirstOrDefault(variable => variable.Id.ToString() == query.OID_Id) 
+                      ?? reply.Pdu().Variables.FirstOrDefault();
 
             if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
             {
                 throw ErrorException.Create("error in response", query.IpAddress, reply);
             }
 
-            return new OID { Id = oid.Id.ToString(), Value = oid.Data.ToString() };
+            if (oid == null)
+            {
+                throw new KeyNotFoundException($"Cannot find variable with ID {query.OID_Id}");
+            }
+
+            return new OID { Id = oid?.Id.ToString(), Value = oid?.Data.ToString() };
         }
 
         public async Task Handle(SetV3Command command)
@@ -200,7 +206,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
                 report);
 
             ISnmpMessage reply = await request.GetResponseAsync(new IPEndPoint(command.IpAddress, command.Port));
-
+            
             if (reply.Pdu().ErrorStatus.ToInt32() != 0) // != ErrorCode.NoError
             {
                 throw ErrorException.Create("error in response", command.IpAddress, reply);
