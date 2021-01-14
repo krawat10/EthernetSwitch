@@ -50,6 +50,7 @@ namespace EthernetSwitch.Controllers
         {
             var settings = await _settingsRepository.GetSettings();
 
+
             if (ModelState.IsValid)
             {
                 settings.AllowRegistration = model.AllowRegistration;
