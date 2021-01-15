@@ -96,12 +96,18 @@
     <td>
         @if (Model.Neighbor != null)
         {
-            <ul class="list-group">
-                <li class="list-group-item list-group-item-primary py-0">@Model.Neighbor.SystemName</li>
-                <li class="list-group-item list-group-item-secondary py-0">@Model.Neighbor.SystemDescription</li>
-                <li class="list-group-item list-group-item-success py-0">MAC: @Model.Neighbor.MAC</li>
-                <li class="list-group-item list-group-item-info py-0">IP: @Model.Neighbor.IPAddress</li>
-            </ul>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-primary py-0">@Model.Neighbor.SystemName</li>
+            <li class="list-group-item list-group-item-secondary py-0">@Model.Neighbor.SystemDescription</li>
+            <li class="list-group-item list-group-item-success py-0">MAC: @Model.Neighbor.MAC</li>
+            <li class="list-group-item list-group-item-info py-0">IP: @Model.Neighbor.IPAddress</li>
+            <li class="list-group-item list-group-item-info py-0">
+                @foreach (var type in Model.Neighbor.Capabilities)
+                {
+                    <span class="badge badge-secondary">@type</span>
+                }
+            </li>
+        </ul>
         }
         else
         {

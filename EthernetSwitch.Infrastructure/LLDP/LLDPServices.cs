@@ -14,7 +14,7 @@ public class EthernetNeighbor
     public string SystemName { get; set; }
     public string SystemDescription { get; set; }
     public IPAddress IPAddress { get; set; }
-    public string Capability { get; internal set; }
+    public IEnumerable<string> Capabilities { get; internal set; }
     public string Age { get; set; }
 }
 
@@ -66,7 +66,7 @@ public class LLDPServices
                     MAC = neighbor.Chassis.FirstOrDefault()?.Id.FirstOrDefault(id => id.Type == "mac")?.Value,
                     SystemDescription = neighbor.Chassis.FirstOrDefault()?.Descr.FirstOrDefault()?.Value,
                     SystemName = neighbor.Chassis.FirstOrDefault()?.Name.FirstOrDefault()?.Value,
-                    Capability = neighbor.Chassis.FirstOrDefault()?.Capability.FirstOrDefault(cap => cap.Enabled)?.Type,
+                    Capabilities = neighbor.Chassis.FirstOrDefault()?.Capability?.Where(cap => cap.Enabled).Select(variable => variable.Type) ?? new List<string>(),
                     Age = neighbor.Age
                 });
             }

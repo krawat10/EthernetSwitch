@@ -22,7 +22,7 @@ namespace EthernetSwitch.Tests
         {
             var neighbour = Service.GetNeighbours().FirstOrDefault();
 
-            Assert.That(neighbour.Capability, Is.Not.Null);
+            Assert.That(neighbour.Capabilities, Is.Not.Null);
             Assert.That(neighbour.EthernetInterfaceName, Is.Not.Null);
             Assert.That(neighbour.IPAddress, Is.Not.Null);
             Assert.That(neighbour.MAC, Is.Not.Null);
