@@ -1,8 +1,4 @@
-﻿# Copy to /etc/systemd/system
-# systemctl daemon-reload
-# systemctl enable ethernet-switch.service
-# systemctl start ethernet-switch.service
-[Unit]
+﻿[Unit]
 Description=Ethernet Switch Application
 
 [Service]
