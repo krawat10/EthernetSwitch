@@ -1,0 +1,17 @@
+﻿# Copy to /etc/systemd/system
+# systemctl daemon-reload
+# systemctl enable ethernet-switch.service
+# systemctl start ethernet-switch.service
+[Unit]
+Description=Ethernet Switch Application
+
+[Service]
+ExecStart=/bin/dotnet EthernetSwitch.dll
+WorkingDirectory=/home/vagrant/EthernetSwitch/EthernetSwitch/bin/Release/netcoreapp3.1/publish
+User=root
+Restart=on-failure
+SyslogIdentifier=ethernet-switch-service
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
