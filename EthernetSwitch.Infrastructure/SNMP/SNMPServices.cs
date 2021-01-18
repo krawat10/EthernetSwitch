@@ -47,9 +47,9 @@ namespace EthernetSwitch.Infrastructure.SNMP
         {
             try
             {
-                bash.Execute("/etc/init.d/snmpd stop");
+                bash.Execute("systemctl stop snmpd");
                 bash.Execute($"net-snmp-config --create-snmpv3-user -A {user.Password} -X {user.Encryption} -a MD5 -x {user.EncryptionType} {user.UserName}");
-                bash.Execute("/etc/init.d/snmpd start");
+                bash.Execute("systemctl start snmpd");
             }
             catch (ProcessException ex)
             {
@@ -83,17 +83,25 @@ namespace EthernetSwitch.Infrastructure.SNMP
             var settings = await settingsRepository.GetSettings();
             settings.SNMPConfiguration = configuration;
 
-
-            bash.Install("snmpd");
-            bash.Install("snmp");
-            bash.Install("libsnmp-dev");
+            if (bash.IsFedora())
+            {
+                bash.Install("net-snmp");
+                bash.Install("net-snmp-libs");
+                bash.Install("net-snmp-utils");
+            }
+            else
+            {
+                bash.Install("snmpd");
+                bash.Install("snmp");
+                bash.Install("libsnmp-dev");
+            }
 
             var snmpd = await File.ReadAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snmpd.conf"));
             snmpd = snmpd.FormatWith(configuration);
 
             var snmpdPath = "/etc/snmp/snmpd.conf";
 
-            bash.Execute("/etc/init.d/snmpd stop");
+            bash.Execute("systemctl stop snmpd");
 
             if (File.Exists(snmpdPath))
                 File.Copy(snmpdPath, $"/etc/snmp/snmpd_{DateTime.Now.Ticks}.bak");
@@ -101,7 +109,7 @@ namespace EthernetSwitch.Infrastructure.SNMP
             using StreamWriter stream = File.CreateText(snmpdPath);
             await stream.WriteAsync(snmpd);
 
-            bash.Execute("/etc/init.d/snmpd start");
+            bash.Execute("systemctl start snmpd");
 
             await settingsRepository.SaveSettings(settings);
 

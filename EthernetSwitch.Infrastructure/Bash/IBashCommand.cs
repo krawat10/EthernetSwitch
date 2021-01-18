@@ -4,5 +4,6 @@
     {
         string Execute(string command);
         void Install(string appName);
+        bool IsFedora();
     }
 }

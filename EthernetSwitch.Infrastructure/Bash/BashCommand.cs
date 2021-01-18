@@ -37,12 +37,17 @@ namespace EthernetSwitch.Infrastructure.Bash
 
         public void Install(string appName)
         {
-            if (Execute(@"cat /etc/*release | grep ""^ID=""")?.Contains("fedora") ?? false)
+            if (IsFedora())
             {
                 Execute("yum -y install " + appName);
             }
 
             Execute("apt-get -y install " + appName);
+        }
+
+        public bool IsFedora()
+        {
+            return Execute(@"cat /etc/*release | grep ""^ID=""")?.Contains("fedora") ?? false;
         }
     }
 }
