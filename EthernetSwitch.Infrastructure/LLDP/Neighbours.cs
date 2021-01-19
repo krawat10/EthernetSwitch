@@ -86,7 +86,7 @@ namespace EthernetSwitch.Infrastructure.LLDP
 		[XmlElement(ElementName = "descr")]
 		public Descr Descr { get; set; }
 
-		[XmlElement(ElementName = "mgmtip")]
+		[XmlElement(ElementName = "mgmt-ip")]
 		public List<Mgmtip> Mgmtip { get; set; }
 
 		[XmlElement(ElementName = "capability")]
