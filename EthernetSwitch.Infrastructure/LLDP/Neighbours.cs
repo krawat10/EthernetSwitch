@@ -1,82 +1,177 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 
 namespace EthernetSwitch.Infrastructure.LLDP
 {
-    public partial class LldpOutput
-    {
-        [JsonPropertyName("lldp")]
-        public Lldp[] Lldp { get; set; }
-    }
+	// using System.Xml.Serialization;
+	// XmlSerializer serializer = new XmlSerializer(typeof(Lldp));
+	// using (StringReader reader = new StringReader(xml))
+	// {
+	//    var test = (Lldp)serializer.Deserialize(reader);
+	// }
 
-    public partial class Lldp
-    {
-        [JsonPropertyName("interface")]
-        public Interface[] Interface { get; set; }
-    }
+	[XmlRoot(ElementName = "id")]
+	public class Id
+	{
 
-    public partial class Interface
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
 
-        [JsonPropertyName("via")]
-        public string Via { get; set; }
+		[XmlAttribute(AttributeName = "type")]
+		public string Type { get; set; }
 
-        [JsonPropertyName("rid")]
-        public string Rid { get; set; }
+		[XmlText]
+		public string Text { get; set; }
+	}
 
-        [JsonPropertyName("age")]
-        public string Age { get; set; }
+	[XmlRoot(ElementName = "name")]
+	public class Name
+	{
 
-        [JsonPropertyName("chassis")]
-        public Chassis[] Chassis { get; set; }
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
 
-        [JsonPropertyName("port")]
-        public Port[] Port { get; set; }
-    }
+		[XmlText]
+		public string Text { get; set; }
+	}
 
-    public partial class Chassis
-    {
-        [JsonPropertyName("id")]
-        public Variable[] Id { get; set; }
+	[XmlRoot(ElementName = "descr")]
+	public class Descr
+	{
 
-        [JsonPropertyName("name")]
-        public Variable[] Name { get; set; }
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
 
-        [JsonPropertyName("descr")]
-        public Variable[] Descr { get; set; }
+		[XmlText]
+		public string Text { get; set; }
+	}
 
-        [JsonPropertyName("mgmt-ip")]
-        public Variable[] MgmtIp { get; set; }
+	[XmlRoot(ElementName = "mgmt-ip")]
+	public class Mgmtip
+	{
 
-        [JsonPropertyName("capability")]
-        public Variable[] Capability { get; set; }
-    }
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
 
-    public partial class Port
-    {
-        [JsonPropertyName("id")]
-        public Variable[] Id { get; set; }
+		[XmlText]
+		public string Text { get; set; }
+	}
 
-        [JsonPropertyName("descr")]
-        public Variable[] Descr { get; set; }
+	[XmlRoot(ElementName = "capability")]
+	public class Capability
+	{
 
-        [JsonPropertyName("ttl")]
-        public Variable[] Ttl { get; set; }
-    }
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
 
-    public partial class Variable
-    {
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
+		[XmlAttribute(AttributeName = "type")]
+		public string Type { get; set; }
 
-        [JsonPropertyName("value")]
-        public string Value { get; set; }
+		[XmlAttribute(AttributeName = "enabled")]
+		public string Enabled { get; set; }
+	}
 
-        [JsonPropertyName("enabled")]
-        public bool Enabled { get; set; }
+	[XmlRoot(ElementName = "chassis")]
+	public class Chassis
+	{
 
-    }
+		[XmlElement(ElementName = "id")]
+		public Id Id { get; set; }
+
+		[XmlElement(ElementName = "name")]
+		public Name Name { get; set; }
+
+		[XmlElement(ElementName = "descr")]
+		public Descr Descr { get; set; }
+
+		[XmlElement(ElementName = "mgmtip")]
+		public List<Mgmtip> Mgmtip { get; set; }
+
+		[XmlElement(ElementName = "capability")]
+		public List<Capability> Capability { get; set; }
+
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
+
+		[XmlText]
+		public string Text { get; set; }
+	}
+
+	[XmlRoot(ElementName = "ttl")]
+	public class Ttl
+	{
+
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
+
+		[XmlText]
+		public int Text { get; set; }
+	}
+
+	[XmlRoot(ElementName = "port")]
+	public class Port
+	{
+
+		[XmlElement(ElementName = "id")]
+		public Id Id { get; set; }
+
+		[XmlElement(ElementName = "descr")]
+		public Descr Descr { get; set; }
+
+		[XmlElement(ElementName = "ttl")]
+		public Ttl Ttl { get; set; }
+
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
+
+		[XmlText]
+		public string Text { get; set; }
+	}
+
+	[XmlRoot(ElementName = "interface")]
+	public class Interface
+	{
+
+		[XmlElement(ElementName = "chassis")]
+		public Chassis Chassis { get; set; }
+
+		[XmlElement(ElementName = "port")]
+		public Port Port { get; set; }
+
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
+
+		[XmlAttribute(AttributeName = "name")]
+		public string Name { get; set; }
+
+		[XmlAttribute(AttributeName = "via")]
+		public string Via { get; set; }
+
+		[XmlAttribute(AttributeName = "rid")]
+		public int Rid { get; set; }
+
+		[XmlAttribute(AttributeName = "age")]
+		public string Age { get; set; }
+
+		[XmlText]
+		public string Text { get; set; }
+	}
+
+	[XmlRoot(ElementName = "lldp")]
+	public class Lldp
+	{
+
+		[XmlElement(ElementName = "interface")]
+		public List<Interface> Interface { get; set; }
+
+		[XmlAttribute(AttributeName = "label")]
+		public string Label { get; set; }
+
+		[XmlText]
+		public string Text { get; set; }
+	}
+
 
 }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Xml.Serialization;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Bash.Exceptions;
 using EthernetSwitch.Infrastructure.LLDP;
@@ -51,24 +53,27 @@ public class LLDPServices
     public List<EthernetNeighbor> GetNeighbours()
     {
         var result = new List<EthernetNeighbor>();
-        var output = _bash.Execute("lldpcli show neighbors -f json0");
+        var output = _bash.Execute("lldpcli show neighbors -f xml");
 
         try
         {
-            var lldpOutput = JsonSerializer.Deserialize<LldpOutput>(output);
-
-            foreach (var neighbor in lldpOutput.Lldp.First().Interface)
+            var serializer = new XmlSerializer(typeof(Lldp));
+            using TextReader reader = new StringReader(output);
+            var lldpOutput = (Lldp)serializer.Deserialize(reader);
+            
+            foreach (var neighbor in lldpOutput.Interface)
             {
-                result.Add(new EthernetNeighbor
-                {
-                    EthernetInterfaceName = neighbor.Name,
-                    IPAddress = IPAddress.Parse(neighbor.Chassis.FirstOrDefault()?.MgmtIp.FirstOrDefault()?.Value),
-                    MAC = neighbor.Chassis.FirstOrDefault()?.Id.FirstOrDefault(id => id.Type == "mac")?.Value,
-                    SystemDescription = neighbor.Chassis.FirstOrDefault()?.Descr.FirstOrDefault()?.Value,
-                    SystemName = neighbor.Chassis.FirstOrDefault()?.Name.FirstOrDefault()?.Value,
-                    Capabilities = neighbor.Chassis.FirstOrDefault()?.Capability?.Where(cap => cap.Enabled).Select(variable => variable.Type) ?? new List<string>(),
-                    Age = neighbor.Age
-                });
+                if (neighbor.Chassis != null && neighbor.Chassis.Mgmtip.Any())
+                    result.Add(new EthernetNeighbor
+                    {
+                        EthernetInterfaceName = neighbor.Name,
+                        IPAddress = IPAddress.Parse(neighbor.Chassis.Mgmtip.FirstOrDefault()?.Text),
+                        MAC = neighbor.Chassis.Id?.Text,
+                        SystemDescription = neighbor.Chassis.Descr.Text,
+                        SystemName = neighbor.Chassis.Name?.Text,
+                        Capabilities = neighbor.Chassis.Capability?.Where(cap => cap.Enabled == "on").Select(variable => variable.Type) ?? new List<string>(),
+                        Age = neighbor.Age
+                    });
             }
         }
         catch(Exception e)
