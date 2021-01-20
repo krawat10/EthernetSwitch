@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Bash.Exceptions;
 using EthernetSwitch.Infrastructure.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace EthernetSwitch.Infrastructure.Ethernet
 {
@@ -28,10 +29,12 @@ namespace EthernetSwitch.Infrastructure.Ethernet
     public class EthernetServices
     {
         private readonly IBashCommand _bash;
+        private ILogger<EthernetServices> _logger;
 
-        public EthernetServices(IBashCommand bash)
+        public EthernetServices(IBashCommand bash, ILoggerFactory loggerFactory)
         {
             _bash = bash;
+            _logger = loggerFactory.CreateLogger<EthernetServices>();
         }
 
         public static IPAddress GetLocalIPAddress()
@@ -167,6 +170,8 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     if (error.Contains($"bridge vlan{vlanName} does not exist!\n")) vlanExists = false; //true if exists
                 }
 
+                _logger.LogError($"VLAN exists: {vlanExists}");
+
                 // Checks if interface is in any VLAN
                 var interfaceHasVLAN = true;
                 try
@@ -182,6 +187,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 // Creates VLAN
                 if (!vlanExists)
                 {
+                    _logger.LogError($"Create VLAN ");
                     _bash.Execute($"brctl addbr vlan{vlanName}");
                     _bash.Execute($"ip link set vlan{vlanName} up"); //Create VLAN
                 }
@@ -202,6 +208,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
 
                 if (!isTagged)
                 {
+                    _logger.LogError($"Adding VLAN ");
                     _bash.Execute($"ip link set vlan{vlanName} down");
                     _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}");
                     _bash.Execute($"ip link set vlan{vlanName} up");
