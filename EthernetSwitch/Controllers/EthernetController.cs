@@ -74,7 +74,7 @@ namespace EthernetSwitch.Controllers {
                 .Select(vLan => new BridgeViewModel
                 {
                     Name = vLan, 
-                    IpAddress = "",
+                    IpAddress = _ethernetServices.GetBridgeAddress(vLan),//_bash.Execu($"ip get for vlan{vLan}"), // todo get if of bridge
                     Interfaces = ethernetInterfaces
                         .Where(@interface => @interface.VirtualLANs.Contains(vLan))
                         .Select(@interface => @interface.Name)

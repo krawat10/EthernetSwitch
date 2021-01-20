@@ -409,14 +409,33 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             }
         }
 
+        // todo - 1
         public void SetBridgeAddress(string name, string ipAddress, string[] interfaces)
         {
             _logger.LogInformation(name);
             _logger.LogInformation(ipAddress);
             foreach (var @interface in interfaces)
             {
+                var interfaceIpAddress =
+                    _bash.Execute($"ip -f inet addr show enp0s20f0 | sed -En -e 's/.*inet ([0-9.]+).*/\\1/p'");
                 _logger.LogInformation(@interface);
             }
+        }
+
+
+        // todo - 2
+        public string GetBridgeAddress(string vLan)
+        {
+            try
+            {
+                // get ip address of bridge
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return "";
         }
     }
 }
