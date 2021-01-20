@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@using EthernetSwitch.Infrastructure.Extensions
 @model EthernetSwitch.ViewModels.IndexViewModel
 <div class="text-center">
     <h1 class="display-4">Ethernet Switch</h1>
@@ -46,6 +47,11 @@
             </tr>
         </thead>
         <tbody>
+        @{
+            var isAnyBridgeWithIp = Model.VLANs.Any(model => model.IpAddress.IsNotEmpty());
+            var bridgeWithIp = Model.VLANs.FirstOrDefault(model => model.IpAddress.IsNotEmpty())?.Name ?? String.Empty;
+        }
+
         @foreach (var vlan in Model.VLANs)
         {
             <tr>
@@ -53,22 +59,25 @@
                     <form id="@vlan.Name" asp-action="EditBridge" asp-controller="Ethernet" asp-antiforgery="true" method="post">
                     </form>
                     @vlan.Name
-                    <input form="@vlan.Name" type="hidden" name="Name" value="@vlan.Name" />
+                    <input form="@vlan.Name" type="hidden" name="Name" value="@vlan.Name"/>
                 </td>
                 <td>
-                    <input form="@vlan.Name" type="text" name="IpAddress" value="@vlan.IpAddress" />
+                    <input form="@vlan.Name" type="text" name="IpAddress" value="@vlan.IpAddress"/>
 
                     @for (int i = 0; i < vlan.Interfaces.Length; i++)
                     {
                         <span class="badge badge-secondary">@vlan.Interfaces[i]</span>
-                        <input form="@vlan.Name" type="hidden" name="Interfaces[@i]" value="@vlan.Interfaces[i]" />
+                        <input form="@vlan.Name" type="hidden" name="Interfaces[@i]" value="@vlan.Interfaces[i]"/>
                     }
                 </td>
                 <td>
-                    <button form="@vlan.Name" class="btn btn-outline-secondary" type="submit">
-                        <i class="fas fa-edit"></i>
-                        Update
-                    </button>
+                    @if (!isAnyBridgeWithIp || vlan.Name == bridgeWithIp)
+                    {
+                        <button form="@vlan.Name" class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-edit"></i>
+                            Update
+                        </button>
+                    }
                 </td>
 
             </tr>
