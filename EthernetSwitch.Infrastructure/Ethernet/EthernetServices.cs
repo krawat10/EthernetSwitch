@@ -419,7 +419,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 {
                     _bash.Execute($"ip address flush {@interface}");
                 
-                    _logger.LogInformation($"Flushed ip from {@interface}");
+                    _logger.LogInformation($"ip address flush {@interface}");
                 }
                 catch { }
             }
@@ -429,7 +429,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             {
                 _bash.Execute($"ip address flush vlan{name}");
                 
-                _logger.LogInformation($"Flushed ip from vlan{name}");
+                _logger.LogInformation($"ip address flush vlan{name}");
             }
             catch (Exception e)
             {
@@ -441,7 +441,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             {
                 _bash.Execute($"ip address add {ipAddress} dev vlan{name}");
 
-                _logger.LogInformation($"Added ip {ipAddress} to vlan{name}");
+                _logger.LogInformation($"ip address add {ipAddress} dev vlan{name}");
             }
             catch (Exception e)
             {
@@ -459,6 +459,8 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 bridgeAddress = _bash
                     .Execute($"ip a | grep vlan{vLan} | grep inet | cut -d' ' -f6")
                     .Replace("\n", "");
+
+                _logger.LogInformation("ip a | grep vlan{vLan} | grep inet | cut -d' ' -f6");
             }
             catch (Exception e)
             {
