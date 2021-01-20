@@ -412,30 +412,60 @@ namespace EthernetSwitch.Infrastructure.Ethernet
         // todo - 1
         public void SetBridgeAddress(string name, string ipAddress, string[] interfaces)
         {
-            _logger.LogInformation(name);
-            _logger.LogInformation(ipAddress);
+            // Remove ip from interfaces
             foreach (var @interface in interfaces)
             {
-                var interfaceIpAddress =
-                    _bash.Execute($"ip -f inet addr show enp0s20f0 | sed -En -e 's/.*inet ([0-9.]+).*/\\1/p'");
-                _logger.LogInformation(@interface);
+                try
+                {
+                    _bash.Execute($"ip address flush {@interface}");
+                
+                    _logger.LogInformation($"Flushed ip from {@interface}");
+                }
+                catch { }
             }
-        }
 
-
-        // todo - 2
-        public string GetBridgeAddress(string vLan)
-        {
+            // Remove ip from vlan (if exists)
             try
             {
-                // get ip address of bridge
+                _bash.Execute($"ip address flush vlan{name}");
+                
+                _logger.LogInformation($"Flushed ip from vlan{name}");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogInformation("Interface does not have ip");
             }
 
-            return "";
+            // Add bridge address
+            try
+            {
+                _bash.Execute($"ip address add {ipAddress} dev vlan{name}");
+
+                _logger.LogInformation($"Added ip {ipAddress} to vlan{name}");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+
+        public string GetBridgeAddress(string vLan)
+        {
+            string bridgeAddress = String.Empty;
+
+            try
+            {
+                // get ip address of bridge
+                bridgeAddress = _bash
+                    .Execute($"ip a | grep vlan{vLan} | grep inet | cut -d' ' -f6")
+                    .Replace("\n", "");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+
+            return bridgeAddress;
         }
     }
 }
