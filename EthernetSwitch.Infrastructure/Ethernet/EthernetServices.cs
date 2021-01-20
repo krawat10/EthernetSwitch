@@ -167,10 +167,11 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 catch (ProcessException e)
                 {
                     var error = e.Message;
-                    if (error.Contains($"bridge vlan{vlanName} does not exist!\n")) vlanExists = false; //true if exists
+                    // if (error.Contains($"bridge vlan{vlanName} does not exist!\n"))
+                    vlanExists = false; //true if exists
                 }
 
-                _logger.LogError($"VLAN exists: {vlanExists}");
+                _logger.LogInformation($"VLAN exists: {vlanExists}");
 
                 // Checks if interface is in any VLAN
                 var interfaceHasVLAN = true;
@@ -187,7 +188,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 // Creates VLAN
                 if (!vlanExists)
                 {
-                    _logger.LogError($"Create VLAN ");
+                    _logger.LogInformation($"Create VLAN ");
                     _bash.Execute($"brctl addbr vlan{vlanName}");
                     _bash.Execute($"ip link set vlan{vlanName} up"); //Create VLAN
                 }
@@ -208,7 +209,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
 
                 if (!isTagged)
                 {
-                    _logger.LogError($"Adding VLAN ");
+                    _logger.LogInformation($"Adding VLAN ");
                     _bash.Execute($"ip link set vlan{vlanName} down");
                     _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}");
                     _bash.Execute($"ip link set vlan{vlanName} up");

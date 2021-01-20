@@ -54,8 +54,7 @@ public class LLDPServices
     {
         var result = new List<EthernetNeighbor>();
         var output = _bash.Execute("lldpcli show neighbors -f xml");
-
-        try
+       try
         {
             var serializer = new XmlSerializer(typeof(Lldp));
             using TextReader reader = new StringReader(output);
