@@ -10,6 +10,7 @@ namespace EthernetSwitch.ViewModels
     {
         public string Name { get; set; }
         public string IpAddress { get; set; }
+        public string[] Interfaces { get; set; }
     }
 
 

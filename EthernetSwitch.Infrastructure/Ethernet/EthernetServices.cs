@@ -408,5 +408,17 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public void SetBridgeAddress(string name, string ipAddress, string[] interfaces)
+        {
+            _logger.LogInformation(name);
+            _logger.LogInformation(ipAddress);
+            foreach (var @interface in interfaces)
+            {
+                _logger.LogInformation(@interface);
+            }
+
+            throw new NotImplementedException();
+        }
     }
 }

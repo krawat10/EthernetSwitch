@@ -72,6 +72,14 @@ namespace EthernetSwitch.Controllers {
                 .Distinct()
                 .Select(vLan => new BridgeViewModel { Name = vLan, IpAddress = ""});
 
+            foreach (var availableVLAN in viewModel.VLANs)
+            {
+                availableVLAN.Interfaces = ethernetInterfaces
+                    .Where(@interface => @interface.VirtualLANs.Contains(availableVLAN.Name))
+                    .Select(@interface => @interface.Name)
+                    .ToArray();
+            }
+
             return View (viewModel);
         }
 
@@ -102,8 +110,7 @@ namespace EthernetSwitch.Controllers {
 
         public async Task<IActionResult> EditBridge(BridgeViewModel viewModel)
         {
-            _logger.LogInformation(viewModel.Name);
-            _logger.LogInformation(viewModel.IpAddress);
+            _ethernetServices.SetBridgeAddress(viewModel.Name, viewModel.IpAddress, viewModel.Interfaces);
             return RedirectToAction("Index");
         }
 

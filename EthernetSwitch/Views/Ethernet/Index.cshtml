@@ -57,6 +57,11 @@
                 </td>
                 <td>
                     <input form="@vlan.Name" type="text" name="IpAddress" value="@vlan.IpAddress"/>
+                    
+                    @for (int i = 0; i < vlan.Interfaces.Count(); i++)
+                    {
+                        <input form="@vlan.Name" type="hidden" name="Interfaces[@i]" value="@vlan.Interfaces[i]" />
+                    }
                 </td>
                 <td>
                     <button form="@vlan.Name" class="btn btn-outline-secondary" type="submit">
