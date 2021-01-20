@@ -70,15 +70,17 @@ namespace EthernetSwitch.Controllers {
                 .SelectMany(@interface => @interface.VirtualLANs)
                 .Where(vLan => vLan.IsNotEmpty())
                 .Distinct()
-                .Select(vLan => new BridgeViewModel { Name = vLan, IpAddress = ""});
+                .ToList()
+                .Select(vLan => new BridgeViewModel
+                {
+                    Name = vLan, 
+                    IpAddress = "",
+                    Interfaces = ethernetInterfaces
+                        .Where(@interface => @interface.VirtualLANs.Contains(vLan))
+                        .Select(@interface => @interface.Name)
+                        .ToArray()
+                });
 
-            foreach (var availableVLAN in viewModel.VLANs)
-            {
-                availableVLAN.Interfaces = ethernetInterfaces
-                    .Where(@interface => @interface.VirtualLANs.Contains(availableVLAN.Name))
-                    .Select(@interface => @interface.Name)
-                    .ToArray();
-            }
 
             return View (viewModel);
         }

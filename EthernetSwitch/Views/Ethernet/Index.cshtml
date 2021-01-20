@@ -60,6 +60,7 @@
                     
                     @for (int i = 0; i < vlan.Interfaces.Length; i++)
                     {
+                        @vlan.Interfaces[i]
                         <input form="@vlan.Name" type="hidden" name="Interfaces[@i]" value="@vlan.Interfaces[i]" />
                     }
                 </td>

@@ -418,7 +418,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 _logger.LogInformation(@interface);
             }
 
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
     }
 }
