@@ -4,7 +4,7 @@
 @model EthernetSwitch.ViewModels.IndexViewModel
 <div class="text-center">
     <h1 class="display-4">Ethernet Switch</h1>
-    <br />
+    <br/>
     @if (!string.IsNullOrWhiteSpace(Model.Error))
     {
         <div class="alert alert-danger" role="alert">
@@ -13,29 +13,63 @@
     }
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th> Name</th>
-                <th> Status</th>
-                <th> Private VLAN</th>
-                <th> Tagged</th>
-                <th> GVRP</th>
-                <th> Virtual VLANs</th>
-                <th> Neighbor (LLDP)</th>
-                <th> Action</th>
-            </tr>
+        <tr>
+            <th> Name</th>
+            <th> Status</th>
+            <th> Private VLAN</th>
+            <th> Tagged</th>
+            <th> GVRP</th>
+            <th> Virtual VLANs</th>
+            <th> Neighbor (LLDP)</th>
+            <th> Action</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var @interface in Model.Interfaces)
+        @foreach (var @interface in Model.Interfaces)
+        {
+            if (!@interface.Hidden)
             {
-                if (!@interface.Hidden)
-                {
-                    <partial name="_InterfaceRow" model="@(@interface)" />
-                }
+                <partial name="_InterfaceRow" model="@(@interface)"/>
             }
+        }
         </tbody>
     </table>
 </div>
+<div>
+    <h2>Bridges</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>VLAN</th>
+                <th>IP</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var vlan in Model.VLANs)
+        {
+            <tr>
+                <td>
+                    <form id="@vlan.Name" asp-action="EditBridge" asp-controller="Ethernet" asp-antiforgery="true" method="post">
+                    </form>
+                    @vlan.Name
+                    <input form="@vlan.Name" type="hidden" name="Name" value="@vlan.Name" />
+                </td>
+                <td>
+                    <input form="@vlan.Name" type="text" name="IpAddress" value="@vlan.IpAddress"/>
+                </td>
+                <td>
+                    <button form="@vlan.Name" class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-edit"></i>
+                        Update
+                    </button>
+                </td>
 
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
 
 <div id="create-vlan-modal" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -75,7 +109,8 @@
             $(`.vlans-dropdown-options[data-interface=${current_interface_guid}]`)
                 .each((idx, dropdown) => {
                     $(dropdown)
-                        .prepend(`<a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="${$(dropdown).data('interface')}">${vlan}</a>`);
+                        .prepend(`<a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="${$(dropdown)
+                            .data('interface')}">${vlan}</a>`);
 
                 });
         }
@@ -117,7 +152,8 @@
                 .each((idx, dropdown) => {
                     if ($(dropdown).data('interface') === interface) {
                         const option =
-                            `<a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="${interface}">${vlan}</a>\n`;
+                            `<a class="dropdown-item" onclick="addOtherVLAN(this)" data-interface="${interface}">${vlan
+                                }</a>\n`;
                         $(dropdown).prepend(option);
                     }
                 });
@@ -132,20 +168,20 @@
             const interfaceVLANs = $(`.vlan-inputs-${interface}`);
 
             const el = `
-                    <input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>
-                        <span class="vlan-span badge badge-primary">
-                        ${vlan}
-                        <i
-                            data-interface="${interface}"
-                            data-vlan="${vlan}"
-                            class="fas fa-minus"
-                            data-toggle="tooltip"
-                            data-placement="bottom"
-                            title="remove VLAN"
-                            onclick="removeVLAN(this)"
-                        >
-                        </i>
-                    </span>`;
+                        <input form="${interface}" name="VirtualLANs" value="${vlan}" hidden/>
+                            <span class="vlan-span badge badge-primary">
+                            ${vlan}
+                            <i
+                                data-interface="${interface}"
+                                data-vlan="${vlan}"
+                                class="fas fa-minus"
+                                data-toggle="tooltip"
+                                data-placement="bottom"
+                                title="remove VLAN"
+                                onclick="removeVLAN(this)"
+                            >
+                            </i>
+                        </span>`;
 
             interfaceVLANs.prepend(el);
         };

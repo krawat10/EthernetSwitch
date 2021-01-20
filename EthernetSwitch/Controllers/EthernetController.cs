@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServiceStack;
 
 namespace EthernetSwitch.Controllers {
 
@@ -45,8 +46,11 @@ namespace EthernetSwitch.Controllers {
                 viewModel.Error = e.Message;
             }
 
-            viewModel.Interfaces = _ethernetServices
-                    .GetEthernetInterfaces()
+            var ethernetInterfaces = _ethernetServices
+                .GetEthernetInterfaces()
+                .ToList();
+
+            viewModel.Interfaces = ethernetInterfaces
                     .Select(@interface => new InterfaceViewModel
                     {
                         AllowTagging = settings.AllowTagging,
@@ -60,7 +64,13 @@ namespace EthernetSwitch.Controllers {
                         Hidden = settings.HiddenInterfaces?.Contains(@interface.Name) ?? false,
                         Neighbor = neighbours.FirstOrDefault(x => x.EthernetInterfaceName == @interface.Name)
                     }).ToList();
-            
+
+            viewModel.VLANs = ethernetInterfaces
+                .SelectMany(@interface => @interface.VirtualLANs)
+                .Where(vLan => vLan.IsNullOrEmpty())
+                .Distinct()
+                .Select(vLan => new BridgeViewModel { Name = vLan, IpAddress = ""});
+
             return View (viewModel);
         }
 
@@ -87,6 +97,13 @@ namespace EthernetSwitch.Controllers {
             _ethernetServices.SetEthernetInterfaceType(viewModel.Name, viewModel.Type);
 
             return RedirectToAction ("Index");
+        }
+
+        public async Task<IActionResult> EditBridge(BridgeViewModel viewModel)
+        {
+            _logger.LogInformation(viewModel.Name);
+            _logger.LogInformation(viewModel.IpAddress);
+            return RedirectToAction("Index");
         }
 
 

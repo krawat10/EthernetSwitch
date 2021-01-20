@@ -6,6 +6,13 @@ using EthernetSwitch.Infrastructure.Ethernet;
 
 namespace EthernetSwitch.ViewModels
 {
+    public class BridgeViewModel
+    {
+        public string Name { get; set; }
+        public string IpAddress { get; set; }
+    }
+
+
     public class InterfaceViewModel
     {
         public Guid Guid { get; }

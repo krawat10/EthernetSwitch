@@ -5,6 +5,7 @@ using EthernetSwitch.Data.Models;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Ethernet;
 using EthernetSwitch.Infrastructure.Settings;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 
@@ -21,7 +22,7 @@ namespace EthernetSwitch.Tests
             _settingsRepositoryMock = new Mock<ISettingsRepository>();
             _settingsRepositoryMock.Setup(x => x.GetSettings()).ReturnsAsync(new Settings());
 
-            _service = new EthernetServices(new BashCommand());
+            _service = new EthernetServices(new BashCommand(), new NullLoggerFactory());
         }
 
         [Test]
