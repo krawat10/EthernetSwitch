@@ -66,22 +66,27 @@ namespace EthernetSwitch.Controllers {
                         Neighbor = neighbours.FirstOrDefault(x => x.EthernetInterfaceName == @interface.Name)
                     }).ToList();
 
-            viewModel.VLANs = ethernetInterfaces
+            var vlanNames = ethernetInterfaces
                 .SelectMany(@interface => @interface.VirtualLANs)
                 .Where(vLan => vLan.IsNotEmpty())
                 .Distinct()
-                .ToList()
-                .Select(vLan => new BridgeViewModel
+                .ToList();
+
+            viewModel.VLANs = new List<BridgeViewModel>();
+
+            foreach (var vlanName in vlanNames)
+            {
+                viewModel.VLANs.Add(new BridgeViewModel
                 {
-                    Name = vLan, 
-                    IpAddress = _ethernetServices.GetBridgeAddress(vLan),//_bash.Execu($"ip get for vlan{vLan}"), // todo get if of bridge
+                    Name = vlanName,
+                    IpAddress = _ethernetServices.GetBridgeAddress(vlanName),
                     Interfaces = ethernetInterfaces
-                        .Where(@interface => @interface.VirtualLANs.Contains(vLan))
+                        .Where(@interface => @interface.VirtualLANs.Contains(vlanName))
                         .Select(@interface => @interface.Name)
                         .ToArray()
                 });
-
-
+            }            
+            
             return View (viewModel);
         }
 

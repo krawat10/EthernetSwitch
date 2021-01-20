@@ -460,7 +460,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     .Execute($"ip a | grep vlan{vLan} | grep inet | cut -d' ' -f6")
                     .Replace("\n", "");
 
-                _logger.LogInformation("ip a | grep vlan{vLan} | grep inet | cut -d' ' -f6");
+                _logger.LogInformation($"ip a | grep vlan{vLan} | grep inet | cut -d' ' -f6");
             }
             catch (Exception e)
             {
