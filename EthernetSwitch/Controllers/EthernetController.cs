@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure.Ethernet;
+using EthernetSwitch.Infrastructure.Extensions;
 using EthernetSwitch.Infrastructure.Settings;
 using EthernetSwitch.Models;
 using EthernetSwitch.ViewModels;
@@ -67,7 +68,7 @@ namespace EthernetSwitch.Controllers {
 
             viewModel.VLANs = ethernetInterfaces
                 .SelectMany(@interface => @interface.VirtualLANs)
-                .Where(vLan => vLan.IsNullOrEmpty())
+                .Where(vLan => vLan.IsNotEmpty())
                 .Distinct()
                 .Select(vLan => new BridgeViewModel { Name = vLan, IpAddress = ""});
 
