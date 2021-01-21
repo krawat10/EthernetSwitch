@@ -160,6 +160,8 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             {
                 // Checks if VLAN exists
                 var vlanExists = true;
+                var vlanHasAddress = GetBridgeAddress(vlanName).IsNotEmpty();
+
                 try
                 {
                     _bash.Execute($"brctl show vlan{vlanName}");
@@ -213,6 +215,12 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     _bash.Execute($"ip link set vlan{vlanName} down");
                     _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}");
                     _bash.Execute($"ip link set vlan{vlanName} up");
+                }
+
+
+                if (!isTagged && vlanExists && vlanHasAddress)
+                {
+                    _bash.Execute($"ip address flush {ethernetName}");
                 }
 
                 //Creates tagged interface
