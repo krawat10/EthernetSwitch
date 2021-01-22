@@ -42,7 +42,7 @@ namespace EthernetSwitch.Tests
                 .First();
             
             _service.ClearEthernetInterfaceVLANs(ethernetInterfaceBefore.Name);
-            _service.ApplyEthernetInterfaceVLANs(ethernetInterfaceBefore.Name, false, vlans);
+            _service.ApplyEthernetInterfaceVLANs(ethernetInterfaceBefore.Name, false, false, vlans);
             _service.SetEthernetInterfaceType(ethernetInterfaceBefore.Name, InterfaceType.Off);
 
             var ethernetInterfaceAfter = _service
@@ -63,7 +63,7 @@ namespace EthernetSwitch.Tests
                 .First();
             
             _service.ClearEthernetInterfaceVLANs(ethernetInterfaceBefore.Name);
-            _service.ApplyEthernetInterfaceVLANs(ethernetInterfaceBefore.Name, true, vlans);
+            _service.ApplyEthernetInterfaceVLANs(ethernetInterfaceBefore.Name, true, false, vlans);
 
             var ethernetInterfaceAfter = _service
                 .GetEthernetInterfaces()
@@ -83,7 +83,7 @@ namespace EthernetSwitch.Tests
                 .First();
 
             _service.ClearEthernetInterfaceVLANs(ethernetInterfaceBefore.Name);
-            _service.ApplyEthernetInterfaceVLANs(ethernetInterfaceBefore.Name, false, vlans);
+            _service.ApplyEthernetInterfaceVLANs(ethernetInterfaceBefore.Name, false, false, vlans);
             _service.SetEthernetInterfaceType(ethernetInterfaceBefore.Name, type);
 
             var ethernetInterfaceAfter = _service

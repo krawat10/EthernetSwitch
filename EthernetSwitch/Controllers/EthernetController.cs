@@ -100,17 +100,10 @@ namespace EthernetSwitch.Controllers {
         /// <returns>Redirect to home page</returns>
         public async Task<IActionResult> Edit (InterfaceViewModel viewModel)
         {
-            var viewModelIsGvrp = viewModel.IsGVRP;
-            CancellationToken stoppingToken = new CancellationToken();
             if (viewModel.IsGVRP)
-            {
-                stoppingToken.ThrowIfCancellationRequested();
-                FrameReader.StartCapturing(viewModel.Name, _ethernetServices, stoppingToken);
-            }
+                GVRPActivePortsSingleton.Instance.InterfaceStates[viewModel.Name] = InterfaceState.Listening;
             else
-            {
-                stoppingToken.ThrowIfCancellationRequested();
-            }
+                GVRPActivePortsSingleton.Instance.InterfaceStates[viewModel.Name] = InterfaceState.Off;
 
             switch (viewModel.Type)
             {

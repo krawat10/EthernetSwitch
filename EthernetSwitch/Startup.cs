@@ -2,6 +2,7 @@ using EthernetSwitch.BackgroundWorkers;
 using EthernetSwitch.Data;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Ethernet;
+using EthernetSwitch.Infrastructure.GVRP;
 using EthernetSwitch.Infrastructure.Settings;
 using EthernetSwitch.Infrastructure.SNMP;
 using EthernetSwitch.Infrastructure.Users;
@@ -37,9 +38,11 @@ namespace EthernetSwitch
             services.AddScoped<SNMPServices>();
             services.AddScoped<EthernetServices>();
             services.AddScoped<LLDPServices>();
+
             services.AddEntityFrameworkSqlite().AddDbContext<EthernetSwitchContext>();
             services.AddHostedService<QueuedHostedService>();
             services.AddHostedService<TrapReceiverHostedService>();
+            services.AddHostedService<GVRPHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
