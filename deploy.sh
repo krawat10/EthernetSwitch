@@ -24,6 +24,8 @@ sudo apt-get update
 sudo apt-get install -y dotnet-runtime-3.1
 sudo apt-get update
 sudo apt-get install -y dotnet-sdk-3.1
+sudo apt-get update
+sudo apt-get install -y libpcap-dev
 
 sudo dotnet publish -c Release ./EthernetSwitch
 cd ./EthernetSwitch/bin/Release/netcoreapp3.1/publish/

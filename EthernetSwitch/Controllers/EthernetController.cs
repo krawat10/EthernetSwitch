@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using System.Threading;
 using EthernetSwitch.Infrastructure.Ethernet;
 using EthernetSwitch.Infrastructure.Extensions;
 using EthernetSwitch.Infrastructure.Settings;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServiceStack;
+using EthernetSwitch.Infrastructure.GVRP;
 
 namespace EthernetSwitch.Controllers {
 
@@ -60,6 +62,7 @@ namespace EthernetSwitch.Controllers {
                         IsHostInterface = @interface.IsHostInterface,
                         Name = @interface.Name,
                         Tagged = @interface.Tagged,
+                        IsGVRP = @interface.GVRP_Enabled,
                         Type = @interface.Type,
                         VirtualLANs = @interface.VirtualLANs,
                         Hidden = settings.HiddenInterfaces?.Contains(@interface.Name) ?? false,
@@ -98,6 +101,16 @@ namespace EthernetSwitch.Controllers {
         public async Task<IActionResult> Edit (InterfaceViewModel viewModel)
         {
             var viewModelIsGvrp = viewModel.IsGVRP;
+            CancellationToken stoppingToken = new CancellationToken();
+            if (viewModel.IsGVRP)
+            {
+                stoppingToken.ThrowIfCancellationRequested();
+                FrameReader.StartCapturing(viewModel.Name, _ethernetServices, stoppingToken);
+            }
+            else
+            {
+                stoppingToken.ThrowIfCancellationRequested();
+            }
 
             switch (viewModel.Type)
             {
@@ -109,7 +122,7 @@ namespace EthernetSwitch.Controllers {
 
             _ethernetServices.SetEthernetInterfaceState(viewModel.Name, viewModel.IsActive);
             _ethernetServices.ClearEthernetInterfaceVLANs(viewModel.Name);
-            _ethernetServices.ApplyEthernetInterfaceVLANs(viewModel.Name, viewModel.Tagged, viewModel.VirtualLANs);
+            _ethernetServices.ApplyEthernetInterfaceVLANs(viewModel.Name, viewModel.Tagged, viewModel.IsGVRP, viewModel.VirtualLANs);
             _ethernetServices.SetEthernetInterfaceType(viewModel.Name, viewModel.Type);
 
             return RedirectToAction ("Index");

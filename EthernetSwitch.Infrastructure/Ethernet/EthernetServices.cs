@@ -19,6 +19,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
         public string Name { get; set; }
         public IEnumerable<string> VirtualLANs { get; set; }
         public bool Tagged { get; set; }
+        public bool GVRP_Enabled { get; set; }
         public OperationalStatus Status { get; set; }
         public InterfaceType Type { get; set; }
         public bool IsHostInterface { get; set; }
@@ -79,6 +80,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                         VirtualLANs = appliedVLANs,
                         IsHostInterface = isHostInterface,
                         Tagged = IsTagged(networkInterface.Name),
+                        GVRP_Enabled = IsGVRPEnabled(networkInterface.Name),
                         Type = GetInterfaceType(networkInterface)
                     };
                 }
@@ -154,7 +156,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
 
         }
 
-        public void ApplyEthernetInterfaceVLANs(string ethernetName, bool isTagged, IEnumerable<string> vlanNames)
+        public void ApplyEthernetInterfaceVLANs(string ethernetName, bool isTagged, bool isGVRP_Enabled, IEnumerable<string> vlanNames)
         {
             foreach (var vlanName in vlanNames) // All selected VLANs
             {
@@ -226,8 +228,10 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 //Creates tagged interface
                 if (isTagged)
                 {
+                    string gvrponoff = "off";
+                    if (isGVRP_Enabled == true) gvrponoff = "on"; //start gvrp()
                     _bash.Execute($"ip link set vlan{vlanName} down");
-                    _bash.Execute($"ip link add link {ethernetName} name {ethernetName}.{vlanName} type vlan id {vlanName}");
+                    _bash.Execute($"ip link add link {ethernetName} name {ethernetName}.{vlanName} type vlan id {vlanName} gvrp {gvrponoff}");
                     _bash.Execute($"ip link set vlan{vlanName} up");
                 }
 
@@ -476,6 +480,153 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             }
 
             return bridgeAddress;
+        }
+        private bool IsGVRPEnabled(string name)
+        {
+            var isGVRPEnable = true;
+            try
+            {
+                _bash.Execute($"ip -d link show | grep -A 2 @{name} | grep GVRP");
+            }
+            catch (ProcessException e)
+            {
+                var error = e.ExitCode;
+                if (error == 1) isGVRPEnable = false;
+            }
+
+            return isGVRPEnable;
+        }
+        public void RemoveVlanFromInterface(string name, List<string> vlanNames)
+        {
+            /*var ethConfigOutput =
+               _bash.Execute(
+                   $"ip link show | grep {name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
+
+            var vlanNames = ethConfigOutput
+                .Replace("\t", string.Empty)
+                .Replace(name, string.Empty)
+                .Split('\n')
+                .Select(vlan => vlan.Trim('.'))
+                .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
+                .ToList();*/
+
+            foreach (var vlanName in vlanNames) // All selected vlans
+            {
+                // Tagged interfaces
+                var ifToRemIsTaged = true;
+                try
+                {
+                    _bash.Execute($"ip link show {name}.{vlanName}");
+                }
+                catch (ProcessException e)
+                {
+                    var error = e.Message;
+                    if (error.Contains("does not exist.\n")) ifToRemIsTaged = false;
+                }
+
+                if (ifToRemIsTaged)
+                {
+                    try
+                    {
+                        _bash.Execute($"ip link set {name}.{vlanName} down"); // Off interface
+                        _bash.Execute($"ip link delete {name}.{vlanName}");
+                    }
+                    catch (ProcessException e) { }
+                }
+                else //Non-tagged
+                {
+                    try
+                    {
+                        _bash.Execute($"ip link set vlan{vlanName} down");
+                        _bash.Execute($"brctl delif vlan{vlanName} {name}");
+                        _bash.Execute($"ip link set vlan{vlanName} up");
+                    }
+                    catch (ProcessException e) { }
+                }
+
+                // Clears empty bridged
+                var output3 = _bash.Execute($"brctl show vlan{vlanName} | grep vlan{vlanName} | cut -f6");
+
+                if (output3 == "\n")
+                {
+                    _bash.Execute($"ip link set vlan{vlanName} down");
+                    _bash.Execute($"ip link delete vlan{vlanName}");
+                }
+            }
+        }
+        public void ApplyEthernetGVRPInterfaceVLANs(string ethernetName, bool isTagged, bool isGVRP_Enabled, IEnumerable<string> vlanNames)
+        {
+            foreach (var vlanName in vlanNames) // All selected VLANs
+            {
+
+                try
+                {
+                    _bash.Execute($"brctl addbr vlan{vlanName}");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"brctl stp vlan{vlanName} on");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"ip link set vlan{vlanName} up"); //Create VLAN
+                }
+                catch (ProcessException e) { }
+
+
+                // Adds non-tagged interface to VLAN
+                var tagged = IsTagged(ethernetName);
+                var gvrp_on = IsGVRPEnabled(ethernetName);
+
+                //Creates tagged interface
+
+                try
+                {
+                    _bash.Execute($"ip link set vlan{vlanName} down");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"ip link add link {ethernetName} name {ethernetName}.{vlanName} type vlan id {vlanName} gvrp on");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"ip link set vlan{vlanName} up");
+                }
+                catch (ProcessException e) { }
+
+
+                //Adds tagged interface to VLAN
+
+                try
+                {
+                    _bash.Execute($"ip link set {ethernetName} up");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"ip link set vlan{vlanName} down");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}.{vlanName}");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"ip link set {ethernetName}.{vlanName} up");
+                }
+                catch (ProcessException e) { }
+                try
+                {
+                    _bash.Execute($"ip link set vlan{vlanName} up");
+                }
+                catch (ProcessException e) { }
+            }
         }
     }
 }
