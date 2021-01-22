@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EthernetSwitch.Infrastructure.Bash;
 using EthernetSwitch.Infrastructure.Ethernet;
 using EthernetSwitch.Infrastructure.Settings;
+using Microsoft.Extensions.DependencyInjection;
 using SharpPcap;
 using SQLitePCL;
 
@@ -21,71 +22,80 @@ namespace EthernetSwitch.Infrastructure.GVRP
     public class FrameReader
     {
 
-        public static async Task StartCapturing(string interface_name, EthernetServices _ethernetservices, CancellationToken stoppingToken)
+        public static async Task StartCapturing(string interface_name, IServiceProvider serviceProvider, CancellationToken stoppingToken)
         {
-            var devices = CaptureDeviceList.Instance;
-            var interfaceMAC = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.Name == interface_name).First().GetPhysicalAddress();
-            byte[] interfaceMACbyte = interfaceMAC.GetAddressBytes();
-            var device = devices.Where(x => x.Name == interface_name).First();
-            await Task.Run(async () => {
-                var readTimeoutMilliseconds = 1000;
-                device.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
-                {
-                    var rawCapture = device.GetNextPacket();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var ethernetServices = scope.ServiceProvider.GetRequiredService<EthernetServices>();
 
-                    if (rawCapture == null)
+                var devices = CaptureDeviceList.Instance;
+                var interfaceMAC = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.Name == interface_name)
+                    .First().GetPhysicalAddress();
+                byte[] interfaceMACbyte = interfaceMAC.GetAddressBytes();
+                var device = devices.Where(x => x.Name == interface_name).First();
+                {
+                    var readTimeoutMilliseconds = 1000;
+                    device.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
                     {
-                  
-                    }
-                    if ( //if MAC == 01:80:C2:00:00:21 (GVRP)
-                        rawCapture.Data.Count() > 12 &&
-                        rawCapture.Data[0] == 1 &&
-                        rawCapture.Data[1] == 128 &&
-                        rawCapture.Data[2] == 194 &&
-                        rawCapture.Data[3] == 0 &&
-                        rawCapture.Data[4] == 0 &&
-                        rawCapture.Data[5] == 33 &&
-                        (rawCapture.Data[6] != interfaceMACbyte[0] |
-                        rawCapture.Data[7] != interfaceMACbyte[1] |
-                        rawCapture.Data[8] != interfaceMACbyte[2] |
-                        rawCapture.Data[9] != interfaceMACbyte[3] |
-                        rawCapture.Data[10] != interfaceMACbyte[4] |
-                        rawCapture.Data[11] != interfaceMACbyte[5])
-                        )
-                    {
-                        List<RawCapture> commands = new List<RawCapture>();
-                        commands.Add(rawCapture);
-                        for (int i = 0; i < 50; i++)
+                        var rawCapture = device.GetNextPacket();
+
+                        if (rawCapture == null)
                         {
-                            rawCapture = device.GetNextPacket();
-                            if (rawCapture == null)
-                            {
-                                continue;
-                            }
-                            if ( //if MAC == 01:80:C2:00:00:21 (GVRP)
-                                rawCapture.Data.Count() > 12 &&
-                                rawCapture.Data[0] == 1 &&
-                                rawCapture.Data[1] == 128 &&
-                                rawCapture.Data[2] == 194 &&
-                                rawCapture.Data[3] == 0 &&
-                                rawCapture.Data[4] == 0 &&
-                                rawCapture.Data[5] == 33 &&
-                                (rawCapture.Data[6] != interfaceMACbyte[0] |
-                                rawCapture.Data[7] != interfaceMACbyte[1] |
-                                rawCapture.Data[8] != interfaceMACbyte[2] |
-                                rawCapture.Data[9] != interfaceMACbyte[3] |
-                                rawCapture.Data[10] != interfaceMACbyte[4] |
-                                rawCapture.Data[11] != interfaceMACbyte[5])
-                                )
-                            {
-                                commands.Add(rawCapture);
-                            }
+
                         }
-                        AnalyseFrame(commands, interface_name, _ethernetservices);
+
+                        if ( //if MAC == 01:80:C2:00:00:21 (GVRP)
+                            rawCapture.Data.Count() > 12 &&
+                            rawCapture.Data[0] == 1 &&
+                            rawCapture.Data[1] == 128 &&
+                            rawCapture.Data[2] == 194 &&
+                            rawCapture.Data[3] == 0 &&
+                            rawCapture.Data[4] == 0 &&
+                            rawCapture.Data[5] == 33 &&
+                            (rawCapture.Data[6] != interfaceMACbyte[0] |
+                             rawCapture.Data[7] != interfaceMACbyte[1] |
+                             rawCapture.Data[8] != interfaceMACbyte[2] |
+                             rawCapture.Data[9] != interfaceMACbyte[3] |
+                             rawCapture.Data[10] != interfaceMACbyte[4] |
+                             rawCapture.Data[11] != interfaceMACbyte[5])
+                        )
+                        {
+                            List<RawCapture> commands = new List<RawCapture>();
+                            commands.Add(rawCapture);
+                            for (int i = 0; i < 50; i++)
+                            {
+                                rawCapture = device.GetNextPacket();
+                                if (rawCapture == null)
+                                {
+                                    continue;
+                                }
+
+                                if ( //if MAC == 01:80:C2:00:00:21 (GVRP)
+                                    rawCapture.Data.Count() > 12 &&
+                                    rawCapture.Data[0] == 1 &&
+                                    rawCapture.Data[1] == 128 &&
+                                    rawCapture.Data[2] == 194 &&
+                                    rawCapture.Data[3] == 0 &&
+                                    rawCapture.Data[4] == 0 &&
+                                    rawCapture.Data[5] == 33 &&
+                                    (rawCapture.Data[6] != interfaceMACbyte[0] |
+                                     rawCapture.Data[7] != interfaceMACbyte[1] |
+                                     rawCapture.Data[8] != interfaceMACbyte[2] |
+                                     rawCapture.Data[9] != interfaceMACbyte[3] |
+                                     rawCapture.Data[10] != interfaceMACbyte[4] |
+                                     rawCapture.Data[11] != interfaceMACbyte[5])
+                                )
+                                {
+                                    commands.Add(rawCapture);
+                                }
+                            }
+
+                            AnalyseFrame(commands, interface_name, ethernetServices);
+                        }
                     }
+                    device.Close();
                 }
-                device.Close();
-            }, stoppingToken);
+            }
         }
         static void AnalyseFrame(List<RawCapture> frames, string interface_name, EthernetServices _ethernetservices)
         {

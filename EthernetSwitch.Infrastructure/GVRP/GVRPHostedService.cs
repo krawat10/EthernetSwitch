@@ -37,9 +37,6 @@ namespace EthernetSwitch.Infrastructure.GVRP
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var ethernetServices = scope.ServiceProvider.GetRequiredService<EthernetServices>();
 
                     var interfaceStates = _gvrpActivePortsSingleton.InterfaceStates;
 
@@ -55,13 +52,12 @@ namespace EthernetSwitch.Infrastructure.GVRP
                                 _logger.LogInformation($"GVRP started listening {interfaceName}");
 
                                 await Task.Factory
-                                    .StartNew(async () => await FrameReader.StartCapturing(interfaceName, ethernetServices, stoppingToken), stoppingToken)
+                                    .StartNew(async () => await FrameReader.StartCapturing(interfaceName, _serviceProvider, stoppingToken), stoppingToken)
                                     .ContinueWith(task => _interfaceActiveTasks[interfaceName] = false, stoppingToken);
                             }
                         }
-                }
 
-                await Task.Delay(200, stoppingToken);
+                    await Task.Delay(200, stoppingToken);
             }
         }
 
