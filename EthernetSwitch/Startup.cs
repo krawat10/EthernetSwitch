@@ -51,6 +51,7 @@ namespace EthernetSwitch
                     {
                         options.Cookie.HttpOnly = true;
                         options.LoginPath = "/User/Login";
+                        options.AccessDeniedPath = "/User/Login";
                     });
 
             if (Env.IsDevelopment())

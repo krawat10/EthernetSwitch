@@ -160,7 +160,7 @@ namespace EthernetSwitch.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetSNMPv1(WalkSNMPv1ViewModel viewModel)
+        public async Task<IActionResult> WalkSNMPv1(WalkSNMPv1ViewModel viewModel)
         {
             if (viewModel.Validate(ModelState))
             {
