@@ -47,11 +47,6 @@
             </tr>
         </thead>
         <tbody>
-        @{
-            var isAnyBridgeWithIp = Model.VLANs.Any(model => model.IpAddress.IsNotEmpty());
-            var bridgeWithIp = Model.VLANs.FirstOrDefault(model => model.IpAddress.IsNotEmpty())?.Name ?? String.Empty;
-        }
-
         @foreach (var vlan in Model.VLANs)
         {
             <tr>
@@ -71,13 +66,10 @@
                     }
                 </td>
                 <td>
-                    @if (!isAnyBridgeWithIp || vlan.Name == bridgeWithIp)
-                    {
-                        <button form="@vlan.Name" class="btn btn-outline-secondary" type="submit">
-                            <i class="fas fa-edit"></i>
-                            Update
-                        </button>
-                    }
+                    <button form="@vlan.Name" class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-edit"></i>
+                        Update
+                    </button>
                 </td>
 
             </tr>
