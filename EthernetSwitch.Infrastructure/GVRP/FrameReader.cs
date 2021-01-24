@@ -34,14 +34,16 @@ namespace EthernetSwitch.Infrastructure.GVRP
                 byte[] interfaceMACbyte = interfaceMAC.GetAddressBytes();
                 var device = devices.Where(x => x.Name == interface_name).First();
                 {
+                    await Task.Run(async () => {
                     var readTimeoutMilliseconds = 1000;
                     device.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
+                    while (!stoppingToken.IsCancellationRequested)
                     {
                         var rawCapture = device.GetNextPacket();
 
                         if (rawCapture == null)
                         {
-
+                            continue;
                         }
 
                         if ( //if MAC == 01:80:C2:00:00:21 (GVRP)
@@ -94,6 +96,7 @@ namespace EthernetSwitch.Infrastructure.GVRP
                         }
                     }
                     device.Close();
+                    }, stoppingToken);
                 }
             }
         }

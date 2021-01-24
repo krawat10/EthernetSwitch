@@ -35,30 +35,53 @@ namespace EthernetSwitch.Infrastructure.GVRP
 
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
             while (!stoppingToken.IsCancellationRequested)
             {
+                var interfaceStates = _gvrpActivePortsSingleton.InterfaceStates;
 
-                    var interfaceStates = _gvrpActivePortsSingleton.InterfaceStates;
+                foreach (var interfaceName in interfaceStates.Keys)
+                {
 
-                    foreach (var interfaceName in interfaceStates.Keys)
-                        if (interfaceStates[interfaceName] == InterfaceState.Listening)
+                    if (interfaceStates[interfaceName] == InterfaceState.Listening)
+                    {
+                        _interfaceActiveTasks.TryGetValue(interfaceName, out var isRunningTask);
+
+                        if (!isRunningTask)
                         {
-                            _interfaceActiveTasks.TryGetValue(interfaceName, out var isRunningTask);
+                            _interfaceActiveTasks[interfaceName] = true;
 
-                            if (!isRunningTask)
+                            _logger.LogInformation($"GVRP started listening {interfaceName}");
+
+                            await Task.Factory
+                                .StartNew(async () => await FrameReader.StartCapturing(interfaceName, _serviceProvider, token), stoppingToken);
+                            //.ContinueWith(task => _interfaceActiveTasks[interfaceName] = false, stoppingToken);
+                        }
+                    }
+                    if (interfaceStates[interfaceName] == InterfaceState.Off && _interfaceActiveTasks[interfaceName] == true)
+                    {
+                        _logger.LogInformation($"Interface state off and active task {interfaceName}"); // throw cancelation request
+                        source.Cancel();
+                        source.Dispose();
+                        _interfaceActiveTasks[interfaceName] = false;
+                        source = new CancellationTokenSource();
+                        token = source.Token;
+                        foreach (var interfaceName2 in interfaceStates.Keys)
+                        {
+                            if (interfaceStates[interfaceName2] == InterfaceState.Listening)
                             {
-                                _interfaceActiveTasks[interfaceName] = true;
-
-                                _logger.LogInformation($"GVRP started listening {interfaceName}");
-
+                                _interfaceActiveTasks[interfaceName2] = true;
                                 await Task.Factory
-                                    .StartNew(async () => await FrameReader.StartCapturing(interfaceName, _serviceProvider, stoppingToken), stoppingToken)
-                                    .ContinueWith(task => _interfaceActiveTasks[interfaceName] = false, stoppingToken);
+                               .StartNew(async () => await FrameReader.StartCapturing(interfaceName2, _serviceProvider, token), stoppingToken);
                             }
                         }
-
-                    await Task.Delay(200, stoppingToken);
+                    } 
+                }
+                await Task.Delay(5000, stoppingToken);
             }
+            source.Dispose();
         }
 
 
