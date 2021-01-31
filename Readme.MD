@@ -33,6 +33,7 @@ Repository contains 2 version of bundled application:
 Before executing the application please install the following packages:
 
     apt-get update  
+	sudo apt-get install -y libpcap-dev
     apt-get install -y aptitude
     aptitude install -y bridge-utils
     aptitude install -y gnupg
