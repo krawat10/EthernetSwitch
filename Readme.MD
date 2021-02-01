@@ -13,13 +13,8 @@ Features:
 - LLDP Protocol
 - GVRP protocol (automatic configuration of VLANs)
 
-## Installation
-#### 1. (**Vagrant**) Self-deployment VM enviroment
-Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run the application on VM, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
-    
-    vagrant up
-    
-#### 2. (**DEBIAN 10**) Instal and run using deploy.sh script 
+## Installation    
+#### 1. (**DEBIAN 10**) Instal and run using deploy.sh script 
 To run and deploy the application using one script type the following commands:
     
     git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
@@ -39,7 +34,7 @@ Successful instalation should print the following lines:
 
 Application now works as service.
 
-#### 3. Bundles
+#### 2. Bundles
 Repository contains 1 version of bundled application (executable):
  - EthernetSwitch/publish/EthernetSwitch ***(Debian tested)***
 
@@ -77,6 +72,10 @@ Successful run should print the following lines:
           Hosting environment: Production
     info: Microsoft.Hosting.Lifetime[0]
 
+#### 3. (**Vagrant**) Self-deployment VM enviroment
+Running self-deployment enviroment (by Vagrant) is available on https://github.com/mp-mp/Vagrant repository. To run the application on VM, simply go to **/Vagrant/DEBIAN_SWITH/** directory and type in terminal (Vagrant is required):
+    
+    vagrant up
 
 ## Getting started
 The application is hosted on 5000 port (http://localhost:5000). 
