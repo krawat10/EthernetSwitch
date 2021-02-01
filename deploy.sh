@@ -22,11 +22,12 @@ sudo aptitude install -y tcpdump
 sudo aptitude install -y bridge-utils
 sudo aptitude install -y vlan
 sudo aptitude install -y tmux
-sudo aptitude install -y git
 sudo aptitude install -y gnupg
 sudo aptitude install -y ebtables
 sudo aptitude install -y unzip
-sudo aptitude install snmpd snmp libsnmp-dev -y
+sudo aptitude install -y snmpd
+sudo aptitude install -y snmp
+sudo aptitude install -y libsnmp-dev 
 
 #SNMP
 sudo systemctl start snmpd
