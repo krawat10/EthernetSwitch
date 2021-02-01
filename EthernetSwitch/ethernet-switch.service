@@ -3,7 +3,7 @@ Description=Ethernet Switch Application
 
 [Service]
 ExecStart=/bin/dotnet EthernetSwitch.dll
-WorkingDirectory=/PATH/EthernetSwitch/EthernetSwitch/bin/Release/netcoreapp3.1/publish
+WorkingDirectory=/PROJECT_PATH/EthernetSwitch/bin/Release/netcoreapp3.1/publish
 User=root
 Restart=on-failure
 SyslogIdentifier=ethernet-switch-service

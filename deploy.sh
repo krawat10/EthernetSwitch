@@ -31,11 +31,9 @@ sudo systemctl start snmpd
 
 export DEBIAN_FRONTEND=noninteractive
 
-sudo git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
-sudo dotnet publish -c Release EthernetSwitch/EthernetSwitch
 
 dir=$`pwd`/
-sudo sed -i 's/PATH/${dir//\//\\/}/g' EthernetSwitch/EthernetSwitch/ethernet-switch.service
+sudo sed -i 's/PROJECT_PATH/${dir//\//\\/}/g' EthernetSwitch/EthernetSwitch/ethernet-switch.service
 sudo cp EthernetSwitch/EthernetSwitch/ethernet-switch.service /etc/systemd/system/ethernet-switch.service
 sudo systemctl daemon-reload
 sudo systemctl enable ethernet-switch.service
