@@ -141,7 +141,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             catch (ProcessException e)
             {
                 var error = e.ExitCode;
-                if (error == 1) return  false;
+                if (error == 1) return false;
             }
 
             return true;
@@ -171,7 +171,6 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 catch (ProcessException e)
                 {
                     var error = e.Message;
-                    // if (error.Contains($"bridge vlan{vlanName} does not exist!\n"))
                     vlanExists = false; //true if exists
                 }
 
@@ -218,7 +217,6 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}");
                     _bash.Execute($"ip link set vlan{vlanName} up");
                 }
-
 
                 if (!isTagged && vlanExists && vlanHasAddress)
                 {
@@ -420,17 +418,14 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                     throw new ArgumentOutOfRangeException();
             }
         }
-
-        // todo - 1
         public void SetBridgeAddress(string name, string ipAddress, string[] interfaces)
         {
-            // Remove ip from interfaces
             foreach (var @interface in interfaces)
             {
                 try
                 {
                     _bash.Execute($"ip address flush {@interface}");
-                
+
                     _logger.LogInformation($"ip address flush {@interface}");
                 }
                 catch { }
@@ -440,10 +435,10 @@ namespace EthernetSwitch.Infrastructure.Ethernet
             try
             {
                 _bash.Execute($"ip address flush vlan{name}");
-                
+
                 _logger.LogInformation($"ip address flush vlan{name}");
             }
-            catch (Exception e)
+            catch
             {
                 _logger.LogInformation("Interface does not have ip");
             }
@@ -498,17 +493,6 @@ namespace EthernetSwitch.Infrastructure.Ethernet
         }
         public void RemoveVlanFromInterface(string name, List<string> vlanNames)
         {
-            /*var ethConfigOutput =
-               _bash.Execute(
-                   $"ip link show | grep {name}| grep vlan | cut -d' ' -f9 | cut -d'n' -f2");
-
-            var vlanNames = ethConfigOutput
-                .Replace("\t", string.Empty)
-                .Replace(name, string.Empty)
-                .Split('\n')
-                .Select(vlan => vlan.Trim('.'))
-                .Where(vlan => !string.IsNullOrWhiteSpace(vlan))
-                .ToList();*/
 
             foreach (var vlanName in vlanNames) // All selected vlans
             {
@@ -531,7 +515,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                         _bash.Execute($"ip link set {name}.{vlanName} down"); // Off interface
                         _bash.Execute($"ip link delete {name}.{vlanName}");
                     }
-                    catch (ProcessException e) { }
+                    catch { }
                 }
                 else //Non-tagged
                 {
@@ -541,7 +525,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                         _bash.Execute($"brctl delif vlan{vlanName} {name}");
                         _bash.Execute($"ip link set vlan{vlanName} up");
                     }
-                    catch (ProcessException e) { }
+                    catch { }
                 }
 
                 // Clears empty bridged
@@ -554,6 +538,7 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 }
             }
         }
+
         public void ApplyEthernetGVRPInterfaceVLANs(string ethernetName, bool isTagged, bool isGVRP_Enabled, IEnumerable<string> vlanNames)
         {
             foreach (var vlanName in vlanNames) // All selected VLANs
@@ -563,41 +548,37 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 {
                     _bash.Execute($"brctl addbr vlan{vlanName}");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"brctl stp vlan{vlanName} on");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"ip link set vlan{vlanName} up"); //Create VLAN
                 }
-                catch (ProcessException e) { }
-
+                catch { }
 
                 // Adds non-tagged interface to VLAN
                 var tagged = IsTagged(ethernetName);
                 var gvrp_on = IsGVRPEnabled(ethernetName);
-
                 //Creates tagged interface
-
                 try
                 {
                     _bash.Execute($"ip link set vlan{vlanName} down");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"ip link add link {ethernetName} name {ethernetName}.{vlanName} type vlan id {vlanName} gvrp on");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"ip link set vlan{vlanName} up");
                 }
-                catch (ProcessException e) { }
-
+                catch { }
 
                 //Adds tagged interface to VLAN
 
@@ -605,27 +586,27 @@ namespace EthernetSwitch.Infrastructure.Ethernet
                 {
                     _bash.Execute($"ip link set {ethernetName} up");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"ip link set vlan{vlanName} down");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"brctl addif vlan{vlanName} {ethernetName}.{vlanName}");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"ip link set {ethernetName}.{vlanName} up");
                 }
-                catch (ProcessException e) { }
+                catch { }
                 try
                 {
                     _bash.Execute($"ip link set vlan{vlanName} up");
                 }
-                catch (ProcessException e) { }
+                catch { }
             }
         }
     }
