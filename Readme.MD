@@ -11,7 +11,7 @@ Features:
 - Private VLANs with Promiscous/Isolation mode
 - SET/GET/TRAP v3 and WALK v1 SNMP Protocol
 - LLDP Protocol
-- GVRP protocol (under development)
+- GVRP protocol (automatic configuration of VLANs)
 
 ## Installation
 #### 1. (**Vagrant**) Self-deployment VM enviroment
@@ -19,17 +19,27 @@ Running self-deployment enviroment (by Vagrant) is available on https://github.c
     
     vagrant up
     
-#### 2. (**DEBIAN**) Instal and run using deploy.sh script 
-To run and deploy the application using one script open terminal and go to EthernetSwitch Project directory and type:
+#### 2. (**DEBIAN 10**) Instal and run using deploy.sh script 
+To run and deploy the application using one script type the following commands:
     
-    sudo bash deploy.sh
+    git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
+    cd EthernetSwitch
+    sudo ./deploy.sh
 
+Successful instalation should the following last lines:
+
+    ● ethernet-switch.service - Ethernet Switch Application
+       Loaded: loaded (/etc/systemd/system/ethernet-switch.service; enabled; vendor preset: enabled)
+       Active: active (running) since Mon 2021-02-01 17:59:47 GMT; 11ms ago
+     Main PID: 16371 (dotnet)
+        Tasks: 1 (limit: 2359)
+       Memory: 756.0K
+       CGroup: /system.slice/ethernet-switch.service
+               └─16371 /bin/dotnet EthernetSwitch.dll
+
+Application works now as service.
 
 #### 3. Bundles
-Repository contains 2 version of bundled application:
- - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
- - EthernetSwitch/publish/linux-arm.zip ***(not tested)***
-
 Before executing the application please install the following packages:
 
     apt-get update  
@@ -41,25 +51,11 @@ Before executing the application please install the following packages:
     aptitude install -y unzip
     aptitude install snmpd snmp libsnmp-dev -y
 
-Then run the application:
-
-    git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
-    cd EthernetSwitch
-    sudo ./deploy.sh
+Repository contains 2 version of bundled application:
+ - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
 
 ## Getting started
-After executing an application terminal should return the following output:
-    
-    info: Microsoft.Hosting.Lifetime[0]
-        Now listening on: http://[::]:5000
-    info: Microsoft.Hosting.Lifetime[0]
-        Application started. Press Ctrl+C to shut down.
-    info: Microsoft.Hosting.Lifetime[0]
-        Hosting environment: Production
-    info: Microsoft.Hosting.Lifetime[0]
-        Content root path: /home/vagrant/EthernetSwitch/publish
-
-Now the application is hosted on 5000 port (http://localhost:5000). 
+The application is hosted on 5000 port (http://localhost:5000). 
 
 Go to http://localhost:5000 using your browser (if you are using a machine where the application is hosted). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
 
@@ -70,5 +66,4 @@ After login you should see the following dashboard (rows can be different based 
 ![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/Home.png?raw=true)
 
 ##### **Now you can modify your interfaces!**
-***School project for Gdansk University of Technology (Engineering thesis) - 2020***
-***Przelacznik Ethernet wykorzystujacy system Linux – PEWSL***
+***Project for Gdansk University of Technology (Engineering thesis) - 2021***
