@@ -26,7 +26,7 @@ To run and deploy the application using one script type the following commands:
     cd EthernetSwitch
     sudo ./deploy.sh
 
-Successful instalation should the following last lines:
+Successful instalation should prints the following lines:
 
     ● ethernet-switch.service - Ethernet Switch Application
        Loaded: loaded (/etc/systemd/system/ethernet-switch.service; enabled; vendor preset: enabled)
@@ -37,7 +37,7 @@ Successful instalation should the following last lines:
        CGroup: /system.slice/ethernet-switch.service
                └─16371 /bin/dotnet EthernetSwitch.dll
 
-Application works now as service.
+Application now works as service.
 
 #### 3. Bundles
 Before executing the application please install the following packages:
