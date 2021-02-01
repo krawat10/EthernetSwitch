@@ -34,7 +34,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 dir=$`pwd`/
 sudo sed -i 's/PROJECT_PATH/${dir//\//\\/}/g' EthernetSwitch/ethernet-switch.service
-sudo cp EthernetSwitch/EthernetSwitch/ethernet-switch.service /etc/systemd/system/ethernet-switch.service
+sudo cp EthernetSwitch/ethernet-switch.service /etc/systemd/system/ethernet-switch.service
 sudo systemctl daemon-reload
 sudo systemctl enable ethernet-switch.service
 sudo systemctl start ethernet-switch.service
