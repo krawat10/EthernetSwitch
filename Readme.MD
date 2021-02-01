@@ -43,17 +43,15 @@ Before executing the application please install the following packages:
 
 Then run the application:
 
-    cd publish
-    unzip linux-{version}.zip
-    chmod +x EthernetSwitch  # make file executable
-    sudo ./EthernetSwitch
-
+    git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
+    cd EthernetSwitch
+    sudo ./deploy.sh
 
 ## Getting started
 After executing an application terminal should return the following output:
     
     info: Microsoft.Hosting.Lifetime[0]
-        Now listening on: http://[::]:80
+        Now listening on: http://[::]:5000
     info: Microsoft.Hosting.Lifetime[0]
         Application started. Press Ctrl+C to shut down.
     info: Microsoft.Hosting.Lifetime[0]
@@ -61,9 +59,9 @@ After executing an application terminal should return the following output:
     info: Microsoft.Hosting.Lifetime[0]
         Content root path: /home/vagrant/EthernetSwitch/publish
 
-Now the application is hosted on 80 port (http://localhost). 
+Now the application is hosted on 5000 port (http://localhost:5000). 
 
-Go to http://localhost using your browser (if you are using a machine where the application is hosted). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
+Go to http://localhost:5000 using your browser (if you are using a machine where the application is hosted). You should see a login panel. **The default password is admin/admin.** Please change it after login. 
 
 ![login panel](https://github.com/krawat10/EthernetSwitch/blob/master/LoginPanel.png?raw=true)
 
