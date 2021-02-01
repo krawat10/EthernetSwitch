@@ -41,7 +41,6 @@ Repository contains 1 version of bundled application (executable):
 Before executing the application please install the following packages:
 
     apt-get update  
-	sudo apt-get install -y libpcap-dev
     apt-get install -y aptitude
     aptitude install -y bridge-utils
     aptitude install -y gnupg
