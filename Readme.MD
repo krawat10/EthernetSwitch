@@ -32,7 +32,7 @@ Successful instalation should print the following lines:
        CGroup: /system.slice/ethernet-switch.service
                └─16371 /bin/dotnet EthernetSwitch.dll
 
-Application now works as service.
+Application now works as a service.
 
 #### 2. Bundles
 Repository contains 1 version of bundled application (executable):
