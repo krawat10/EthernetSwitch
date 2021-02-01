@@ -26,7 +26,7 @@ To run and deploy the application using one script type the following commands:
     cd EthernetSwitch
     sudo ./deploy.sh
 
-Successful instalation should prints the following lines:
+Successful instalation should print the following lines:
 
     ● ethernet-switch.service - Ethernet Switch Application
        Loaded: loaded (/etc/systemd/system/ethernet-switch.service; enabled; vendor preset: enabled)
@@ -40,6 +40,9 @@ Successful instalation should prints the following lines:
 Application now works as service.
 
 #### 3. Bundles
+Repository contains 1 version of bundled application:
+ - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
+
 Before executing the application please install the following packages:
 
     apt-get update  
@@ -51,8 +54,29 @@ Before executing the application please install the following packages:
     aptitude install -y unzip
     aptitude install snmpd snmp libsnmp-dev -y
 
-Repository contains 2 version of bundled application:
- - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
+To run the application using executable type the following commands:
+
+    git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
+    cd EthernetSwitch/publish
+    sudo chmod 777 EthernetSwitch
+    sudo ./EthernetSwitch
+
+Successful run should print the following lines:
+
+    info: EthernetSwitch.BackgroundWorkers.QueuedHostedService[0]
+          Queued Hosted Service is running
+    info: EthernetSwitch.Infrastructure.SNMP.TrapReceiverHostedService[0]
+          Queued Hosted Service is running
+    info: EthernetSwitch.Infrastructure.GVRP.GVRPHostedService[0]
+          Queued Hosted Service is running
+    info: Microsoft.Hosting.Lifetime[0]
+          Now listening on: http://[::]:5000
+    info: Microsoft.Hosting.Lifetime[0]
+          Application started. Press Ctrl+C to shut down.
+    info: Microsoft.Hosting.Lifetime[0]
+          Hosting environment: Production
+    info: Microsoft.Hosting.Lifetime[0]
+
 
 ## Getting started
 The application is hosted on 5000 port (http://localhost:5000). 
