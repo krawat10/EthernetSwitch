@@ -40,8 +40,8 @@ Successful instalation should print the following lines:
 Application now works as service.
 
 #### 3. Bundles
-Repository contains 1 version of bundled application:
- - EthernetSwitch/publish/linux-x64.zip ***(Debian tested)***
+Repository contains 1 version of bundled application (executable):
+ - EthernetSwitch/publish/EthernetSwitch ***(Debian tested)***
 
 Before executing the application please install the following packages:
 
@@ -54,7 +54,7 @@ Before executing the application please install the following packages:
     aptitude install -y unzip
     aptitude install snmpd snmp libsnmp-dev -y
 
-To run the application using executable type the following commands:
+To run the executable, type the following commands:
 
     git clone --depth 1 https://github.com/krawat10/EthernetSwitch.git
     cd EthernetSwitch/publish
