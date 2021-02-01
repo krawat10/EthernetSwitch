@@ -42,6 +42,7 @@ Before executing the application please install the following packages:
 
     sudo apt-get update &&
     sudo apt-get install -y aptitude &&
+    sudo aptitude install -y git &&
     sudo aptitude install -y tcpdump &&
     sudo aptitude install -y bridge-utils &&
     sudo aptitude install -y vlan &&
