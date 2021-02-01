@@ -38,6 +38,7 @@ Before executing the application please install the following packages:
     aptitude install -y gnupg
     aptitude install -y ebtables
     aptitude install -y unzip
+    aptitude install snmpd snmp libsnmp-dev -y
 
 Then run the application:
 
